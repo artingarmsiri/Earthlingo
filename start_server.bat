@@ -1,7 +1,7 @@
 @echo off
-title LingoGlobe 3D - Local Server
+title Earthlingo - Local Server
 echo ===================================================
-echo           Starting LingoGlobe 3D Local Server
+echo             Starting Earthlingo Local Server
 echo ===================================================
 echo.
 
@@ -30,7 +30,7 @@ if %ERRORLEVEL% equ 0 (
 )
 
 echo Notice: Neither Python nor Node.js was found in PATH.
-echo Good news: LingoGlobe 3D is pre-bundled to work directly!
+echo Good news: Earthlingo is pre-bundled to work directly!
 echo Opening index.html in your default browser...
 start index.html
 

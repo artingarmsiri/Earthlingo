@@ -1,4 +1,4 @@
-// app.js - World Language 3D Globe Application
+// app.js - Earthlingo 3D World Language Globe Application
 
 (function () {
   'use strict';

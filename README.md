@@ -1,4 +1,4 @@
-# 🌍 LingoGlobe 3D — World Languages & Accents Atlas
+# 🌍 Earthlingo — World Languages & Accents Atlas
 
 An interactive, accessible 3D linguistic globe web application mapping languages, multiple spoken languages, regional accents, dialects, and interactive audio phrasebooks for every single country on Earth.
 
@@ -69,12 +69,12 @@ npx serve .
 
 This project has **zero build steps** and uses purely relative paths (`./`), making deployment to GitHub Pages instantaneous:
 
-1. **Create a GitHub repository** (e.g. `world-lang` or `lingoglobe`).
+1. **Create a GitHub repository** (e.g. `Earthlingo`).
 2. **Commit and push** all files in this directory to your repository:
    ```bash
    git init
    git add .
-   git commit -m "Initial commit of LingoGlobe 3D"
+   git commit -m "Initial commit of Earthlingo"
    git branch -M main
    git remote add origin https://github.com/<your-username>/<your-repo-name>.git
    git push -u origin main

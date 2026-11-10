@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description" content="Earthlingo: Interactive 3D World Globe mapping languages, dialects, accents, and phrasebooks for every country on Earth.">
   <meta name="theme-color" content="#090d16">
   <title>Earthlingo | World Languages & Accents Map</title>
@@ -60,7 +60,7 @@
           type="text" 
           id="searchInput" 
           class="search-input" 
-          placeholder="Search country, language (e.g. Spanish, Arabic), or accent..." 
+          placeholder="Search country, language, or accent..." 
           aria-label="Search countries, languages, or accents"
           autocomplete="off"
         >
@@ -101,10 +101,17 @@
 
   <!-- Floating Language Filter / Legend (Bottom-Left) -->
   <div class="floating-bottom-left">
-    <div class="glass-panel legend-panel">
+    <div id="legendPanel" class="glass-panel legend-panel">
       <div class="legend-header">
-        <span class="legend-title" id="legendTitle">Shared Languages (Click to Highlight)</span>
-        <button id="legendResetBtn" class="legend-reset-btn">Reset Filter</button>
+        <button type="button" id="legendToggleBtn" class="legend-toggle-btn" aria-expanded="true" aria-controls="legendChips">
+          <span id="legendActiveDot" class="legend-dot legend-active-dot" aria-hidden="true"></span>
+          <span class="legend-title" id="legendTitle">Shared Languages (Click to Highlight)</span>
+          <span class="legend-title-mobile" id="legendMobileLabel">Languages</span>
+          <svg class="legend-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <polyline points="18 15 12 9 6 15"></polyline>
+          </svg>
+        </button>
+        <button type="button" id="legendResetBtn" class="legend-reset-btn">Reset<span class="legend-reset-extra"> Filter</span></button>
       </div>
       <div id="legendChips" class="legend-chips-container" role="group" aria-label="Language Filters">
         <!-- Injected via JavaScript -->

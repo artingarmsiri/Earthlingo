@@ -11,6 +11,8 @@
     selectedCountry: null,
     activeFilterLanguage: null,
     activeFilterFamily: null,
+    activeFilterColor: null,
+    isLegendExpandedMobile: false,
     isRotating: false,
     showAtmosphere: true,
     showArcs: false,
@@ -58,6 +60,10 @@
     searchInput: document.getElementById('searchInput'),
     searchClearBtn: document.getElementById('searchClearBtn'),
     searchResultsDropdown: document.getElementById('searchResultsDropdown'),
+    legendPanel: document.getElementById('legendPanel'),
+    legendToggleBtn: document.getElementById('legendToggleBtn'),
+    legendMobileLabel: document.getElementById('legendMobileLabel'),
+    legendActiveDot: document.getElementById('legendActiveDot'),
     legendChips: document.getElementById('legendChips'),
     legendResetBtn: document.getElementById('legendResetBtn'),
     toggleRotateBtn: document.getElementById('toggleRotateBtn'),
@@ -104,6 +110,39 @@
       srgbToLinear(((n >> 8) & 255) / 255),
       srgbToLinear((n & 255) / 255)
     ];
+  }
+
+  function isMobileViewport() {
+    return window.innerWidth <= 768 || window.innerHeight <= 500;
+  }
+
+  function isBottomSheetLayout() {
+    return window.innerWidth <= 768 && window.innerHeight > 520;
+  }
+
+  function getTargetPixelRatio() {
+    const dpr = window.devicePixelRatio || 1;
+    return isMobileViewport() ? Math.min(dpr, 1.5) : Math.min(dpr, 2);
+  }
+
+  function getDefaultAltitude() {
+    const w = renderBatch.viewportW || window.innerWidth || 1200;
+    const h = renderBatch.viewportH || window.innerHeight || 800;
+    const aspect = w / Math.max(1, h);
+    if (aspect >= 0.9) return 2.5;
+    // Scale altitude on portrait viewports so full globe + glow fits comfortably inside width (~86% fill)
+    const tanHalfV = 0.46631; // tan(25 deg) for Globe.gl's 50-deg vertical FOV
+    const targetTanX = Math.max(0.16, aspect * tanHalfV * 0.86);
+    const dOverR = Math.sqrt(1 + 1 / (targetTanX * targetTanX));
+    return Math.min(5.2, Math.max(2.5, dOverR - 1));
+  }
+
+  function getSelectAltitude() {
+    const w = renderBatch.viewportW || window.innerWidth || 1200;
+    const h = renderBatch.viewportH || window.innerHeight || 800;
+    const aspect = w / Math.max(1, h);
+    if (aspect >= 0.9) return 1.75;
+    return Math.min(3.4, Math.max(2.2, getDefaultAltitude() * 0.68));
   }
 
   // Initialize Application
@@ -309,7 +348,7 @@
   }
 
   let pickRayVec = null;
-  function pickTargetAtScreen(clientX, clientY) {
+  function pickTargetAtScreen(clientX, clientY, isTouch = false) {
     if (!state.globe) return null;
     const camera = state.globe.camera();
     if (!camera) return null;
@@ -335,9 +374,10 @@
     const hz = oz + dz * t;
     const { lat, lng } = state.globe.toGeoCoords({ x: hx, y: hy, z: hz });
 
-    // Check microstate locator pins first (zoom-adaptive precision)
+    // Check microstate locator pins first (zoom-adaptive & touch-friendly precision)
     const povAlt = state.globe.pointOfView().altitude || 2.5;
-    const pinThreshDeg = Math.max(0.42, Math.min(1.8, 0.85 * Math.sqrt(povAlt) * 0.68));
+    const touchBoost = isTouch ? 1.35 : 1.0;
+    const pinThreshDeg = Math.max(0.42, Math.min(2.2, 0.85 * Math.sqrt(povAlt) * 0.68 * touchBoost));
     const cosLat = Math.max(0.15, Math.cos(lat * Math.PI / 180));
     let bestPin = null;
     let bestDistSq = pinThreshDeg * pinThreshDeg;
@@ -1095,13 +1135,13 @@
     try {
       const renderer = state.globe.renderer();
       if (renderer) {
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        renderer.setPixelRatio(getTargetPixelRatio());
         renderer.powerPreference = 'high-performance';
       }
       const camera = state.globe.camera();
       if (camera) {
         camera.near = 10;
-        camera.far = 3200;
+        camera.far = 4000;
         camera.updateProjectionMatrix();
       }
     } catch (e) {
@@ -1114,6 +1154,15 @@
     controls.autoRotateSpeed = 0.6;
     controls.enableDamping = true;
     controls.dampingFactor = 0.12;
+    controls.enablePan = false;
+    controls.minDistance = 120;
+    controls.maxDistance = 850;
+
+    // Fit full globe cleanly on narrow portrait screens at startup
+    const initialAlt = getDefaultAltitude();
+    if (initialAlt > 2.55) {
+      state.globe.pointOfView({ lat: 20, lng: 0, altitude: initialAlt }, 0);
+    }
 
     controls.addEventListener('start', () => {
       hideTooltip();
@@ -1131,6 +1180,7 @@
     // Zero-lag O(1) Analytic Sphere + Spatial Grid Hover/Click Listener
     let isPointerDown = false;
     let downX = 0, downY = 0;
+    let downPointerType = 'mouse';
     let isDragging = false;
     let lastHoverTs = 0;
 
@@ -1139,23 +1189,26 @@
       isDragging = false;
       downX = e.clientX;
       downY = e.clientY;
+      downPointerType = e.pointerType || 'mouse';
     }, { passive: true });
 
     elements.globeViz.addEventListener('pointermove', (e) => {
       if (isPointerDown) {
         const dx = e.clientX - downX;
         const dy = e.clientY - downY;
-        if (dx * dx + dy * dy > 16) {
+        const dragThreshSq = downPointerType === 'touch' ? 100 : 16;
+        if (dx * dx + dy * dy > dragThreshSq) {
           isDragging = true;
           hideTooltip();
         }
         return;
       }
+      if ((e.pointerType || 'mouse') === 'touch') return;
       const now = performance.now();
       if (now - lastHoverTs < 32) return;
       lastHoverTs = now;
 
-      const hit = pickTargetAtScreen(e.clientX, e.clientY);
+      const hit = pickTargetAtScreen(e.clientX, e.clientY, false);
       if (hit) {
         elements.globeViz.style.cursor = 'pointer';
         showTooltipForCountry(hit, e.clientX, e.clientY);
@@ -1166,7 +1219,7 @@
 
     elements.globeViz.addEventListener('pointerup', (e) => {
       if (isPointerDown && !isDragging) {
-        const hit = pickTargetAtScreen(e.clientX, e.clientY);
+        const hit = pickTargetAtScreen(e.clientX, e.clientY, downPointerType === 'touch');
         if (hit && hit.languages) {
           selectCountry(hit);
         }
@@ -1181,17 +1234,26 @@
       hideTooltip();
     }, { passive: true });
 
-    // Handle Window Resize cleanly with rAF throttle
+    // Handle Window Resize & Orientation Changes cleanly with rAF throttle
     let resizeRaf = 0;
+    let prevPortrait = renderBatch.viewportW / Math.max(1, renderBatch.viewportH) < 0.9;
     window.addEventListener('resize', () => {
       if (resizeRaf) return;
       resizeRaf = requestAnimationFrame(() => {
         resizeRaf = 0;
         renderBatch.viewportW = window.innerWidth;
         renderBatch.viewportH = window.innerHeight;
+        const nowPortrait = renderBatch.viewportW / Math.max(1, renderBatch.viewportH) < 0.9;
         if (state.globe) {
           state.globe.width(renderBatch.viewportW).height(renderBatch.viewportH);
+          const renderer = state.globe.renderer();
+          if (renderer) renderer.setPixelRatio(getTargetPixelRatio());
+          if (nowPortrait !== prevPortrait && !state.selectedCountry) {
+            state.globe.pointOfView({ altitude: getDefaultAltitude() }, 0);
+          }
         }
+        prevPortrait = nowPortrait;
+        syncLegendResponsiveUI();
       });
     });
 
@@ -1309,13 +1371,17 @@
     refreshPolygonVisuals();
     if (state.globe && state.showArcs) updateArcs();
 
-    // Animate camera to country's centroid snappily
+    // Animate camera to country's centroid snappily (framed above portrait bottom sheet on mobile)
     if (animateCamera && state.globe && country.centroid) {
       const [lng, lat] = country.centroid;
       if (lat !== 0 || lng !== 0) {
         const controls = state.globe.controls();
         if (controls) controls.autoRotate = false;
-        state.globe.pointOfView({ lat, lng, altitude: 1.75 }, 550);
+        const selectAlt = getSelectAltitude();
+        const targetLat = isBottomSheetLayout()
+          ? Math.max(-72, Math.min(72, lat - 15))
+          : lat;
+        state.globe.pointOfView({ lat: targetLat, lng, altitude: selectAlt }, 550);
       }
     }
 
@@ -1499,6 +1565,27 @@
     window.speechSynthesis.speak(utterance);
   }
 
+  function syncLegendResponsiveUI() {
+    if (!elements.legendPanel || !elements.legendToggleBtn) return;
+    const mobile = isMobileViewport();
+    const expanded = !mobile || state.isLegendExpandedMobile;
+    elements.legendPanel.classList.toggle('collapsed', mobile && !state.isLegendExpandedMobile);
+    elements.legendToggleBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+
+    const hasActive = Boolean(state.activeFilterLanguage);
+    elements.legendPanel.classList.toggle('has-active-filter', hasActive);
+    if (elements.legendActiveDot) {
+      elements.legendActiveDot.style.background = state.activeFilterColor || '#38bdf8';
+    }
+    if (elements.legendMobileLabel) {
+      if (hasActive) {
+        elements.legendMobileLabel.textContent = state.activeFilterLanguage;
+      } else {
+        elements.legendMobileLabel.textContent = state.isLegendExpandedMobile ? 'Shared Languages' : 'Languages';
+      }
+    }
+  }
+
   // Build Shared Language Filter Chips in Legend
   function initLegend() {
     const sharedLanguages = [
@@ -1525,7 +1612,7 @@
     ];
 
     elements.legendChips.innerHTML = sharedLanguages.map(l => `
-      <div class="legend-chip" data-lang="${l.name}" title="${l.name} (${l.count} countries) • Family: ${l.fam}">
+      <div class="legend-chip" data-lang="${l.name}" data-color="${l.color}" title="${l.name} (${l.count} countries) • Family: ${l.fam}">
         <span class="legend-dot" style="background: ${l.color};"></span>
         <span>${l.name}</span>
         <span style="font-size: 0.68rem; color: #94a3b8; margin-left: 2px;">(${l.count})</span>
@@ -1535,28 +1622,42 @@
     elements.legendChips.querySelectorAll('.legend-chip').forEach(chip => {
       chip.addEventListener('click', () => {
         const lang = chip.getAttribute('data-lang');
+        const color = chip.getAttribute('data-color');
         if (state.activeFilterLanguage === lang) {
           clearLanguageFilter();
         } else {
           state.activeFilterLanguage = lang;
           state.activeFilterFamily = null;
+          state.activeFilterColor = color || '#38bdf8';
           elements.legendChips.querySelectorAll('.legend-chip').forEach(c => c.classList.remove('active'));
           chip.classList.add('active');
           elements.legendResetBtn.style.display = 'inline-block';
+          syncLegendResponsiveUI();
           refreshPolygonVisuals();
           if (state.globe && state.showArcs) updateArcs();
         }
       });
     });
 
+    if (elements.legendToggleBtn) {
+      elements.legendToggleBtn.addEventListener('click', () => {
+        if (!isMobileViewport()) return;
+        state.isLegendExpandedMobile = !state.isLegendExpandedMobile;
+        syncLegendResponsiveUI();
+      });
+    }
+
     elements.legendResetBtn.addEventListener('click', clearLanguageFilter);
+    syncLegendResponsiveUI();
   }
 
   function clearLanguageFilter() {
     state.activeFilterLanguage = null;
     state.activeFilterFamily = null;
+    state.activeFilterColor = null;
     elements.legendChips.querySelectorAll('.legend-chip').forEach(c => c.classList.remove('active'));
     elements.legendResetBtn.style.display = 'none';
+    syncLegendResponsiveUI();
     refreshPolygonVisuals();
     if (state.globe && state.showArcs) updateArcs();
   }
@@ -1663,12 +1764,13 @@
 
     elements.zoomOutBtn.addEventListener('click', () => {
       const pov = state.globe.pointOfView();
-      state.globe.pointOfView({ altitude: Math.min(4.5, pov.altitude + 0.5) }, 240);
+      const maxAlt = Math.max(4.8, getDefaultAltitude() + 1.0);
+      state.globe.pointOfView({ altitude: Math.min(maxAlt, pov.altitude + 0.5) }, 240);
     });
 
     // Reset View (Snappy 500ms duration)
     elements.resetViewBtn.addEventListener('click', () => {
-      state.globe.pointOfView({ lat: 20, lng: 0, altitude: 2.5 }, 500);
+      state.globe.pointOfView({ lat: 20, lng: 0, altitude: getDefaultAltitude() }, 500);
     });
 
     // Toggle Atmosphere

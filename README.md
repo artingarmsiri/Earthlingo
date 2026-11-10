@@ -81,8 +81,32 @@ Earthlingo requires no bundler or build step—all paths are relative (`./`):
 ```text
 Earthlingo/
 ├── index.html                      # Semantic HTML5 shell, controls, modals & drawer
-├── styles.css                      # Dark UI styling, layout & responsive rules
-├── app.js                          # Merged WebGL rendering, spatial picker, search & TTS
+├── styles/                         # Modular CSS stylesheets
+│   ├── tokens.css                  # Design variables, reset & core keyframes
+│   ├── layout.css                  # Header nav, search, legend, controls & canvas
+│   ├── overlays.css                # Map overlay badges, popover & hover tooltip
+│   ├── drawer.css                  # Country details drawer, origin explorer & modals
+│   └── responsive.css              # Mobile portrait bottom sheet & tablet breakpoints
+├── src/                            # Modular client application (window.Earthlingo)
+│   ├── main.js                     # Application entry point & bootstrapper
+│   ├── core/
+│   │   ├── config.js               # Visual tuning, language legend, overlay thresholds
+│   │   ├── state.js                # Centralized app state, GPU batch & DOM cache
+│   │   └── utils.js                # Color, geometry, DPR & viewport helpers
+│   ├── data/
+│   │   └── geo-index.js            # Country lookup, microstates & 10° spatial grid
+│   ├── globe/
+│   │   ├── scene.js                # Globe.gl initialization, camera bounds & pointer picking
+│   │   ├── polygon-batcher.js      # Merged WebGL country meshes & spherical subdivision
+│   │   ├── bathymetry.js           # Procedural ocean texture & lighting
+│   │   └── arcs.js                 # Language origin & migration arcs explorer
+│   ├── overlays/
+│   │   ├── label-formatter.js      # Compact overlay titles, scripts & canvas sizing
+│   │   └── map-overlays.js         # Persistent-pool, hysteresis map overlay engine
+│   └── ui/
+│       ├── tooltip.js              # High-frequency desktop hover tooltip
+│       ├── drawer.js               # Country details drawer, pull gestures & Web Speech TTS
+│       └── controls.js             # Legend filter, search autocomplete, toolbar & modals
 ├── start_server.bat                # Windows 1-click local server launcher
 ├── libs/
 │   └── globe.gl.min.js             # Bundled Globe.gl + Three.js runtime (CDN fallback in HTML)
@@ -90,7 +114,8 @@ Earthlingo/
 │   ├── world_countries.geojson     # GeoJSON boundaries for 242 countries & territories
 │   ├── world_countries.js          # Offline file:// bundle of world_countries.geojson
 │   ├── languages.json              # Country profiles, languages, accents & phrasebooks
-│   └── languages.js                # Offline file:// bundle of languages.json
+│   ├── languages.js                # Offline file:// bundle of languages.json
+│   └── origins.js                  # Language family Urheimats, routes & timelines
 ├── scripts/                        # Database assembly & color assignment utilities
 │   ├── build_full_database.js
 │   ├── update_language_colors.js

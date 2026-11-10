@@ -8,7 +8,12 @@
   <meta name="description" content="Earthlingo: Interactive 3D World Globe mapping languages, dialects, accents, and phrasebooks for every country on Earth.">
   <meta name="theme-color" content="#090d16">
   <title>Earthlingo | World Languages & Accents Map</title>
-  <link rel="stylesheet" href="./styles.css?v=20261110i">
+  <!-- Modular Design & Component Stylesheets -->
+  <link rel="stylesheet" href="./styles/tokens.css?v=20261110j">
+  <link rel="stylesheet" href="./styles/layout.css?v=20261110j">
+  <link rel="stylesheet" href="./styles/overlays.css?v=20261110j">
+  <link rel="stylesheet" href="./styles/drawer.css?v=20261110j">
+  <link rel="stylesheet" href="./styles/responsive.css?v=20261110j">
   <!-- Local Globe.GL library with CDN fallback -->
   <script src="./libs/globe.gl.min.js"></script>
   <script>
@@ -408,8 +413,21 @@
     </div>
   </div>
 
-  <!-- Application Logic -->
-  <script src="./app.js?v=20261110i"></script>
+  <!-- Modular Application Architecture (file:// & static hosting compatible) -->
+  <script defer src="./src/core/config.js?v=20261110j"></script>
+  <script defer src="./src/core/utils.js?v=20261110j"></script>
+  <script defer src="./src/core/state.js?v=20261110j"></script>
+  <script defer src="./src/data/geo-index.js?v=20261110j"></script>
+  <script defer src="./src/globe/bathymetry.js?v=20261110j"></script>
+  <script defer src="./src/globe/polygon-batcher.js?v=20261110j"></script>
+  <script defer src="./src/globe/arcs.js?v=20261110j"></script>
+  <script defer src="./src/overlays/label-formatter.js?v=20261110j"></script>
+  <script defer src="./src/overlays/map-overlays.js?v=20261110j"></script>
+  <script defer src="./src/ui/tooltip.js?v=20261110j"></script>
+  <script defer src="./src/ui/drawer.js?v=20261110j"></script>
+  <script defer src="./src/ui/controls.js?v=20261110j"></script>
+  <script defer src="./src/globe/scene.js?v=20261110j"></script>
+  <script defer src="./src/main.js?v=20261110j"></script>
 </body>
 </html>
 

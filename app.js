@@ -1210,6 +1210,32 @@
       }
     });
 
+    // Block native iOS/mobile long-press text selection, callout loupe, and context menu on globe
+    elements.globeViz.addEventListener('touchstart', (e) => {
+      if (document.activeElement === elements.searchInput) {
+        elements.searchInput.blur();
+      }
+      const sel = window.getSelection && window.getSelection();
+      if (sel && sel.rangeCount > 0) sel.removeAllRanges();
+      if (e.cancelable) e.preventDefault();
+    }, { passive: false });
+
+    elements.globeViz.addEventListener('gesturestart', (e) => {
+      if (e.cancelable) e.preventDefault();
+    }, { passive: false });
+
+    elements.globeViz.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+    });
+
+    document.addEventListener('selectstart', (e) => {
+      const target = e.target;
+      const tag = target && target.tagName;
+      if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
+        e.preventDefault();
+      }
+    });
+
     // Zero-lag O(1) Analytic Sphere + Spatial Grid Hover/Click Listener (Multi-Touch Safe)
     const activePointers = new Map();
     let downX = 0, downY = 0;

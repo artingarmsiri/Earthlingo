@@ -16,6 +16,11 @@
     isRotating: false,
     showAtmosphere: true,
     showArcs: false,
+    mapOverlayMode: 'countries',
+    isOverlayMenuOpen: false,
+    overlayZoomTier: 0,
+    pendingZoomAlt: null,
+    pendingZoomTs: 0,
     activeOriginCorridor: 'all',
     _prevCorridorBeforeCountry: 'all',
     isArcsPanelCollapsed: false,
@@ -62,6 +67,7 @@
     loadingOverlay: document.getElementById('loadingOverlay'),
     loadingText: document.getElementById('loadingText'),
     globeViz: document.getElementById('globeViz'),
+    globeMapOverlays: document.getElementById('globeMapOverlays'),
     globeHoverTooltip: document.getElementById('globeHoverTooltip'),
     searchInput: document.getElementById('searchInput'),
     searchClearBtn: document.getElementById('searchClearBtn'),
@@ -81,6 +87,11 @@
     resetViewBtn: document.getElementById('resetViewBtn'),
     toggleAtmosphereBtn: document.getElementById('toggleAtmosphereBtn'),
     toggleArcsBtn: document.getElementById('toggleArcsBtn'),
+    toggleOverlayMenuBtn: document.getElementById('toggleOverlayMenuBtn'),
+    overlayActiveDot: document.getElementById('overlayActiveDot'),
+    mapOverlaysPanel: document.getElementById('mapOverlaysPanel'),
+    overlayModeOptions: document.getElementById('overlayModeOptions'),
+    overlayZoomBadge: document.getElementById('overlayZoomBadge'),
     arcsInfoPanel: document.getElementById('arcsInfoPanel'),
     arcsLiveDot: document.getElementById('arcsLiveDot'),
     arcsPanelTitle: document.getElementById('arcsPanelTitle'),
@@ -251,6 +262,7 @@
         isFull ? 'Restore split view' : (targetSnap === 'peek' ? 'Expand details' : 'Full screen')
       );
     }
+    markOverlaysDirty();
   }
 
   function isMobileViewport() {
@@ -263,7 +275,19 @@
 
   function getTargetPixelRatio() {
     const dpr = window.devicePixelRatio || 1;
-    return isMobileViewport() ? Math.min(dpr, 1.5) : Math.min(dpr, 2);
+    const w = Math.max(1, renderBatch.viewportW || window.innerWidth || 1200);
+    const h = Math.max(1, renderBatch.viewportH || window.innerHeight || 800);
+    const area = w * h;
+    if (isMobileViewport()) {
+      // Crisp Retina sharpness on 2x-3x phones while bounding backing buffer near ~3.2M pixels
+      const maxByArea = Math.sqrt(3200000 / area);
+      const desired = Math.max(dpr, 2.0);
+      return Math.max(Math.min(dpr, 2.0), Math.min(2.75, desired, maxByArea));
+    }
+    // Desktop SSAA (1.5x on 1x displays) up to native Retina, capped near ~5.5M pixels
+    const maxByArea = Math.sqrt(5500000 / area);
+    const desired = Math.max(dpr, Math.min(1.65, dpr * 1.5));
+    return Math.max(Math.min(dpr, 1.85), Math.min(2.5, desired, maxByArea));
   }
 
   function getDefaultAltitude() {
@@ -271,11 +295,11 @@
     const h = renderBatch.viewportH || window.innerHeight || 800;
     const aspect = w / Math.max(1, h);
     if (aspect >= 0.9) return 2.5;
-    // Scale altitude on portrait viewports so full globe + glow fits cleanly inside width (~90% fill)
+    // Frame Earth + atmosphere crisply across portrait screens (~94% fill)
     const tanHalfV = 0.46631; // tan(25 deg) for Globe.gl's 50-deg vertical FOV
-    const targetTanX = Math.max(0.16, aspect * tanHalfV * 0.9);
+    const targetTanX = Math.max(0.16, aspect * tanHalfV * 0.94);
     const dOverR = Math.sqrt(1 + 1 / (targetTanX * targetTanX));
-    return Math.min(5.2, Math.max(2.5, dOverR - 1));
+    return Math.min(4.45, Math.max(2.5, dOverR - 1));
   }
 
   function getSelectAltitude() {
@@ -317,6 +341,7 @@
       buildSpatialIndex();
       initGlobe();
       initLegend();
+      initMapOverlays();
       initSearch();
       initControls();
       initListModal();
@@ -597,7 +622,9 @@
     const ty = tooltipPlaceBelow
       ? Math.min(vh - tooltipBoxH - 12, clientY + 20)
       : Math.max(12, aboveTop);
-    el.style.transform = `translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, 0)`;
+    const dpr = window.devicePixelRatio || 1;
+    const snapPx = (v) => Math.round(v * dpr) / dpr;
+    el.style.transform = `translate3d(${snapPx(tx)}px, ${snapPx(ty)}px, 0)`;
   }
 
   function hideTooltip() {
@@ -636,6 +663,12 @@
     }
 
     mergeWorldPolygons(polygonGroups, scene);
+    configureGlobeSurface();
+    buildOverlayAnchors();
+    markOverlaysDirty();
+    if (state.globe && state.globe.camera()) {
+      updateCountryOverlays(state.globe.camera());
+    }
     dismissLoadingOverlay();
   }
 
@@ -656,7 +689,7 @@
     const LINE_SCALE = 1.0028;
     const R_CAP = R_GLOBE * CAP_SCALE;
     const R_LINE = R_GLOBE * LINE_SCALE;
-    const MAX_SEG_DEG = 2.4; // Keep all chords >= ~100.228 (well above R=100 ocean sphere)
+    const MAX_SEG_DEG = 1.6; // Ultra-smooth spherical cap & coastline subdivision (anti-clipping)
     const MAX_CAP_CHORD_SQ = Math.pow(2 * R_CAP * Math.sin((MAX_SEG_DEG * Math.PI / 180) * 0.5), 2);
     const MAX_LINE_CHORD_SQ = Math.pow(2 * R_LINE * Math.sin((MAX_SEG_DEG * Math.PI / 180) * 0.5), 2);
 
@@ -980,6 +1013,9 @@
     const mergedCapMesh = new MeshCtor(mergedCapGeo, mergedCapMat);
     mergedCapMesh.raycast = () => {};
     mergedCapMesh.frustumCulled = false;
+    mergedCapMesh.onAfterRender = (_renderer, _scene, camera) => {
+      updateCountryOverlays(camera);
+    };
 
     // Single Merged Country Borders (1 WebGL Draw Call!)
     const mergedLineGeo = new BufferGeoCtor();
@@ -988,9 +1024,9 @@
     mergedLineGeo.computeBoundingSphere();
 
     const mergedLineMat = sampleLineMat.clone();
-    mergedLineMat.color.setHex(0x000000);
+    mergedLineMat.color.setHex(0x030712);
     mergedLineMat.transparent = true;
-    mergedLineMat.opacity = 0.22;
+    mergedLineMat.opacity = 0.42;
     mergedLineMat.depthTest = true;
     mergedLineMat.depthWrite = false;
     mergedLineMat.polygonOffset = true;
@@ -1444,11 +1480,830 @@
       }
     }
     syncLegendResponsiveUI();
-    if (elements.countryDrawer && elements.countryDrawer.classList.contains('open')) {
+    const drawerOpen = Boolean(elements.countryDrawer && elements.countryDrawer.classList.contains('open'));
+    if (drawerOpen) {
       setMobileDrawerSnap(state.mobileDrawerSnap, true);
     } else if (!isBottomSheetLayout()) {
       setMobileDrawerSnap('half', true);
     }
+    markOverlaysDirty();
+  }
+
+  function createOceanBathymetryDataUrl() {
+    try {
+      const w = 2048;
+      const h = 1024;
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return null;
+
+      const grad = ctx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0.0, '#050a14');
+      grad.addColorStop(0.18, '#071021');
+      grad.addColorStop(0.42, '#0a162d');
+      grad.addColorStop(0.50, '#0d1d38');
+      grad.addColorStop(0.58, '#0a162d');
+      grad.addColorStop(0.84, '#060e1e');
+      grad.addColorStop(1.0, '#050a14');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Soft pelagic basin highlights for subtle cartographic bathymetry under directional lighting
+      const basins = [
+        [w * 0.19, h * 0.48, w * 0.22, 'rgba(56, 189, 248, 0.055)'],
+        [w * 0.42, h * 0.45, w * 0.16, 'rgba(59, 130, 246, 0.045)'],
+        [w * 0.72, h * 0.56, w * 0.17, 'rgba(56, 189, 248, 0.048)'],
+        [w * 0.32, h * 0.74, w * 0.20, 'rgba(14, 165, 233, 0.035)'],
+        [w * 0.85, h * 0.42, w * 0.18, 'rgba(56, 189, 248, 0.042)']
+      ];
+      for (const [bx, by, br, col] of basins) {
+        const rg = ctx.createRadialGradient(bx, by, br * 0.06, bx, by, br);
+        rg.addColorStop(0, col);
+        rg.addColorStop(1, 'rgba(7, 11, 20, 0)');
+        ctx.fillStyle = rg;
+        ctx.beginPath();
+        ctx.arc(bx, by, br, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      return canvas.toDataURL('image/png');
+    } catch (e) {
+      return null;
+    }
+  }
+
+  let surfaceConfigured = false;
+  function configureGlobeSurface() {
+    if (!state.globe) return;
+    try {
+      const globeMat = state.globe.globeMaterial();
+      const renderer = state.globe.renderer();
+      if (globeMat) {
+        if (!globeMat.map && globeMat.color) {
+          globeMat.color.set('#081020');
+        }
+        if (globeMat.specular) globeMat.specular.set('#224675');
+        globeMat.shininess = 18;
+        if (globeMat.emissive) globeMat.emissive.set('#020611');
+        globeMat.emissiveIntensity = 0.55;
+        globeMat.polygonOffset = true;
+        globeMat.polygonOffsetFactor = 3.0;
+        globeMat.polygonOffsetUnits = 3.0;
+        if (globeMat.map) {
+          const maxAniso = renderer && renderer.capabilities ? renderer.capabilities.getMaxAnisotropy() : 4;
+          globeMat.map.anisotropy = Math.min(8, maxAniso || 4);
+          globeMat.map.needsUpdate = true;
+        }
+        globeMat.needsUpdate = true;
+      }
+
+      const scene = state.globe.scene();
+      if (scene) {
+        for (let i = 0; i < scene.children.length; i++) {
+          const obj = scene.children[i];
+          if (
+            obj &&
+            obj.isLineSegments &&
+            obj !== renderBatch.lineMesh &&
+            obj !== renderBatch.highlightLine &&
+            obj.geometry &&
+            obj.geometry.type === 'GeoJsonGeometry'
+          ) {
+            if (obj.material) {
+              obj.material.color.set('#38bdf8');
+              obj.material.transparent = true;
+              obj.material.opacity = 0.085;
+              obj.material.depthWrite = false;
+              obj.material.needsUpdate = true;
+            }
+            obj.scale.setScalar(1.0006);
+            obj.renderOrder = 1;
+            obj.raycast = () => {};
+          }
+        }
+      }
+
+      if (!surfaceConfigured && typeof state.globe.lights === 'function') {
+        const lights = state.globe.lights();
+        if (Array.isArray(lights) && lights.length >= 2) {
+          if (lights[0]) lights[0].intensity = 1.95;
+          if (lights[1]) {
+            lights[1].intensity = 2.05;
+            if (lights[1].position) lights[1].position.set(1.2, 0.85, 1.45);
+          }
+          surfaceConfigured = true;
+        }
+      }
+    } catch (e) {
+      console.warn('Globe surface setup:', e);
+    }
+  }
+
+  // ============================================================================
+  // Zoom-Adaptive Google-Maps Style Country Map Overlays (0-Frame-Lag Pool)
+  // ============================================================================
+  const OVERLAY_POOL_SIZE = 68;
+  const OVERLAY_ISLAND_HUBS = new Set(['JPN', 'GBR', 'IDN', 'PHL', 'MDG', 'NZL', 'ISL', 'CUB', 'LKA', 'IRL', 'TWN']);
+  const ISO_SCRIPT_OVERRIDES = {
+    ARM: ['Armenian', '', 'Armenian Alphabet'],
+    GEO: ['Georgian', '', 'Georgian Mkhedruli'],
+    ETH: ['Geʻez & Latin', '', 'Geʻez (Ethiopic) & Qubee Latin'],
+    ERI: ['Geʻez & Arabic', '', 'Geʻez & Arabic'],
+    MDV: ['Thaana', '', 'Thaana (Dhivehi)'],
+    ISR: ['Hebrew & Arabic', 'אع', 'Hebrew & Arabic'],
+    JPN: ['Kanji & Kana', 'あ漢', 'Kanji, Hiragana & Katakana'],
+    KOR: ['Hangul', '한', 'Hangul (한국어)'],
+    PRK: ['Hangul', '한', 'Hangul (Chosŏn’gŭl)'],
+    CHN: ['Hanzi', '汉', 'Simplified Chinese Hanzi'],
+    TWN: ['Hanzi', '漢', 'Traditional Chinese Hanzi'],
+    HKG: ['Hanzi & Latin', '漢A', 'Traditional Hanzi & Latin'],
+    MAC: ['Hanzi & Latin', '漢A', 'Traditional Hanzi & Latin'],
+    SGP: ['Latin, Hanzi & Tamil', 'Aa汉', 'Latin, Hanzi, Malay & Tamil'],
+    IND: ['Devanagari + Indic', 'अ', 'Devanagari & Regional Indic'],
+    NPL: ['Devanagari', 'अ', 'Devanagari'],
+    BGD: ['Bengali', '', 'Bengali–Assamese Script'],
+    LKA: ['Sinhala & Tamil', '', 'Sinhala & Tamil'],
+    BTN: ['Tibetan', '', 'Tibetan (Uchen)'],
+    MMR: ['Burmese', '', 'Burmese (Mon–Burmese)'],
+    THA: ['Thai', '', 'Thai Abugida'],
+    LAO: ['Lao', '', 'Lao Abugida'],
+    KHM: ['Khmer', '', 'Khmer Abugida'],
+    RUS: ['Cyrillic', 'АБ', 'Cyrillic'],
+    UKR: ['Cyrillic', 'АБ', 'Ukrainian Cyrillic'],
+    BLR: ['Cyrillic', 'АБ', 'Belarusian Cyrillic'],
+    BGR: ['Cyrillic', 'АБ', 'Bulgarian Cyrillic'],
+    SRB: ['Cyrillic & Latin', 'АB', 'Cyrillic & Gaj’s Latin'],
+    BIH: ['Latin & Cyrillic', 'AB', 'Latin & Cyrillic'],
+    MNE: ['Latin & Cyrillic', 'AB', 'Latin & Cyrillic'],
+    MKD: ['Cyrillic', 'АБ', 'Macedonian Cyrillic'],
+    KAZ: ['Cyrillic & Latin', 'АB', 'Kazakh Cyrillic (Latin transition)'],
+    KGZ: ['Cyrillic', 'АБ', 'Kyrgyz Cyrillic'],
+    TJK: ['Cyrillic', 'АБ', 'Tajik Cyrillic'],
+    MNG: ['Cyrillic & Mongol', 'АБ', 'Cyrillic & Traditional Mongol'],
+    GRC: ['Greek', 'ΑΩ', 'Greek Alphabet'],
+    CYP: ['Greek & Latin', 'ΑA', 'Greek & Turkish Latin'],
+    IRN: ['Perso-Arabic', 'ع', 'Perso-Arabic'],
+    AFG: ['Perso-Arabic', 'ع', 'Perso-Arabic'],
+    PAK: ['Perso-Arabic', 'ع', 'Nastaliq Perso-Arabic'],
+    KAS: ['Perso-Arabic', 'ع', 'Perso-Arabic & Devanagari'],
+    MAR: ['Arabic & Tifinagh', 'ع', 'Arabic, Tifinagh & Latin'],
+    DZA: ['Arabic & Tifinagh', 'ع', 'Arabic & Tamazight'],
+    TUN: ['Arabic & Latin', 'عA', 'Arabic & French Latin'],
+    SDN: ['Arabic & Latin', 'عA', 'Arabic & English Latin'],
+    MRT: ['Arabic & Latin', 'عA', 'Arabic & French Latin']
+  };
+  const ARABIC_SCRIPT_ISOS = new Set([
+    'SAU', 'EGY', 'IRQ', 'SYR', 'JOR', 'LBN', 'PSE', 'YEM', 'OMN',
+    'ARE', 'QAT', 'BHR', 'KWT', 'LBY', 'ESH', 'COM'
+  ]);
+
+  const overlayState = {
+    anchors: [],
+    pool: [],
+    poolReady: false,
+    dirty: true,
+    projVec: null,
+    measureCtx: null,
+    lastCamX: NaN,
+    lastCamY: NaN,
+    lastCamZ: NaN,
+    lastQx: NaN,
+    lastQy: NaN,
+    lastW: 0,
+    lastH: 0,
+    lastZoomTier: -1,
+    placedBoxes: []
+  };
+
+  function getMeasureCtx() {
+    if (!overlayState.measureCtx) {
+      const c = document.createElement('canvas');
+      overlayState.measureCtx = c.getContext('2d');
+    }
+    return overlayState.measureCtx;
+  }
+
+  function resolveCountryScriptMeta(c) {
+    const iso = (c.iso3 || '').toUpperCase();
+    if (ISO_SCRIPT_OVERRIDES[iso]) {
+      const [shortName, glyph, fullDetail] = ISO_SCRIPT_OVERRIDES[iso];
+      return { shortName, glyph, fullDetail };
+    }
+    if (ARABIC_SCRIPT_ISOS.has(iso)) {
+      return { shortName: 'Arabic', glyph: 'ع', fullDetail: 'Arabic Abjad' };
+    }
+    const raw = (c.languages && c.languages[0] && c.languages[0].script) || '';
+    const cleaned = raw.trim();
+    if (cleaned && cleaned !== 'Official National Script' && cleaned !== 'National Script') {
+      if (/^Latin/i.test(cleaned)) {
+        const hasExtra = cleaned.length > 6;
+        return {
+          shortName: 'Latin',
+          glyph: 'Aa',
+          fullDetail: hasExtra ? cleaned : 'Latin Alphabet'
+        };
+      }
+      if (/Cyrillic/i.test(cleaned)) return { shortName: 'Cyrillic', glyph: 'АБ', fullDetail: cleaned };
+      if (/Arabic/i.test(cleaned)) return { shortName: 'Arabic', glyph: 'ع', fullDetail: cleaned };
+      return { shortName: cleaned.split('(')[0].trim(), glyph: '', fullDetail: cleaned };
+    }
+    const phr0 = (c.phrases && c.phrases[0] && c.phrases[0].text) || '';
+    if (/[\u0600-\u06FF]/.test(phr0)) return { shortName: 'Arabic', glyph: 'ع', fullDetail: 'Arabic Alphabet' };
+    if (/[\u0400-\u04FF]/.test(phr0)) return { shortName: 'Cyrillic', glyph: 'АБ', fullDetail: 'Cyrillic Alphabet' };
+    if (/[\u0900-\u097F]/.test(phr0)) return { shortName: 'Devanagari', glyph: 'अ', fullDetail: 'Devanagari' };
+    return { shortName: 'Latin', glyph: 'Aa', fullDetail: 'Latin Alphabet' };
+  }
+
+  function compactCountryTitle(name) {
+    if (!name) return '';
+    return name
+      .replace(/\bBosnia and Herz\.?/i, 'Bosnia & Herz.')
+      .replace(/\bDem\. Rep\. Congo/i, 'DR Congo')
+      .replace(/\bCentral African Rep\.?/i, 'C. African Rep.')
+      .replace(/\bDominican Rep\.?/i, 'Dominican Rep.')
+      .replace(/\bS\. Sudan/i, 'South Sudan')
+      .replace(/\bEq\. Guinea/i, 'Eq. Guinea');
+  }
+
+  function compactFamilyLabel(familyStr) {
+    if (!familyStr) return { shortName: 'Other', detail: '' };
+    const parenMatch = familyStr.match(/^([^()]+)\(([^)]+)\)/);
+    if (parenMatch) {
+      const parent = parenMatch[1].trim();
+      const branch = parenMatch[2].trim();
+      if (branch === 'Other') return { shortName: parent, detail: familyStr };
+      if (branch === 'Indo-Iranian') return { shortName: 'Indo-Iranian', detail: parent };
+      return { shortName: branch.split('/')[0].trim(), detail: parent };
+    }
+    return { shortName: familyStr.split('/')[0].trim(), detail: familyStr };
+  }
+
+  function compactLanguageLabel(c) {
+    const canon = c.canonicalLanguage || c.primaryLanguage || 'Language';
+    const raw = (c.languages && c.languages[0] && c.languages[0].name) || canon;
+    let base = raw.replace(/\([^)]*\)/g, '').split(',')[0].split('&')[0].trim();
+    if (/^Castilian Spanish/i.test(base)) base = 'Spanish';
+    else if (/^Central Thai/i.test(base)) base = 'Thai';
+    else if (/^Moroccan Arabic/i.test(base)) base = 'Arabic';
+    const glyphs = Array.from(base);
+    if (glyphs.length > 20) base = `${glyphs.slice(0, 18).join('').trim()}…`;
+    return base || canon;
+  }
+
+  function compactGreetingLabel(c) {
+    const phr = c.phrases && c.phrases[0];
+    if (!phr || !phr.text) return { title: 'Hello!', sub: compactCountryTitle(c.name) };
+    // Strip parenthetical translations BEFORE splitting on '/' so halves inside parens never leak
+    let head = phr.text.replace(/\([^)]*\)/g, '').split('/')[0].trim();
+    if (!head) head = phr.text.replace(/\([^)]*\)/g, '').trim();
+    const glyphs = Array.from(head);
+    if (glyphs.length > 22) head = `${glyphs.slice(0, 20).join('').trim()}…`;
+    const phon = phr.phonetic ? phr.phonetic.replace(/\([^)]*\)/g, '').split('/')[0].trim() : '';
+    const countryShort = compactCountryTitle(c.name);
+    const sub = phon && phon.length <= 22 ? `${countryShort} • ${phon}` : countryShort;
+    return { title: head || 'Hello!', sub };
+  }
+
+  function computeCountryAreaWeights() {
+    const weights = new Map();
+    if (!state.geoData || !state.geoData.features) return weights;
+    for (let i = 0; i < state.geoData.features.length; i++) {
+      const f = state.geoData.features[i];
+      const key = f.__key || getFeatureKey(f);
+      const geom = f.geometry;
+      if (!key || !geom) continue;
+      const polys = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
+      let total = 0;
+      for (let p = 0; p < polys.length; p++) {
+        const outer = polys[p] && polys[p][0];
+        if (!outer || outer.length < 3) continue;
+        let area = 0;
+        let latSum = 0;
+        for (let k = 0; k < outer.length; k++) {
+          const cur = outer[k];
+          const nxt = outer[(k + 1) % outer.length];
+          let dx = nxt[0] - cur[0];
+          if (dx > 180) dx -= 360;
+          if (dx < -180) dx += 360;
+          area += cur[0] * (nxt[1] - cur[1]) - cur[1] * dx;
+          latSum += cur[1];
+        }
+        const avgLat = latSum / outer.length;
+        const cosLat = Math.max(0.18, Math.cos((avgLat * Math.PI) / 180));
+        total += Math.abs(area) * 0.5 * cosLat;
+      }
+      weights.set(key, (weights.get(key) || 0) + total);
+    }
+    return weights;
+  }
+
+  function buildOverlayLabelsForCountry(c) {
+    const shortCountry = compactCountryTitle(c.name);
+    const canonLang = c.canonicalLanguage || c.primaryLanguage || 'Language';
+    const pct = (c.languages && c.languages[0] && c.languages[0].percentage) || '';
+    const langDisplay = compactLanguageLabel(c);
+    const famMeta = compactFamilyLabel(c.languageFamily || '');
+    const scrMeta = resolveCountryScriptMeta(c);
+    const greetMeta = compactGreetingLabel(c);
+
+    const countrySub = [canonLang, c.capital].filter(Boolean).join(' • ');
+    const langSub = pct ? `${shortCountry} • ${pct}` : shortCountry;
+    const famSub = famMeta.detail && famMeta.detail !== famMeta.shortName
+      ? `${shortCountry} • ${famMeta.detail}`
+      : shortCountry;
+    const scrTitle = scrMeta.glyph ? `${scrMeta.glyph} ${scrMeta.shortName}` : scrMeta.shortName;
+    const scrSub = `${shortCountry} • ${scrMeta.fullDetail}`;
+
+    const ctx = getMeasureCtx();
+    const calcDims = (title, sub, isDetail) => {
+      let tw = 48;
+      let sw = 0;
+      if (ctx) {
+        ctx.font = isDetail
+          ? '700 12.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+          : '700 11.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        tw = Math.min(182, Math.ceil(ctx.measureText(title).width));
+        if (isDetail && sub) {
+          ctx.font = '500 10.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+          sw = Math.min(196, Math.ceil(ctx.measureText(sub).width));
+        }
+      } else {
+        tw = Math.min(182, title.length * 7);
+        sw = (isDetail && sub) ? Math.min(196, sub.length * 6) : 0;
+      }
+      const dotW = 12; // 6px dot + 5px gap + safety
+      const w = Math.max(40, Math.min(220, Math.max(tw + dotW, sw) + (isDetail ? 22 : 18)));
+      const h = (isDetail && sub) ? 40 : (isDetail ? 25 : 23);
+      return { w, h };
+    };
+
+    const modes = {
+      countries: {
+        t: shortCountry,
+        s: countrySub,
+        c0: calcDims(shortCountry, '', false),
+        c2: calcDims(shortCountry, countrySub, true)
+      },
+      languages: {
+        t: langDisplay,
+        s: langSub,
+        c0: calcDims(langDisplay, '', false),
+        c2: calcDims(langDisplay, langSub, true)
+      },
+      families: {
+        t: famMeta.shortName,
+        s: famSub,
+        c0: calcDims(famMeta.shortName, '', false),
+        c2: calcDims(famMeta.shortName, famSub, true)
+      },
+      scripts: {
+        t: scrTitle,
+        s: scrSub,
+        c0: calcDims(scrTitle, '', false),
+        c2: calcDims(scrTitle, scrSub, true)
+      },
+      greetings: {
+        t: greetMeta.title,
+        s: greetMeta.sub,
+        c0: calcDims(greetMeta.title, '', false),
+        c2: calcDims(greetMeta.title, greetMeta.sub, true)
+      }
+    };
+    return modes;
+  }
+
+  function initOverlayPool() {
+    const container = elements.globeMapOverlays;
+    if (!container || overlayState.poolReady) return;
+    const frag = document.createDocumentFragment();
+    const pool = [];
+    for (let i = 0; i < OVERLAY_POOL_SIZE; i++) {
+      const el = document.createElement('div');
+      el.className = 'map-overlay-label';
+      const mainEl = document.createElement('span');
+      mainEl.className = 'map-overlay-main';
+      const dotEl = document.createElement('span');
+      dotEl.className = 'map-overlay-dot';
+      const titleEl = document.createElement('span');
+      titleEl.className = 'map-overlay-title';
+      const subEl = document.createElement('span');
+      subEl.className = 'map-overlay-sub';
+      mainEl.appendChild(dotEl);
+      mainEl.appendChild(titleEl);
+      el.appendChild(mainEl);
+      el.appendChild(subEl);
+      frag.appendChild(el);
+      pool.push({
+        el,
+        dotEl,
+        titleEl,
+        subEl,
+        visible: false,
+        lastSig: '',
+        lastColor: '',
+        lastOpacity: ''
+      });
+    }
+    container.appendChild(frag);
+    overlayState.pool = pool;
+    overlayState.poolReady = true;
+  }
+
+  function buildOverlayAnchors() {
+    if (!state.globe || !state.countriesList.length) return;
+    initOverlayPool();
+    const areaWeights = computeCountryAreaWeights();
+    const anchors = [];
+    for (let i = 0; i < state.countriesList.length; i++) {
+      const c = state.countriesList[i];
+      if (!c || !c.centroid || (c.centroid[0] === 0 && c.centroid[1] === 0)) continue;
+      const key = getCountryKey(c);
+      const iso = (c.iso3 || '').toUpperCase();
+      const [lng, lat] = c.centroid;
+      const coords = state.globe.getCoords(lat, lng, 0.005);
+      if (!coords) continue;
+      const rLen = Math.hypot(coords.x, coords.y, coords.z) || 100.5;
+      const nx = coords.x / rLen;
+      const ny = coords.y / rLen;
+      const nz = coords.z / rLen;
+      const areaWeight = areaWeights.get(key) || 0.05;
+      const isIslandHub = OVERLAY_ISLAND_HUBS.has(iso);
+      // Priority combines geographic area + slight boost for isolated ocean hubs (GBR, JPN, IDN, NZL, ISL...)
+      const priority = areaWeight * 10 + (isIslandHub ? 180 : 0) + (Math.abs(lat) > 74 ? -40 : 0);
+      //Tiered reveal threshold matching Google Maps zoom pacing:
+      // 0 = major continents & island hubs always eligible (subject to collision culling)
+      // 1 = medium sovereign states reveal on regional zoom
+      // 2 = small nations & microstates reveal on close zoom
+      let minTier = 2;
+      if (areaWeight >= 18 || isIslandHub) minTier = 0;
+      else if (areaWeight >= 2.2) minTier = 1;
+
+      anchors.push({
+        key,
+        iso,
+        country: c,
+        canonLang: c.canonicalLanguage || c.primaryLanguage || '',
+        color: c.color || '#38bdf8',
+        wx: coords.x,
+        wy: coords.y,
+        wz: coords.z,
+        nx,
+        ny,
+        nz,
+        areaWeight,
+        priority,
+        minTier,
+        labels: buildOverlayLabelsForCountry(c)
+      });
+    }
+    anchors.sort((a, b) => b.priority - a.priority);
+    overlayState.anchors = anchors;
+    overlayState.dirty = true;
+  }
+
+  function hideAllOverlaySlots() {
+    const pool = overlayState.pool;
+    for (let i = 0; i < pool.length; i++) {
+      if (pool[i].visible) {
+        pool[i].el.style.display = 'none';
+        pool[i].visible = false;
+      }
+    }
+  }
+
+  function syncOverlayZoomBadge(tier) {
+    if (overlayState.lastZoomTier === tier) return;
+    overlayState.lastZoomTier = tier;
+    state.overlayZoomTier = tier;
+    if (!elements.overlayZoomBadge) return;
+    elements.overlayZoomBadge.textContent =
+      tier === 2 ? 'Close Detail' : (tier === 1 ? 'Regional View' : 'Global View');
+  }
+
+  function markOverlaysDirty(immediate = false) {
+    overlayState.dirty = true;
+    if (immediate && state.globe && state.globe.camera() && renderBatch.merged) {
+      updateCountryOverlays(state.globe.camera(), true);
+    }
+    if (state.globe && state.globe.camera() && renderBatch.merged) {
+      requestAnimationFrame(() => {
+        const cam = state.globe ? state.globe.camera() : null;
+        if (cam) updateCountryOverlays(cam, true);
+      });
+    }
+  }
+
+  function updateCountryOverlays(camera, forceMatrixUpdate = false) {
+    if (!overlayState.poolReady || overlayState.anchors.length === 0) return;
+    const mode = state.mapOverlayMode;
+    if (mode === 'off') {
+      if (overlayState.dirty) {
+        hideAllOverlaySlots();
+        overlayState.dirty = false;
+      }
+      return;
+    }
+
+    if (!camera) return;
+    const vw = renderBatch.viewportW || window.innerWidth;
+    const vh = renderBatch.viewportH || window.innerHeight;
+    if (vw <= 0 || vh <= 0) return;
+
+    const camX = camera.position.x;
+    const camY = camera.position.y;
+    const camZ = camera.position.z;
+    const qx = camera.quaternion.x;
+    const qy = camera.quaternion.y;
+
+    if (
+      !overlayState.dirty &&
+      Math.abs(camX - overlayState.lastCamX) < 1e-3 &&
+      Math.abs(camY - overlayState.lastCamY) < 1e-3 &&
+      Math.abs(camZ - overlayState.lastCamZ) < 1e-3 &&
+      Math.abs(qx - overlayState.lastQx) < 1e-4 &&
+      Math.abs(qy - overlayState.lastQy) < 1e-4 &&
+      vw === overlayState.lastW &&
+      vh === overlayState.lastH
+    ) {
+      return;
+    }
+
+    overlayState.dirty = false;
+    overlayState.lastCamX = camX;
+    overlayState.lastCamY = camY;
+    overlayState.lastCamZ = camZ;
+    overlayState.lastQx = qx;
+    overlayState.lastQy = qy;
+    overlayState.lastW = vw;
+    overlayState.lastH = vh;
+
+    if (forceMatrixUpdate) {
+      camera.updateMatrixWorld();
+      camera.matrixWorldInverse.copy(camera.matrixWorld).invert();
+    }
+
+    if (!overlayState.projVec) overlayState.projVec = camera.position.clone();
+    const projVec = overlayState.projVec;
+
+    const camDist = Math.hypot(camX, camY, camZ) || 350;
+    const ux = camX / camDist;
+    const uy = camY / camDist;
+    const uz = camZ / camDist;
+
+    // Globe sphere horizon culling + limb fade band (keeps edge labels clear & legible)
+    const horizonDot = 100.5 / Math.max(101, camDist);
+    const minVisibleDot = Math.min(0.92, horizonDot + 0.16);
+    const fullVisibleDot = Math.min(0.97, minVisibleDot + 0.15);
+    const fadeDenom = Math.max(0.05, fullVisibleDot - minVisibleDot);
+
+    // Unified zoom metric (screen-space Earth radius in CSS pixels)
+    const projScale = (vh * 0.5) / (0.46630766 * Math.max(101, camDist));
+    const globeScreenR = 100 * projScale;
+    const isMob = isMobileViewport();
+    const t1Thresh = isMob ? 205 : 260;
+    const t2Thresh = isMob ? 285 : 365;
+    const zoomTier = globeScreenR >= t2Thresh ? 2 : (globeScreenR >= t1Thresh ? 1 : 0);
+    syncOverlayZoomBadge(zoomTier);
+
+    const isDetailTier = zoomTier === 2;
+    const padX = isDetailTier ? 6 : (zoomTier === 1 ? 8 : 11);
+    const padY = isDetailTier ? 5 : (zoomTier === 1 ? 6 : 8);
+    const dpr = window.devicePixelRatio || 1;
+    const snapPx = (v) => Math.round(v * dpr) / dpr;
+
+    // HUD Safe Zones so labels never sit behind nav header, toolbar, floating popovers, or open drawer
+    const safeTop = isMob ? 116 : 74;
+    const safeBottom = isMob ? vh - 76 : vh - 78;
+    const drawerOpen = Boolean(elements.countryDrawer && elements.countryDrawer.classList.contains('open'));
+    const safeRight = (drawerOpen && !isBottomSheetLayout()) ? Math.max(240, vw - 476) : vw - 10;
+    let bottomSheetLimit = safeBottom;
+    if (drawerOpen && isBottomSheetLayout()) {
+      const m = getSheetMetrics();
+      const sheetH = state.mobileDrawerSnap === 'full' ? m.fullH : (state.mobileDrawerSnap === 'peek' ? m.peekH : m.halfH);
+      bottomSheetLimit = Math.min(safeBottom, vh - sheetH - 8);
+    }
+
+    const hudBoxes = [];
+    const addHudObstacle = (el) => {
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      if (r.width > 10 && r.height > 10) {
+        hudBoxes.push([r.left - 6, r.top - 6, r.right + 6, r.bottom + 6]);
+      }
+    };
+    if (!isMob || state.isLegendExpandedMobile) {
+      addHudObstacle(elements.floatingLegend);
+    }
+    if (state.isOverlayMenuOpen) {
+      addHudObstacle(elements.mapOverlaysPanel);
+    }
+    if (state.showArcs && !drawerOpen) {
+      addHudObstacle(elements.arcsInfoPanel);
+    }
+
+    const selKey = state.selectedCountry ? getCountryKey(state.selectedCountry) : '';
+    const activeFilter = state.activeFilterLanguage;
+    const anchors = overlayState.anchors;
+    const placed = overlayState.placedBoxes;
+    placed.length = 0;
+
+    // Gather visible candidate indices; prioritize selected + active filter matches before geographic ranking
+    const candidates = [];
+    for (let i = 0; i < anchors.length; i++) {
+      const a = anchors[i];
+      const isSelected = a.key === selKey;
+      const isFiltered = Boolean(activeFilter && a.canonLang === activeFilter);
+      if (!isSelected && !isFiltered && a.minTier > zoomTier) continue;
+
+      const dot = a.nx * ux + a.ny * uy + a.nz * uz;
+      if (dot <= minVisibleDot) continue;
+
+      projVec.set(a.wx, a.wy, a.wz).project(camera);
+      if (projVec.z < -1 || projVec.z > 1) continue;
+
+      const sx = (projVec.x * 0.5 + 0.5) * vw;
+      const sy = (-projVec.y * 0.5 + 0.5) * vh;
+
+      const labelInfo = a.labels[mode] || a.labels.countries;
+      const dims = isDetailTier ? labelInfo.c2 : labelInfo.c0;
+      const halfW = dims.w * 0.5;
+      const halfH = dims.h * 0.5;
+      const x0 = sx - halfW;
+      const y0 = sy - halfH;
+      const x1 = sx + halfW;
+      const y1 = sy + halfH;
+
+      if (x0 < 8 || x1 > safeRight || y0 < safeTop || y1 > bottomSheetLimit) {
+        continue;
+      }
+
+      let blockedByHud = false;
+      for (let h = 0; h < hudBoxes.length; h++) {
+        const hb = hudBoxes[h];
+        if (x0 < hb[2] && x1 > hb[0] && y0 < hb[3] && y1 > hb[1]) {
+          blockedByHud = true;
+          break;
+        }
+      }
+      if (blockedByHud) continue;
+
+      const opacity = dot >= fullVisibleDot ? 1 : Math.max(0.34, 0.34 + 0.66 * ((dot - minVisibleDot) / fadeDenom));
+      const rank = a.priority + (isSelected ? 1000000 : 0) + (isFiltered ? 50000 : 0);
+      candidates.push({ a, sx, sy, w: dims.w, h: dims.h, halfW, halfH, opacity, isSelected, isFiltered, labelInfo, rank });
+    }
+
+    candidates.sort((x, y) => y.rank - x.rank);
+
+    const pool = overlayState.pool;
+    let slotIdx = 0;
+    const maxSlots = Math.min(pool.length, isMob ? (isDetailTier ? 34 : 20) : (isDetailTier ? 56 : (zoomTier === 1 ? 40 : 28)));
+
+    for (let i = 0; i < candidates.length && slotIdx < maxSlots; i++) {
+      const cand = candidates[i];
+      const bx0 = cand.sx - cand.halfW;
+      const by0 = cand.sy - cand.halfH;
+      const bx1 = bx0 + cand.w;
+      const by1 = by0 + cand.h;
+
+      let collides = false;
+      for (let p = 0; p < placed.length; p++) {
+        const pb = placed[p];
+        if (bx0 < pb[2] + padX && bx1 + padX > pb[0] && by0 < pb[3] + padY && by1 + padY > pb[1]) {
+          collides = true;
+          break;
+        }
+      }
+      if (collides) continue;
+
+      placed.push([bx0, by0, bx1, by1]);
+      const slot = pool[slotIdx++];
+      const el = slot.el;
+
+      const showSub = isDetailTier && Boolean(cand.labelInfo.s);
+      const sig = `${cand.a.key}|${mode}|${zoomTier}|${cand.isSelected ? 1 : 0}|${cand.isFiltered ? 1 : 0}`;
+      if (slot.lastSig !== sig) {
+        slot.lastSig = sig;
+        slot.titleEl.textContent = cand.labelInfo.t;
+        slot.subEl.textContent = showSub ? cand.labelInfo.s : '';
+        if (slot.lastColor !== cand.a.color) {
+          slot.lastColor = cand.a.color;
+          slot.dotEl.style.background = cand.a.color;
+        }
+        el.className =
+          'map-overlay-label' +
+          (mode === 'countries' ? ' is-countries' : '') +
+          ` is-tier-${zoomTier}` +
+          (isDetailTier ? ' is-detail' : '') +
+          (cand.isSelected ? ' is-selected' : '') +
+          (cand.isFiltered ? ' is-filtered' : '');
+        slot.subEl.className = showSub ? 'map-overlay-sub has-sub' : 'map-overlay-sub';
+      }
+
+      const opStr = cand.opacity >= 0.99 ? '1' : cand.opacity.toFixed(2);
+      if (slot.lastOpacity !== opStr) {
+        slot.lastOpacity = opStr;
+        el.style.opacity = opStr;
+      }
+
+      const tx = snapPx(bx0);
+      const ty = snapPx(by0);
+      el.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
+      if (!slot.visible) {
+        el.style.display = 'flex';
+        slot.visible = true;
+      }
+    }
+
+    for (let i = slotIdx; i < pool.length; i++) {
+      if (pool[i].visible) {
+        pool[i].el.style.display = 'none';
+        pool[i].visible = false;
+      }
+    }
+  }
+
+  function syncOverlayMenuUI() {
+    const mode = state.mapOverlayMode;
+    if (elements.toggleOverlayMenuBtn) {
+      elements.toggleOverlayMenuBtn.classList.toggle('active', state.isOverlayMenuOpen || mode !== 'off');
+      elements.toggleOverlayMenuBtn.classList.toggle('has-overlay', mode !== 'off');
+      elements.toggleOverlayMenuBtn.setAttribute('aria-expanded', state.isOverlayMenuOpen ? 'true' : 'false');
+    }
+    if (elements.mapOverlaysPanel) {
+      elements.mapOverlaysPanel.classList.toggle('open', state.isOverlayMenuOpen);
+      elements.mapOverlaysPanel.setAttribute('aria-hidden', state.isOverlayMenuOpen ? 'false' : 'true');
+    }
+    if (elements.overlayModeOptions) {
+      elements.overlayModeOptions.querySelectorAll('.overlay-mode-btn').forEach(btn => {
+        const m = btn.getAttribute('data-overlay');
+        const active = m === mode;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-checked', active ? 'true' : 'false');
+      });
+    }
+  }
+
+  function setMapOverlayMode(mode) {
+    const valid = new Set(['countries', 'languages', 'families', 'scripts', 'greetings', 'off']);
+    const nextMode = valid.has(mode) ? mode : 'countries';
+    state.mapOverlayMode = nextMode;
+    syncOverlayMenuUI();
+    if (nextMode === 'off') hideAllOverlaySlots();
+    markOverlaysDirty(true);
+  }
+
+  function initMapOverlays() {
+    initOverlayPool();
+    syncOverlayMenuUI();
+
+    if (elements.toggleOverlayMenuBtn) {
+      elements.toggleOverlayMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        state.isOverlayMenuOpen = !state.isOverlayMenuOpen;
+        if (state.isOverlayMenuOpen) {
+          if (isMobileViewport() && state.isLegendExpandedMobile) {
+            state.isLegendExpandedMobile = false;
+            syncLegendResponsiveUI();
+          }
+          if (isMobileViewport() && state.showArcs && elements.arcsInfoPanel) {
+            state.isArcsPanelCollapsed = true;
+            elements.arcsInfoPanel.classList.add('collapsed');
+            if (elements.arcsToggleCollapseBtn) elements.arcsToggleCollapseBtn.setAttribute('aria-expanded', 'false');
+          }
+        }
+        syncOverlayMenuUI();
+        markOverlaysDirty(true);
+      });
+    }
+
+    if (elements.overlayModeOptions) {
+      elements.overlayModeOptions.querySelectorAll('.overlay-mode-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const mode = btn.getAttribute('data-overlay');
+          setMapOverlayMode(mode);
+          if (isMobileViewport()) {
+            state.isOverlayMenuOpen = false;
+            syncOverlayMenuUI();
+            markOverlaysDirty(true);
+          }
+        });
+      });
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!state.isOverlayMenuOpen) return;
+      if (
+        elements.mapOverlaysPanel &&
+        !elements.mapOverlaysPanel.contains(e.target) &&
+        (!elements.toggleOverlayMenuBtn || !elements.toggleOverlayMenuBtn.contains(e.target))
+      ) {
+        state.isOverlayMenuOpen = false;
+        syncOverlayMenuUI();
+        markOverlaysDirty(true);
+      }
+    });
   }
 
   // Initialize Globe.GL with 2-Draw-Call Merged World Rendering
@@ -1460,6 +2315,8 @@
     renderBatch.viewportTop = initRect ? initRect.top : 0;
     renderBatch.viewportW = initW;
     renderBatch.viewportH = initH;
+
+    const oceanTexUrl = createOceanBathymetryDataUrl();
 
     state.globe = Globe({
       rendererConfig: {
@@ -1473,17 +2330,25 @@
       .height(initH)
       .backgroundColor('#090d16')
       .enablePointerInteraction(false)
+      .globeCurvatureResolution(1.5)
+      .showGraticules(true)
       .showAtmosphere(state.showAtmosphere)
       .atmosphereColor('#38bdf8')
       .atmosphereAltitude(0.16)
       .polygonsData(state.geoData.features)
       .polygonGeoJsonGeometry(d => d.geometry)
-      .polygonCapCurvatureResolution(5)
+      .polygonCapCurvatureResolution(3)
       .polygonAltitude(0.0025)
       .polygonSideColor(() => null)
       .polygonsTransitionDuration(0)
       .polygonCapColor(d => d.__color)
-      .polygonStrokeColor(() => '#000000');
+      .polygonStrokeColor(() => '#030712');
+
+    if (oceanTexUrl) {
+      state.globe.globeImageUrl(oceanTexUrl).onGlobeReady(() => {
+        configureGlobeSurface();
+      });
+    }
 
     // Cache microstates for 1-draw-call surface locator badges & O(1) spatial picking
     renderBatch.microstates = getMicrostates();
@@ -1513,18 +2378,8 @@
       .ringRepeatPeriod(1500)
       .ringResolution(36);
 
-    // Base Ocean Sphere Configuration (Prevents Z-fighting with Early-Z intact)
-    try {
-      const globeMat = state.globe.globeMaterial();
-      if (globeMat) {
-        globeMat.color.set('#070b14');
-        globeMat.polygonOffset = true;
-        globeMat.polygonOffsetFactor = 3.0;
-        globeMat.polygonOffsetUnits = 3.0;
-      }
-    } catch (e) {
-      console.warn('Globe material offset:', e);
-    }
+    // Configure Ocean Sphere Specular, Graticules & Balanced 3D Directional Lighting
+    configureGlobeSurface();
 
     // WebGL Camera and Renderer Configuration
     const MIN_CAM_DIST = 132;
@@ -1611,6 +2466,7 @@
     }
 
     controls.addEventListener('start', () => {
+      state.pendingZoomAlt = null;
       hideTooltip();
       if (state.isRotating) {
         controls.autoRotate = false;
@@ -2113,6 +2969,7 @@
 
   function flyToCorridorCamera(cam) {
     if (!state.globe || !cam) return;
+    state.pendingZoomAlt = null;
     const controls = state.globe.controls();
     if (controls) controls.autoRotate = false;
     const scale = Math.max(1, getDefaultAltitude() / 2.5);
@@ -2522,9 +3379,14 @@
       state.isLegendExpandedMobile = false;
       syncLegendResponsiveUI();
     }
+    if (isMobileViewport() && state.isOverlayMenuOpen) {
+      state.isOverlayMenuOpen = false;
+      syncOverlayMenuUI();
+    }
 
     // Update merged vertex colors and raised highlight in <0.3ms
     refreshPolygonVisuals();
+    markOverlaysDirty(true);
     if (state.globe && state.showArcs) {
       state.activeOriginCorridor = 'country';
       updateArcs();
@@ -2532,6 +3394,7 @@
 
     // Animate camera to country's centroid snappily (framed above portrait bottom sheet on mobile)
     if (animateCamera && state.globe && country.centroid) {
+      state.pendingZoomAlt = null;
       const [lng, lat] = country.centroid;
       if (lat !== 0 || lng !== 0) {
         const controls = state.globe.controls();
@@ -2759,6 +3622,7 @@
     elements.countryDrawer.setAttribute('aria-hidden', 'false');
     document.body.classList.add('drawer-is-open');
     setMobileDrawerSnap('half', true);
+    markOverlaysDirty(true);
   }
 
   // HTML escape helper
@@ -2883,6 +3747,7 @@
           elements.legendResetBtn.style.display = 'inline-block';
           syncLegendResponsiveUI();
           refreshPolygonVisuals();
+          markOverlaysDirty(true);
           if (state.globe && state.showArcs) {
             if (!state.selectedCountry) {
               state.activeOriginCorridor = 'filter';
@@ -2897,12 +3762,19 @@
     if (elements.toggleLegendMobileBtn) {
       elements.toggleLegendMobileBtn.addEventListener('click', () => {
         state.isLegendExpandedMobile = !state.isLegendExpandedMobile;
-        if (state.isLegendExpandedMobile && state.showArcs && elements.arcsInfoPanel) {
-          state.isArcsPanelCollapsed = true;
-          elements.arcsInfoPanel.classList.add('collapsed');
-          if (elements.arcsToggleCollapseBtn) elements.arcsToggleCollapseBtn.setAttribute('aria-expanded', 'false');
+        if (state.isLegendExpandedMobile) {
+          if (state.isOverlayMenuOpen) {
+            state.isOverlayMenuOpen = false;
+            syncOverlayMenuUI();
+          }
+          if (state.showArcs && elements.arcsInfoPanel) {
+            state.isArcsPanelCollapsed = true;
+            elements.arcsInfoPanel.classList.add('collapsed');
+            if (elements.arcsToggleCollapseBtn) elements.arcsToggleCollapseBtn.setAttribute('aria-expanded', 'false');
+          }
         }
         syncLegendResponsiveUI();
+        markOverlaysDirty(true);
       });
     }
 
@@ -2910,6 +3782,7 @@
       elements.legendCloseBtn.addEventListener('click', () => {
         state.isLegendExpandedMobile = false;
         syncLegendResponsiveUI();
+        markOverlaysDirty(true);
       });
     }
 
@@ -2928,6 +3801,7 @@
     }
     syncLegendResponsiveUI();
     refreshPolygonVisuals();
+    markOverlaysDirty(true);
     if (state.globe && state.showArcs) updateArcs();
   }
 
@@ -3042,6 +3916,7 @@
         : (state._prevCorridorBeforeCountry || 'all');
     }
     refreshPolygonVisuals();
+    markOverlaysDirty(true);
     if (state.globe) {
       if (state.showArcs) updateArcs();
       if (state.isRotating) {
@@ -3337,20 +4212,33 @@
       elements.toggleRotateBtn.classList.toggle('active', state.isRotating);
     });
 
-    // Zoom buttons (Snappy 240ms duration)
+    // Zoom buttons (Snappy 240ms duration, rapid multi-clicks stack cleanly)
     elements.zoomInBtn.addEventListener('click', () => {
-      const pov = state.globe.pointOfView();
-      state.globe.pointOfView({ altitude: Math.max(0.32, pov.altitude - 0.5) }, 240);
+      const now = performance.now();
+      const baseAlt = (state.pendingZoomAlt !== null && now - state.pendingZoomTs < 420)
+        ? state.pendingZoomAlt
+        : state.globe.pointOfView().altitude;
+      const nextAlt = Math.max(0.32, baseAlt - 0.5);
+      state.pendingZoomAlt = nextAlt;
+      state.pendingZoomTs = now;
+      state.globe.pointOfView({ altitude: nextAlt }, 240);
     });
 
     elements.zoomOutBtn.addEventListener('click', () => {
-      const pov = state.globe.pointOfView();
+      const now = performance.now();
       const maxAlt = Math.max(4.8, getDefaultAltitude() + 1.0);
-      state.globe.pointOfView({ altitude: Math.min(maxAlt, pov.altitude + 0.5) }, 240);
+      const baseAlt = (state.pendingZoomAlt !== null && now - state.pendingZoomTs < 420)
+        ? state.pendingZoomAlt
+        : state.globe.pointOfView().altitude;
+      const nextAlt = Math.min(maxAlt, baseAlt + 0.5);
+      state.pendingZoomAlt = nextAlt;
+      state.pendingZoomTs = now;
+      state.globe.pointOfView({ altitude: nextAlt }, 240);
     });
 
     // Reset View (Snappy 500ms duration)
     elements.resetViewBtn.addEventListener('click', () => {
+      state.pendingZoomAlt = null;
       state.globe.pointOfView({ lat: 20, lng: 0, altitude: getDefaultAltitude() }, 500);
     });
 
@@ -3368,6 +4256,10 @@
         elements.toggleArcsBtn.classList.toggle('active', state.showArcs);
         if (state.showArcs) {
           state.isArcsPanelCollapsed = false;
+          if (isMobileViewport() && state.isOverlayMenuOpen) {
+            state.isOverlayMenuOpen = false;
+            syncOverlayMenuUI();
+          }
           if (isMobileViewport() && state.isLegendExpandedMobile) {
             state.isLegendExpandedMobile = false;
             syncLegendResponsiveUI();
@@ -3382,6 +4274,7 @@
         }
         updateArcs();
         syncDrawerOriginButton();
+        markOverlaysDirty(true);
       });
     }
 
@@ -3392,6 +4285,7 @@
           elements.arcsInfoPanel.classList.toggle('collapsed', state.isArcsPanelCollapsed);
         }
         elements.arcsToggleCollapseBtn.setAttribute('aria-expanded', state.isArcsPanelCollapsed ? 'false' : 'true');
+        markOverlaysDirty(true);
       });
     }
 
@@ -3401,6 +4295,7 @@
         if (elements.toggleArcsBtn) elements.toggleArcsBtn.classList.remove('active');
         updateArcs();
         syncDrawerOriginButton();
+        markOverlaysDirty(true);
       });
     }
 
@@ -3498,6 +4393,10 @@
         elements.infoModal.setAttribute('aria-hidden', 'true');
         elements.listModal.classList.remove('open');
         elements.listModal.setAttribute('aria-hidden', 'true');
+        if (state.isOverlayMenuOpen) {
+          state.isOverlayMenuOpen = false;
+          syncOverlayMenuUI();
+        }
         hideTooltip();
         closeCountryDrawer();
       }

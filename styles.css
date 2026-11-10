@@ -31,7 +31,6 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  -webkit-font-smoothing: antialiased;
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
@@ -107,6 +106,111 @@ button,
   -webkit-user-drag: none;
 }
 
+/* Zoom-Adaptive Country Map Overlays (Google Maps Style) */
+.globe-map-overlays {
+  position: fixed;
+  inset: 0;
+  z-index: 6;
+  overflow: hidden;
+  pointer-events: none;
+  contain: layout style;
+}
+
+.map-overlay-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 8px;
+  border-radius: 7px;
+  background: rgba(8, 13, 25, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+  color: #f8fafc;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+  transform-origin: center center;
+}
+
+.map-overlay-label.is-countries {
+  background: rgba(8, 13, 25, 0.54);
+  border-color: rgba(255, 255, 255, 0.14);
+  padding: 2px 7px;
+}
+
+.map-overlay-label.is-detail {
+  padding: 4px 10px 5px;
+  border-radius: 9px;
+  background: rgba(9, 15, 28, 0.84);
+  border-color: rgba(148, 163, 184, 0.30);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
+}
+
+.map-overlay-label.is-selected {
+  background: rgba(11, 22, 42, 0.94);
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.45), 0 6px 18px rgba(0, 0, 0, 0.65);
+}
+
+.map-overlay-label.is-filtered {
+  border-color: rgba(255, 255, 255, 0.55);
+  background: rgba(11, 18, 34, 0.88);
+}
+
+.map-overlay-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 190px;
+}
+
+.map-overlay-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
+}
+
+.map-overlay-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  color: #f8fafc;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.map-overlay-label.is-tier-0 .map-overlay-title {
+  font-size: 11px;
+}
+
+.map-overlay-label.is-detail .map-overlay-title {
+  font-size: 12.5px;
+}
+
+.map-overlay-sub {
+  display: none;
+  margin-top: 2px;
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1.18;
+  color: #7dd3fc;
+  max-width: 196px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.map-overlay-label.is-detail .map-overlay-sub.has-sub {
+  display: block;
+}
+
 /* UI Panels */
 .glass-panel {
   background: rgba(13, 19, 34, 0.94);
@@ -157,10 +261,8 @@ button,
 .brand-title {
   font-size: 1.05rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #ffffff, #94a3b8);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.015em;
+  color: #f8fafc;
 }
 
 .brand-subtitle {
@@ -253,8 +355,6 @@ button,
   max-height: 380px;
   overflow-y: auto;
   overscroll-behavior: contain;
-  contain: content;
-  will-change: scroll-position;
   display: none;
   z-index: 50;
   box-shadow: 0 20px 35px -5px rgba(0, 0, 0, 0.6);
@@ -442,8 +542,6 @@ button,
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   touch-action: pan-y;
-  contain: content;
-  will-change: scroll-position;
 }
 
 .legend-chip {
@@ -454,14 +552,14 @@ button,
   border-radius: var(--radius-full);
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  font-size: 0.74rem;
+  font-size: 0.76rem;
   cursor: pointer;
-  transition: var(--transition-smooth);
+  transition: background-color 0.14s ease, border-color 0.14s ease, color 0.14s ease;
 }
 
 .legend-chip:hover {
   background: rgba(255, 255, 255, 0.14);
-  transform: scale(1.03);
+  border-color: rgba(148, 163, 184, 0.35);
 }
 
 .legend-chip.active {
@@ -476,20 +574,140 @@ button,
   flex-shrink: 0;
 }
 
-/* Globe Control Buttons (Bottom Center) */
+/* Map Overlays Mode Selector Popover */
+.map-overlays-panel {
+  position: fixed;
+  bottom: 78px;
+  left: 0;
+  right: 0;
+  width: 336px;
+  max-width: calc(100vw - 24px);
+  margin: 0 auto;
+  padding: 12px 14px;
+  z-index: 26;
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(11, 17, 32, 0.96);
+  border: 1px solid rgba(56, 189, 248, 0.32);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.62);
+}
+
+.map-overlays-panel.open {
+  display: flex;
+}
+
+.overlays-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.overlays-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.overlays-panel-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+}
+
+.overlay-zoom-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent-cyan);
+  background: rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.overlay-mode-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.overlay-mode-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.14s ease, border-color 0.14s ease, color 0.14s ease;
+}
+
+.overlay-mode-btn:hover {
+  background: rgba(255, 255, 255, 0.11);
+  border-color: rgba(56, 189, 248, 0.42);
+}
+
+.overlay-mode-btn.active {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: var(--accent-cyan);
+}
+
+.overlay-mode-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.overlay-mode-btn.active .overlay-mode-name {
+  color: #7dd3fc;
+}
+
+.overlay-mode-desc {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  line-height: 1.2;
+}
+
+/* Globe Control Buttons (Bottom Center - Exact Integer Centering) */
 .globe-controls-bar {
   position: fixed;
   bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  width: fit-content;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
-  background: rgba(13, 19, 34, 0.92);
+  background: rgba(13, 19, 34, 0.94);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-full);
   z-index: 20;
+}
+
+.overlay-active-dot {
+  display: none;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 0 1.5px rgba(13, 19, 34, 0.95);
+}
+
+.globe-tool-btn.has-overlay .overlay-active-dot {
+  display: block;
 }
 
 .globe-tool-btn {
@@ -801,7 +1019,7 @@ body.drawer-is-open .arcs-info-panel {
   background: linear-gradient(90deg, #f59e0b, #38bdf8);
 }
 
-/* Country Details Drawer (Hardware Accelerated Sliding from Right) */
+/* Country Details Drawer (Crushed-blur-free Sliding Panel from Right) */
 .country-drawer {
   position: fixed;
   top: 0;
@@ -818,15 +1036,13 @@ body.drawer-is-open .arcs-info-panel {
   visibility: hidden;
   pointer-events: none;
   transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0.22s;
-  will-change: transform;
-  contain: layout style paint;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
 .country-drawer.open {
-  transform: translateX(0);
+  transform: none;
   visibility: visible;
   pointer-events: auto;
   transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 0s;
@@ -968,8 +1184,6 @@ body.drawer-is-open .arcs-info-panel {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   touch-action: pan-y;
-  contain: content;
-  will-change: scroll-position;
 }
 
 /* Custom Scrollbar */
@@ -1365,14 +1579,12 @@ body.drawer-is-open .arcs-info-panel {
   flex-direction: column;
   box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.7);
   overflow: hidden;
-  contain: layout style paint;
   transform: scale(0.97) translateY(8px);
   transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform;
 }
 
 .modal-overlay.open .modal-content {
-  transform: scale(1) translateY(0);
+  transform: none;
 }
 
 .modal-header {
@@ -1396,8 +1608,6 @@ body.drawer-is-open .arcs-info-panel {
   min-height: 0;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
-  contain: content;
-  will-change: scroll-position;
 }
 
 .countries-grid {
@@ -1437,8 +1647,6 @@ body.drawer-is-open .arcs-info-panel {
   visibility: hidden;
   transform: translate3d(-9999px, -9999px, 0);
   transform-origin: top left;
-  contain: layout style;
-  will-change: transform;
 }
 
 .globe-hover-tooltip.visible {
@@ -1458,15 +1666,14 @@ body.drawer-is-open .arcs-info-panel {
   background: rgba(11, 17, 32, 0.96);
   border: 1px solid var(--accent-cyan);
   border-radius: var(--radius-sm);
-  padding: 8px 12px;
+  padding: 9px 13px;
   color: #fff;
-  font-size: 0.82rem;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  font-size: 0.84rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.55);
   display: flex;
   flex-direction: column;
   gap: 3px;
   white-space: nowrap;
-  contain: layout style;
 }
 
 .tooltip-title {
@@ -1478,12 +1685,12 @@ body.drawer-is-open .arcs-info-panel {
 
 .tooltip-lang {
   color: var(--accent-cyan);
-  font-size: 0.76rem;
+  font-size: 0.78rem;
 }
 
 .tooltip-hint {
-  font-size: 0.68rem;
-  color: var(--text-muted);
+  font-size: 0.72rem;
+  color: var(--text-secondary);
 }
 
 /* Loading Screen */
@@ -1726,6 +1933,22 @@ body.drawer-is-open .arcs-info-panel {
     --drawer-peek-offset: calc(var(--drawer-peek-h, 128px) + 6px);
   }
 
+  .map-overlays-panel {
+    bottom: calc(74px + env(safe-area-inset-bottom) + var(--drawer-peek-offset, 0px));
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 11px 12px;
+    z-index: 30;
+  }
+
+  .overlay-mode-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
   .globe-controls-bar {
     bottom: calc(14px + env(safe-area-inset-bottom) + var(--drawer-peek-offset, 0px));
     left: 12px;
@@ -1735,14 +1958,14 @@ body.drawer-is-open .arcs-info-panel {
     margin: 0 auto;
     transform: none;
     justify-content: space-between;
-    padding: 6px 10px;
+    padding: 6px 8px;
     gap: 2px;
     transition: bottom 0.24s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .globe-tool-btn {
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
   }
 
   .globe-tool-btn.mobile-only-tool {
@@ -1777,7 +2000,6 @@ body.drawer-is-open .arcs-info-panel {
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.65);
     transform: translateY(100%);
-    will-change: transform, height;
     transition:
       transform 0.26s cubic-bezier(0.22, 1, 0.36, 1),
       height 0.26s cubic-bezier(0.22, 1, 0.36, 1),
@@ -1786,7 +2008,7 @@ body.drawer-is-open .arcs-info-panel {
   }
 
   .country-drawer.open {
-    transform: translateY(0);
+    transform: none;
     transition:
       transform 0.26s cubic-bezier(0.22, 1, 0.36, 1),
       height 0.26s cubic-bezier(0.22, 1, 0.36, 1),
@@ -1812,6 +2034,7 @@ body.drawer-is-open .arcs-info-panel {
 
   .country-drawer.is-dragging {
     transition: none !important;
+    will-change: transform, height;
   }
 
   .drawer-header {
@@ -1955,17 +2178,29 @@ body.drawer-is-open .arcs-info-panel {
   }
 
   .globe-controls-bar {
-    padding: 5px 6px;
+    padding: 5px 5px;
+    gap: 0;
   }
 
   .globe-tool-btn {
-    width: 35px;
+    width: 34px;
     height: 36px;
   }
 }
 
 /* Landscape mobile phones with short vertical height */
 @media (max-height: 500px) {
+  .map-overlays-panel {
+    bottom: calc(64px + env(safe-area-inset-bottom));
+    max-width: 380px;
+    padding: 10px 12px;
+  }
+
+  .overlay-mode-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+  }
+
   .country-drawer,
   .country-drawer.snap-peek,
   .country-drawer.snap-half,
@@ -1985,7 +2220,7 @@ body.drawer-is-open .arcs-info-panel {
   }
 
   .country-drawer.open {
-    transform: translateX(0);
+    transform: none;
   }
 
   .drawer-header {

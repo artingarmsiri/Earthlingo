@@ -1,126 +1,110 @@
-# 🌍 Earthlingo — World Languages & Accents Atlas
+# 🌍 Earthlingo
 
-An interactive, accessible 3D linguistic globe web application mapping languages, multiple spoken languages, regional accents, dialects, and interactive audio phrasebooks for every single country on Earth.
+An interactive, high-FPS **3D linguistic atlas** mapping shared languages, multilingual breakdowns, regional accents, dialects, and spoken phrasebooks across **242 countries and territories**.
 
-Built with **Three.js** and **Globe.gl**, designed with a modern glassmorphic UI, and structured for zero-configuration deployment to **GitHub Pages** (`github.io`).
+Built as a static zero-build web app with **Three.js** and **Globe.gl**, bundled to work both **directly from disk (`file:///`)** and on **GitHub Pages (`github.io`)**.
 
 ---
 
 ## ✨ Features
 
-- **🌐 Interactive 3D Earth Globe**:
-  - Full 3D rotation, zooming, and panning with smooth inertia damping.
-  - Every country and territory rendered with precise geometric boundaries.
-  - Countries color-coded by their dominant **Language Family** (Germanic, Romance, Slavic, Sino-Tibetan, Afroasiatic, Niger-Congo, Austronesian, Turkic, Uralic, Dravidian, etc.).
-  - Microstate markers for islands and city-states (Singapore, Monaco, Malta, Andorra, Maldives, Samoa, etc.).
-  - Smooth camera animation: clicking any country flies the camera directly to that country's centroid.
+### Interactive 3D Globe
+- **Shared-Language Color Map**: Countries speaking the same primary language (Spanish, English, French, Arabic, Portuguese, Russian, etc.) share the same color, while related language families use harmonious tones.
+- **Tactile Navigation**: Orbit smoothly with inertia damping, toggle auto-rotation or atmospheric glow, or click any nation to fly directly to its geographic center with a crisp selection highlight.
+- **Flush Microstate Badges**: Compact surface locator rings highlight 25 small sovereign nations (Vatican City, Monaco, Singapore, San Marino, Liechtenstein, Andorra, Malta, Bahrain, Maldives, and Caribbean/Pacific island states) without obscuring nearby borders.
+- **Shared-Language Arcs**: Toggle 3D geodesic arcs to link nations sharing a selected country's language, filtered language, or major global hubs.
 
-- **🗣️ Multiple Languages Breakdown**:
-  - Detailed breakdown of all languages spoken in each country:
-    - Official & national languages
-    - Co-official & regional languages
-    - Indigenous & minority tongues
-  - Speaker percentage bars, estimated speaker populations, and writing scripts (Latin, Cyrillic, Arabic, Devanagari, Hangul, Kanji/Kana, Ge'ez, etc.).
+### Country Linguistic Profiles
+- **Multiple Spoken Languages**: Breakdown of official, co-official, indigenous, and regional minority languages with speaker percentage bars, estimates, scripts (Latin, Cyrillic, Arabic, Devanagari, Hangul, Kanji/Kana, Ge'ez, etc.), and historical notes.
+- **Accents & Dialects**: Guides to regional varieties, phonetic quirks, intonation patterns, and colloquial expressions (e.g., Cockney/Scouse/Geordie, Chilango/Norteño, Kansai-ben, Swiss German).
+- **Audio Phrasebook**: Common greetings, thank-yous, and farewells with phonetic guides and one-click pronunciation via the browser's **HTML5 Web Speech API**.
 
-- **🎙️ Accents & Regional Dialects**:
-  - In-depth guide to regional accents for each country (e.g. Cockney vs Scouse vs Geordie in the UK, Chilango vs Norteño in Mexico, Swiss German vs High German in Switzerland, Kansai-ben in Japan, AAVE vs Southern Drawl in the US).
-  - Describes distinctive phonetic quirks, intonation patterns, and famous colloquial slang with meanings.
+### Search, Filters & Accessibility
+- **Instant Search (`/` shortcut)**: Search simultaneously by country name, native name, spoken language, accent, language family, or continent.
+- **Shared Languages Filter Legend**: Click any major language chip in the bottom-left legend to spotlight all matching countries and microstate badges while dimming others.
+- **Accessible 2D List View**: Full 242-country searchable/scrollable card directory for keyboard users, screen readers, or quick non-3D browsing.
 
-- **🔊 Interactive Audio Phrasebook (Text-to-Speech)**:
-  - Common greetings, thank-you expressions, and farewells with phonetic guides.
-  - **"Listen" button** that speaks the phrase in that language/accent using the browser's built-in **HTML5 Web Speech Synthesis API** with realistic native pronunciation.
-
-- **🔍 Search & Filter**:
-  - Instant search autocomplete: search by **Country name**, **Language** (e.g., searching "Spanish" or "Arabic" shows all matching nations), **Accent**, or **Continent**.
-  - **Language Family Filter Legend**: click any family chip in the legend to highlight matching nations on the globe while dimming others.
-
-- **♿ Accessibility First**:
-  - **2D List / Grid View modal**: a flat, accessible table/grid view for screen readers or users who prefer a non-3D interface.
-  - Keyboard shortcuts:
-    - `/` : Focus search bar
-    - `Spacebar` : Toggle globe auto-rotation
-    - `R` : Reset globe camera
-    - `Esc` : Close drawers and modals
+| Shortcut | Action |
+| :--- | :--- |
+| `/` | Focus search bar |
+| `Space` | Toggle globe auto-rotation |
+| `R` | Reset camera view |
+| `Esc` | Close active drawer, modal, or search |
 
 ---
 
-## 🚀 How to Run Locally
+## ⚡ Performance Architecture
 
-You have two easy ways to run the app locally:
+Designed to stay smooth on integrated GPUs:
+- **Merged GPU Geometry**: Combines 1,620 landmass polygons, country border segments, and 25 microstate badges into unified batched WebGL buffers (`6` core draw calls total).
+- **O(1) Spatial Picking**: Replaces heavy mesh raycasting with analytic ray-sphere intersection and a 10° spatial hash grid for low-overhead hovering and clicking.
+- **Pre-Bundled Offline Data**: Ships both JSON datasets and JS bundles (`world_countries.js`, `languages.js`) alongside standalone `globe.gl.min.js`.
 
-### Option 1: Just Double-Click `index.html` (Instant — No Server Required!)
-The application is pre-bundled with offline data scripts (`world_countries.js` and `languages.js`). You can literally **double-click `index.html`** in Windows Explorer to open it in Chrome, Edge, Safari, or Firefox without any CORS or "failed to fetch" errors!
+---
 
-### Option 2: 1-Click Server Launcher (`start_server.bat`)
-Double-click `start_server.bat` in this folder. It automatically detects Python or Node, starts a local server on port 8000, and opens your browser.
+## 🚀 Running Locally
 
-### Option 3: Command Line
+### Option 1: Open Directly (No Server Needed)
+Double-click [`index.html`](index.html) to open Earthlingo straight in your browser. Pre-bundled script datasets prevent `file:///` CORS fetch errors automatically.
+
+### Option 2: Windows Launcher
+Double-click [`start_server.bat`](start_server.bat) to start a local HTTP server on `http://localhost:8000` (uses Python or Node if available, otherwise launches `index.html`).
+
+### Option 3: Local Dev Server
 ```bash
-# Using Python:
+# Python
 python -m http.server 8000
 
-# Using Node:
+# Node.js
 npx serve .
 ```
 
 ---
 
-## 📦 How to Host on GitHub Pages (`github.io`)
+## 📦 Deploying to GitHub Pages
 
-This project has **zero build steps** and uses purely relative paths (`./`), making deployment to GitHub Pages instantaneous:
+Earthlingo requires no bundler or build step—all paths are relative (`./`):
 
-1. **Create a GitHub repository** (e.g. `Earthlingo`).
-2. **Commit and push** all files in this directory to your repository:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit of Earthlingo"
-   git branch -M main
-   git remote add origin https://github.com/<your-username>/<your-repo-name>.git
-   git push -u origin main
-   ```
-3. **Enable GitHub Pages**:
-   - Go to your repository on GitHub.
-   - Click **Settings** (gear icon) → **Pages** (in the left sidebar).
-   - Under **Build and deployment** > **Source**, choose **"Deploy from a branch"**.
-   - Under **Branch**, select `main` and folder `/ (root)`, then click **Save**.
-4. In about 30 seconds, your site will be live at:
-   ```
-   https://<your-username>.github.io/<your-repo-name>/
+1. Push your repository to GitHub (e.g. `https://github.com/<username>/Earthlingo`).
+2. Open your repository **Settings → Pages**.
+3. Under **Build and deployment → Source**, choose **Deploy from a branch**.
+4. Select branch **`main`** and folder **`/ (root)`**, then click **Save**.
+5. Once published, your site will be live at:
+   ```text
+   https://<username>.github.io/Earthlingo/
    ```
 
 ---
 
 ## 📂 Project Structure
 
-```
-world lang/
-├── index.html                  # Accessible main entry point with semantic HTML5
-├── styles.css                  # Modern glassmorphism dark theme & responsive layouts
-├── app.js                      # 3D globe logic, Web Speech TTS, search & interactivity
-├── data/
-│   ├── world_countries.geojson # Optimized GeoJSON boundaries for 242 countries
-│   └── languages.json          # Exhaustive language, accent, and phrase database
+```text
+Earthlingo/
+├── index.html                      # Semantic HTML5 shell, controls, modals & drawer
+├── styles.css                      # Dark UI styling, layout & responsive rules
+├── app.js                          # Merged WebGL rendering, spatial picker, search & TTS
+├── start_server.bat                # Windows 1-click local server launcher
 ├── libs/
-│   └── globe.gl.min.js         # Bundled standalone Globe.gl library (works 100% offline)
-├── scripts/                    # Database compilation and maintenance utilities
+│   └── globe.gl.min.js             # Bundled Globe.gl + Three.js runtime (CDN fallback in HTML)
+├── data/
+│   ├── world_countries.geojson     # GeoJSON boundaries for 242 countries & territories
+│   ├── world_countries.js          # Offline file:// bundle of world_countries.geojson
+│   ├── languages.json              # Country profiles, languages, accents & phrasebooks
+│   └── languages.js                # Offline file:// bundle of languages.json
+├── scripts/                        # Database assembly & color assignment utilities
 │   ├── build_full_database.js
+│   ├── update_language_colors.js
 │   ├── country_data.js
-│   ├── countries_americas.js
-│   ├── countries_europe.js
-│   ├── countries_asia.js
-│   ├── countries_africa.js
-│   └── countries_oceania.js
-└── README.md                   # Documentation and deployment instructions
+│   └── countries_*.js
+└── README.md
 ```
 
 ---
 
 ## 🌐 Supported Browsers
 
-Works in all modern browsers supporting WebGL and Web Speech API:
-- Google Chrome & Chromium
-- Mozilla Firefox
+Requires a modern browser with **WebGL** (hardware acceleration recommended) and **Web Speech API** support:
+- Google Chrome / Chromium
 - Microsoft Edge
+- Mozilla Firefox
 - Apple Safari (macOS & iOS)
-

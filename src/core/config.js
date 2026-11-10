@@ -126,7 +126,14 @@
     'ARE', 'QAT', 'BHR', 'KWT', 'LBY', 'ESH', 'COM'
   ]);
 
-  const COLOR_BY_MODES = new Set(['language', 'family', 'script']);
+  const COLOR_BY_MODES = new Set(['language', 'family', 'script', 'diversity']);
+
+  const DIVERSITY_GROUPS = [
+    { name: 'Hyper-Diverse', label: 'Hyper-Diverse (76–100)', min: 76, color: '#f59e0b' },
+    { name: 'High Diversity', label: 'High Diversity (52–75)', min: 52, color: '#10b981' },
+    { name: 'Moderate Diversity', label: 'Moderate (28–51)', min: 28, color: '#0ea5e9' },
+    { name: 'Low Diversity', label: 'Low Diversity (<28)', min: 0, color: '#4f618f' }
+  ];
 
   const FAMILY_GROUPS = [
     { name: 'Indo-European (Romance)', color: '#f43f5e' },
@@ -234,16 +241,47 @@
     { pattern: /\bhebrew\b/i, token: 'Hebrew' },
     { pattern: /\blatin\b/i, token: 'Latin' },
     { pattern: /\bmongolian\b/i, token: 'Mongolian' },
+    { pattern: /\bmontenegrin\b/i, token: 'Montenegrin' },
     { pattern: /\blithuanian\b/i, token: 'Lithuanian' },
     { pattern: /\blatvian\b/i, token: 'Latvian' },
     { pattern: /\bestonian\b/i, token: 'Estonian' },
     { pattern: /\bicelandic\b/i, token: 'Icelandic' },
-    { pattern: /\bgeorgian\b/i, token: 'Georgian' }
+    { pattern: /\bgeorgian\b/i, token: 'Georgian' },
+    { pattern: /\bdhivehi\b/i, token: 'Dhivehi' },
+    { pattern: /\bdzongkha\b/i, token: 'Dzongkha' },
+    { pattern: /\bkhmer\b/i, token: 'Khmer' },
+    { pattern: /\bburmese\b/i, token: 'Burmese' },
+    { pattern: /\blao\b/i, token: 'Lao' },
+    { pattern: /\bm[aā]ori\b/i, token: 'Māori' },
+    { pattern: /\bchamorro\b/i, token: 'Chamorro' },
+    { pattern: /\bmanx\b/i, token: 'Manx' },
+    { pattern: /\bjèrriais\b/i, token: 'Jèrriais' },
+    { pattern: /\boccitan\b/i, token: 'Occitan' },
+    { pattern: /\bbreton\b/i, token: 'Breton' },
+    { pattern: /\bsardinian\b/i, token: 'Sardinian' },
+    { pattern: /\bcorsican\b/i, token: 'Corsican' },
+    { pattern: /\bmehri\b/i, token: 'Mehri' },
+    { pattern: /\bsoqotri\b/i, token: 'Soqotri' },
+    { pattern: /\btalysh\b/i, token: 'Talysh' },
+    { pattern: /\blezgian\b/i, token: 'Lezgian' },
+    { pattern: /\bgagauz\b/i, token: 'Gagauz' },
+    { pattern: /\brusyn\b/i, token: 'Rusyn' },
+    { pattern: /\bsylheti\b/i, token: 'Sylheti' },
+    { pattern: /\bnawat\b/i, token: 'Nawat' },
+    { pattern: /\bbribri\b/i, token: 'Bribri' },
+    { pattern: /\bpapiament[ou]\b/i, token: 'Papiamento' },
+    { pattern: /\bkarakalpak\b/i, token: 'Karakalpak' },
+    { pattern: /\bburushaski\b/i, token: 'Burushaski' },
+    { pattern: /\bshan\b/i, token: 'Shan' },
+    { pattern: /\bkaren\b/i, token: 'Karen' },
+    { pattern: /\bcham\b/i, token: 'Cham' },
+    { pattern: /\bsyriac|neo-aramaic\b/i, token: 'Syriac / Aramaic' }
   ];
 
   E.config = {
     SHARED_LANGUAGES,
     COLOR_BY_MODES,
+    DIVERSITY_GROUPS,
     FAMILY_GROUPS,
     SCRIPT_GROUPS,
     SPOKEN_TOKEN_ALIASES,

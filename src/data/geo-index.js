@@ -23,6 +23,17 @@
     return country.iso3 || country.name || '';
   }
 
+  function resolveCountryDiversityGroup(country) {
+    const groups = E.config.DIVERSITY_GROUPS || [];
+    const tierName = (country && country.ldiTier) || '';
+    if (tierName) {
+      const hit = groups.find(g => g.name === tierName);
+      if (hit) return hit;
+    }
+    const score = Number(country && country.diversityScore) || 15;
+    return groups.find(g => score >= g.min) || groups[groups.length - 1] || { name: 'Low Diversity', color: '#4f618f' };
+  }
+
   function resolveCountryFamilyGroup(country) {
     const groups = E.config.FAMILY_GROUPS;
     const raw = ((country && country.languageFamily) || '').trim();
@@ -46,6 +57,7 @@
     if (lower.includes('japonic') || lower.includes('koreanic')) return pick('Japonic & Koreanic');
     if (lower.includes('austroasiatic') || lower.includes('kra-dai')) return pick('Austroasiatic & Kra-Dai');
     if (lower.includes('uralic')) return pick('Uralic');
+    if (lower.includes('mongolic')) return pick('Indigenous, Creoles & Other');
     return pick('Indigenous, Creoles & Other');
   }
 
@@ -161,10 +173,13 @@
       if (!c) return;
       const famGrp = resolveCountryFamilyGroup(c);
       const scrGrp = resolveCountryScriptGroup(c);
+      const divGrp = resolveCountryDiversityGroup(c);
       c.__familyGroup = famGrp.name;
       c.__familyColor = famGrp.color;
       c.__scriptGroup = scrGrp.name;
       c.__scriptColor = scrGrp.color;
+      c.__diversityTier = divGrp.name;
+      c.__diversityColor = divGrp.color;
     };
 
     for (let i = 0; i < E.state.countriesList.length; i++) {
@@ -224,6 +239,9 @@
     if (colorByMode === 'script') {
       return country.__scriptColor || resolveCountryScriptGroup(country).color;
     }
+    if (colorByMode === 'diversity') {
+      return country.__diversityColor || resolveCountryDiversityGroup(country).color;
+    }
     return country.color || '#0284c7';
   }
 
@@ -239,6 +257,7 @@
       if (c && c.centroid && (c.centroid[0] !== 0 || c.centroid[1] !== 0)) {
         const famColor = c.__familyColor || resolveCountryFamilyGroup(c).color;
         const scrColor = c.__scriptColor || resolveCountryScriptGroup(c).color;
+        const divGrp = resolveCountryDiversityGroup(c);
         list.push({
           iso3: c.iso3,
           key: getCountryKey(c),
@@ -250,10 +269,12 @@
           family: c.languageFamily || '',
           familyGroup: c.__familyGroup || resolveCountryFamilyGroup(c).name,
           scriptGroup: c.__scriptGroup || resolveCountryScriptGroup(c).name,
+          diversityTier: c.__diversityTier || divGrp.name,
           rgb: hexToLinearRgb(c.color),
           rgbLanguage: hexToLinearRgb(c.color),
           rgbFamily: hexToLinearRgb(famColor),
           rgbScript: hexToLinearRgb(scrColor),
+          rgbDiversity: hexToLinearRgb(divGrp.color),
           country: c
         });
       }
@@ -272,8 +293,10 @@
       f.__family = country ? country.languageFamily : 'Indo-European (Germanic)';
       f.__familyGroup = country ? (country.__familyGroup || resolveCountryFamilyGroup(country).name) : 'Indo-European (Germanic)';
       f.__scriptGroup = country ? (country.__scriptGroup || resolveCountryScriptGroup(country).name) : 'Latin';
+      f.__diversityTier = country ? (country.__diversityTier || resolveCountryDiversityGroup(country).name) : 'Low Diversity';
       f.__familyColor = country ? (country.__familyColor || '#0ea5e9') : '#0ea5e9';
       f.__scriptColor = country ? (country.__scriptColor || '#0ea5e9') : '#0ea5e9';
+      f.__diversityColor = country ? (country.__diversityColor || '#4f618f') : '#4f618f';
       f.__key = getFeatureKey(f);
     }
   }
@@ -400,6 +423,7 @@
     getCountryKey,
     resolveCountryFamilyGroup,
     resolveCountryScriptGroup,
+    resolveCountryDiversityGroup,
     extractSpokenLanguageTokens,
     buildSpokenLanguageIndex,
     getCountryColorForMode,

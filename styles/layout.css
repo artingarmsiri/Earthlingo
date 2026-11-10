@@ -93,7 +93,9 @@
 /* Center Search & Filter Bar */
 .search-container {
   position: relative;
-  width: 440px;
+  flex: 0 1 320px;
+  min-width: 170px;
+  width: 320px;
   max-width: 100%;
 }
 
@@ -272,13 +274,33 @@
   justify-content: center;
 }
 
+.nav-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-full);
+  background: rgba(56, 189, 248, 0.25);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  color: #e0f2fe;
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.nav-count-badge[hidden] {
+  display: none;
+}
+
 /* Floating Language Legend (Bottom-Left) */
 .floating-bottom-left {
   position: fixed;
   bottom: 24px;
   left: 24px;
   z-index: 20;
-  max-width: 380px;
+  max-width: 410px;
 }
 
 .legend-panel {
@@ -342,17 +364,24 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  max-height: 140px;
+  width: 100%;
+  min-width: 0;
+  max-height: 150px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   touch-action: pan-y;
 }
 
+.legend-panel.has-era-legend .legend-chips-container {
+  max-height: 244px;
+}
+
 .legend-chip {
   display: flex;
   align-items: center;
   gap: 6px;
+  max-width: 100%;
   padding: 4px 9px;
   border-radius: var(--radius-full);
   background: rgba(255, 255, 255, 0.06);
@@ -404,7 +433,38 @@
 .color-by-segmented.is-full {
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.legend-chip.is-static {
+  cursor: default;
+  opacity: 0.94;
+  white-space: normal;
+  line-height: 1.28;
+  border-radius: var(--radius-sm);
+  padding: 5px 10px;
+  font-size: 0.72rem;
+}
+
+.legend-chip.is-static > span:last-child {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.timeline-active-dot {
+  display: none;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 0 1.5px rgba(13, 19, 34, 0.95);
+}
+
+.globe-tool-btn.has-era .timeline-active-dot {
+  display: block;
 }
 
 .color-by-btn {

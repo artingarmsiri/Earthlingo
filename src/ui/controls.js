@@ -9,7 +9,8 @@
       E.state.activeFilterSpokenLang ||
       E.state.activeFilterLanguage ||
       E.state.activeFilterFamily ||
-      E.state.activeFilterScript
+      E.state.activeFilterScript ||
+      E.state.activeFilterDiversityTier
     );
   }
 
@@ -21,6 +22,7 @@
     if (E.state.activeFilterLanguage) return `Language: ${E.state.activeFilterLanguage}`;
     if (E.state.activeFilterFamily) return `Family: ${E.state.activeFilterFamily}`;
     if (E.state.activeFilterScript) return `Script: ${E.state.activeFilterScript}`;
+    if (E.state.activeFilterDiversityTier) return `Diversity: ${E.state.activeFilterDiversityTier}`;
     return '';
   }
 
@@ -28,6 +30,11 @@
     const el = E.elements;
     const mode = E.state.colorByMode || 'language';
     const syncOn = Boolean(E.state.colorByAutoSync);
+    const activeEra = E.state.activeTimeEra || 'today';
+    const H = global.WORLD_HISTORICAL_ERAS;
+    const eraObj = (activeEra !== 'today' && H && Array.isArray(H.ERAS))
+      ? H.ERAS.find(er => er.id === activeEra)
+      : null;
 
     [el.legendColorByGroup, el.overlayColorByGroup].forEach(group => {
       if (!group) return;
@@ -51,11 +58,15 @@
     });
 
     if (el.legendTitle) {
-      el.legendTitle.textContent = E.state.activeFilterSpokenLang
-        ? `Spoken Spotlight: ${E.state.activeFilterSpokenLang}`
-        : (mode === 'family'
-          ? 'Color by Family (Click to Filter)'
-          : (mode === 'script' ? 'Color by Script (Click to Filter)' : 'Shared Languages (Click to Highlight)'));
+      el.legendTitle.textContent = eraObj
+        ? `Historical Era: ${eraObj.yearLabel}`
+        : (E.state.activeFilterSpokenLang
+          ? `Spoken Spotlight: ${E.state.activeFilterSpokenLang}`
+          : (mode === 'family'
+            ? 'Color by Family (Click to Filter)'
+            : (mode === 'script'
+              ? 'Color by Script (Click to Filter)'
+              : (mode === 'diversity' ? 'Linguistic Diversity (Click to Filter)' : 'Shared Languages (Click to Highlight)'))));
     }
   }
 
@@ -75,7 +86,9 @@
       el.toggleLegendMobileBtn.classList.toggle('has-filter', active);
     }
 
+    const isEraActive = Boolean(E.state.activeTimeEra && E.state.activeTimeEra !== 'today');
     el.legendPanel.classList.toggle('has-active-filter', active);
+    el.legendPanel.classList.toggle('has-era-legend', isEraActive);
     if (el.legendResetBtn) {
       el.legendResetBtn.style.display = active ? 'inline-block' : 'none';
     }
@@ -88,10 +101,14 @@
     if (el.legendMobileLabel) {
       if (active) {
         el.legendMobileLabel.textContent = getActiveFilterDisplayLabel();
+      } else if (E.state.activeTimeEra && E.state.activeTimeEra !== 'today') {
+        el.legendMobileLabel.textContent = `Era: ${E.state.activeTimeEra}`;
       } else if (E.state.colorByMode === 'family') {
         el.legendMobileLabel.textContent = 'Language Families';
       } else if (E.state.colorByMode === 'script') {
         el.legendMobileLabel.textContent = 'Writing Scripts';
+      } else if (E.state.colorByMode === 'diversity') {
+        el.legendMobileLabel.textContent = 'Linguistic Diversity';
       } else {
         el.legendMobileLabel.textContent = 'Shared Languages';
       }
@@ -107,6 +124,7 @@
     E.state.activeFilterLanguage = null;
     E.state.activeFilterFamily = null;
     E.state.activeFilterScript = null;
+    E.state.activeFilterDiversityTier = null;
     E.state.activeFilterSpokenLang = null;
     E.state.activeFilterSpokenCountries = null;
     E.state.activeFilterColor = null;
@@ -135,6 +153,24 @@
     const el = E.elements;
     if (!el.legendChips) return;
     const { escapeHtml } = E.utils;
+    const activeEra = E.state.activeTimeEra || 'today';
+    const H = global.WORLD_HISTORICAL_ERAS;
+    if (activeEra !== 'today' && H && Array.isArray(H.ERAS)) {
+      const eraObj = H.ERAS.find(er => er.id === activeEra);
+      if (eraObj && Array.isArray(eraObj.legend)) {
+        const legendHtml = eraObj.legend.map(it => `
+          <div class="legend-chip is-static" title="${escapeHtml(it.label)}">
+            <span class="legend-dot" style="background: ${it.color};"></span>
+            <span>${escapeHtml(it.label)}</span>
+          </div>
+        `).join('');
+        el.legendChips.innerHTML = `${legendHtml}<button type="button" class="legend-chip legend-spotlight-chip" data-kind="era-reset">↩ Return to Modern Map</button>`;
+        const rst = el.legendChips.querySelector('[data-kind="era-reset"]');
+        if (rst) rst.addEventListener('click', () => setTimeEra('today'));
+        return;
+      }
+    }
+
     const mode = E.state.colorByMode || 'language';
     const countries = E.state.countriesList || [];
     const items = [];
@@ -161,6 +197,18 @@
         const count = counts.get(g.name) || 0;
         if (count > 0) {
           items.push({ kind: 'script', value: g.name, label: g.name, color: g.color, count, title: `Filter by ${g.name} script (${count} countries)` });
+        }
+      });
+    } else if (mode === 'diversity') {
+      const counts = new Map();
+      countries.forEach(c => {
+        const g = c.__diversityGroup || E.geo.resolveCountryDiversityGroup(c).name;
+        counts.set(g, (counts.get(g) || 0) + 1);
+      });
+      (E.config.DIVERSITY_GROUPS || []).forEach(g => {
+        const count = counts.get(g.name) || 0;
+        if (count > 0) {
+          items.push({ kind: 'diversity', value: g.name, label: g.name, color: g.color, count, title: `Filter ${g.name} (${g.minLabel} — ${count} countries)` });
         }
       });
     } else {
@@ -193,7 +241,8 @@
         !E.state.activeFilterSpokenLang &&
         ((it.kind === 'lang' && E.state.activeFilterLanguage === it.value) ||
          (it.kind === 'family' && E.state.activeFilterFamily === it.value) ||
-         (it.kind === 'script' && E.state.activeFilterScript === it.value))
+         (it.kind === 'script' && E.state.activeFilterScript === it.value) ||
+         (it.kind === 'diversity' && E.state.activeFilterDiversityTier === it.value))
       );
       return `
         <div class="legend-chip ${isAct ? 'active' : ''}" data-kind="${it.kind}" data-val="${escapeHtml(it.value)}" data-color="${it.color}" title="${escapeHtml(it.title)}">
@@ -224,6 +273,7 @@
             E.state.activeFilterSpokenCountries = null;
             E.state.activeFilterFamily = null;
             E.state.activeFilterScript = null;
+            E.state.activeFilterDiversityTier = null;
             E.state.activeFilterLanguage = val;
             E.state.activeFilterColor = color;
             renderLegendChips();
@@ -252,6 +302,7 @@
             E.state.activeFilterSpokenCountries = null;
             E.state.activeFilterLanguage = null;
             E.state.activeFilterScript = null;
+            E.state.activeFilterDiversityTier = null;
             E.state.activeFilterFamily = val;
             E.state.activeFilterColor = color;
             renderLegendChips();
@@ -273,7 +324,30 @@
             E.state.activeFilterSpokenCountries = null;
             E.state.activeFilterLanguage = null;
             E.state.activeFilterFamily = null;
+            E.state.activeFilterDiversityTier = null;
             E.state.activeFilterScript = val;
+            E.state.activeFilterColor = color;
+            renderLegendChips();
+            syncLegendResponsiveUI();
+            if (E.drawer && typeof E.drawer.syncDrawerSpotlightCards === 'function') {
+              E.drawer.syncDrawerSpotlightCards();
+            }
+            E.polygons.refreshPolygonVisuals();
+            E.overlays.markOverlaysDirty(true);
+            if (E.router && typeof E.router.syncUrlHash === 'function') E.router.syncUrlHash();
+          }
+          return;
+        }
+        if (kind === 'diversity') {
+          if (E.state.activeFilterDiversityTier === val && !E.state.activeFilterSpokenLang) {
+            clearLanguageFilter();
+          } else {
+            E.state.activeFilterSpokenLang = null;
+            E.state.activeFilterSpokenCountries = null;
+            E.state.activeFilterLanguage = null;
+            E.state.activeFilterFamily = null;
+            E.state.activeFilterScript = null;
+            E.state.activeFilterDiversityTier = val;
             E.state.activeFilterColor = color;
             renderLegendChips();
             syncLegendResponsiveUI();
@@ -296,6 +370,9 @@
     E.state.colorByMode = mode;
 
     if (!opts.fromSync) {
+      if (E.state.activeTimeEra && E.state.activeTimeEra !== 'today') {
+        setTimeEra('today', { skipRouter: true });
+      }
       const syncedExpected = (E.overlays && typeof E.overlays.getSyncedColorModeForOverlay === 'function')
         ? E.overlays.getSyncedColorModeForOverlay(E.state.mapOverlayMode)
         : 'language';
@@ -308,6 +385,7 @@
       if (mode !== 'language') E.state.activeFilterLanguage = null;
       if (mode !== 'family') E.state.activeFilterFamily = null;
       if (mode !== 'script') E.state.activeFilterScript = null;
+      if (mode !== 'diversity') E.state.activeFilterDiversityTier = null;
       if (!E.state.activeFilterSpokenLang) {
         E.state.activeFilterColor = null;
         if (E.state.activeOriginCorridor === 'filter') {
@@ -326,6 +404,47 @@
     if (!opts.skipRouter && E.router && typeof E.router.syncUrlHash === 'function') {
       E.router.syncUrlHash();
     }
+  }
+
+  function filterByScriptGroup(scriptGroupName, optionalColor, opts = {}) {
+    if (!scriptGroupName) return false;
+    const groups = E.config.SCRIPT_GROUPS || [];
+    const lower = String(scriptGroupName).trim().toLowerCase();
+    const grp = groups.find(g => g.name.toLowerCase() === lower || g.name.toLowerCase().includes(lower));
+    const canonicalName = grp ? grp.name : scriptGroupName;
+    const color = optionalColor || (grp && grp.color) || '#38bdf8';
+
+    if (!opts.forceOn && E.state.activeFilterScript === canonicalName) {
+      clearLanguageFilter();
+      return false;
+    }
+
+    if (E.state.activeTimeEra && E.state.activeTimeEra !== 'today') {
+      setTimeEra('today', { skipRouter: true });
+    }
+    E.state.colorByMode = 'script';
+    E.state.activeFilterSpokenLang = null;
+    E.state.activeFilterSpokenCountries = null;
+    E.state.activeFilterLanguage = null;
+    E.state.activeFilterFamily = null;
+    E.state.activeFilterDiversityTier = null;
+    E.state.activeFilterScript = canonicalName;
+    E.state.activeFilterColor = color;
+
+    renderLegendChips();
+    syncLegendResponsiveUI();
+    if (E.drawer && typeof E.drawer.syncDrawerSpotlightCards === 'function') {
+      E.drawer.syncDrawerSpotlightCards();
+    }
+    if (E.utils.isBottomSheetLayout() && E.elements.countryDrawer && E.elements.countryDrawer.classList.contains('open')) {
+      E.drawer.setMobileDrawerSnap('peek', true);
+    }
+    E.polygons.refreshPolygonVisuals();
+    E.overlays.markOverlaysDirty(true);
+    if (!opts.skipRouter && E.router && typeof E.router.syncUrlHash === 'function') {
+      E.router.syncUrlHash();
+    }
+    return true;
   }
 
   function findSpokenIndexEntry(tokenQuery) {
@@ -352,6 +471,7 @@
     E.state.activeFilterLanguage = null;
     E.state.activeFilterFamily = null;
     E.state.activeFilterScript = null;
+    E.state.activeFilterDiversityTier = null;
     E.state.activeFilterColor = optionalColor || rec.color || '#38bdf8';
 
     renderLegendChips();
@@ -598,18 +718,38 @@
             E.state.isLegendExpandedMobile = false;
             syncLegendResponsiveUI();
           }
-          if (E.state.selectedCountry) {
-            E.state.activeOriginCorridor = 'country';
-          } else if (E.state.activeFilterLanguage) {
-            E.state.activeOriginCorridor = 'filter';
-          } else if (E.state.activeOriginCorridor === 'country' || E.state.activeOriginCorridor === 'filter') {
-            E.state.activeOriginCorridor = E.state._prevCorridorBeforeCountry || 'all';
+          if (E.state.activeArcTab === 'origins') {
+            if (E.state.selectedCountry) {
+              E.state.activeOriginCorridor = 'country';
+            } else if (E.state.activeFilterLanguage) {
+              E.state.activeOriginCorridor = 'filter';
+            } else if (E.state.activeOriginCorridor === 'country' || E.state.activeOriginCorridor === 'filter') {
+              E.state.activeOriginCorridor = E.state._prevCorridorBeforeCountry || 'all';
+            }
           }
         }
         E.arcs.updateArcs();
         E.arcs.syncDrawerOriginButton();
+        E.overlays.refreshOverlayHudRects();
         E.overlays.markOverlaysDirty(true);
         if (E.router && typeof E.router.syncUrlHash === 'function') E.router.syncUrlHash();
+      });
+    }
+
+    if (el.arcsTabOriginsBtn) {
+      el.arcsTabOriginsBtn.addEventListener('click', () => {
+        if (E.arcs && typeof E.arcs.setArcTab === 'function') E.arcs.setArcTab('origins');
+      });
+    }
+    if (el.arcsTabWordsBtn) {
+      el.arcsTabWordsBtn.addEventListener('click', () => {
+        if (E.arcs && typeof E.arcs.setArcTab === 'function') E.arcs.setArcTab('words');
+      });
+    }
+
+    if (el.toggleEndangeredBtn) {
+      el.toggleEndangeredBtn.addEventListener('click', () => {
+        toggleEndangeredPins();
       });
     }
 
@@ -711,17 +851,33 @@
 
     el.modalCountriesGrid.innerHTML = filtered.map(c => {
       const contLabel = c.continent === 'Global' ? 'Territory' : (c.continent || '');
+      const iso = c.iso3 || c.name;
+      const inTrip = E.trip && typeof E.trip.hasBookmark === 'function' && E.trip.hasBookmark(iso);
       return `
-      <div class="country-grid-card" data-iso="${escapeHtml(c.iso3 || c.name)}" role="button" tabindex="0">
+      <div class="country-grid-card" data-iso="${escapeHtml(iso)}" role="button" tabindex="0">
         <span style="font-size: 1.6rem;">${c.flag || '🌐'}</span>
-        <div style="display: flex; flex-direction: column; overflow: hidden; min-width: 0;">
+        <div style="display: flex; flex-direction: column; overflow: hidden; min-width: 0; flex: 1;">
           <strong style="font-size: 0.92rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(c.name)}</strong>
           <span style="font-size: 0.78rem; color: #38bdf8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(c.primaryLanguage || '')}</span>
           <span style="font-size: 0.7rem; color: #64748b;">${escapeHtml(contLabel)}${c.__scriptGroup ? ` • ${escapeHtml(c.__scriptGroup)}` : ''}</span>
         </div>
+        <button type="button" class="grid-trip-star-btn ${inTrip ? 'active' : ''}" data-star-iso="${escapeHtml(iso)}" title="${inTrip ? 'Saved in Trip Cheat-Sheet' : 'Add to Trip Cheat-Sheet'}" aria-label="Toggle Travel Cheat-Sheet bookmark">${inTrip ? '★' : '☆'}</button>
       </div>
     `;
     }).join('');
+
+    el.modalCountriesGrid.querySelectorAll('.grid-trip-star-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const iso = btn.getAttribute('data-star-iso');
+        if (E.trip && typeof E.trip.toggleBookmark === 'function') {
+          const added = E.trip.toggleBookmark(iso);
+          btn.classList.toggle('active', added);
+          btn.textContent = added ? '★' : '☆';
+          btn.title = added ? 'Saved in Trip Cheat-Sheet' : 'Add to Trip Cheat-Sheet';
+        }
+      });
+    });
 
     el.modalCountriesGrid.querySelectorAll('.country-grid-card').forEach(card => {
       const openFromCard = () => {
@@ -733,7 +889,10 @@
           E.drawer.selectCountry(c);
         }
       };
-      card.addEventListener('click', openFromCard);
+      card.addEventListener('click', (e) => {
+        if (e.target && e.target.closest('.grid-trip-star-btn')) return;
+        openFromCard();
+      });
       card.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -741,6 +900,187 @@
         }
       });
     });
+  }
+
+  function toggleEndangeredPins(forceState, opts = {}) {
+    const el = E.elements;
+    const next = typeof forceState === 'boolean' ? forceState : !E.state.showEndangeredPins;
+    E.state.showEndangeredPins = next;
+    if (el.toggleEndangeredBtn) el.toggleEndangeredBtn.classList.toggle('active', next);
+    if (!next && E.pins && typeof E.pins.closePinInspector === 'function') {
+      E.pins.closePinInspector();
+    }
+    if (next && E.utils.isMobileViewport()) {
+      if (E.state.isOverlayMenuOpen) {
+        E.state.isOverlayMenuOpen = false;
+        E.overlays.syncOverlayMenuUI();
+      }
+      if (E.state.isLegendExpandedMobile) {
+        E.state.isLegendExpandedMobile = false;
+        syncLegendResponsiveUI();
+      }
+    }
+    if (E.pins && typeof E.pins.refreshPins === 'function') {
+      E.pins.refreshPins();
+    }
+    E.overlays.markOverlaysDirty(true);
+    if (!opts.skipRouter && E.router && typeof E.router.syncUrlHash === 'function') {
+      E.router.syncUrlHash();
+    }
+  }
+
+  let timelinePlayTimer = null;
+  const ERA_ORDER = ['2000bce', '100ce', '1000ce', '1492ce', 'today'];
+
+  function stopTimelinePlay() {
+    E.state.isTimelinePlaying = false;
+    if (timelinePlayTimer) {
+      clearInterval(timelinePlayTimer);
+      timelinePlayTimer = null;
+    }
+    if (E.elements.timelinePlayBtn) {
+      E.elements.timelinePlayBtn.classList.remove('active');
+      E.elements.timelinePlayBtn.textContent = '▶ Play';
+    }
+  }
+
+  function setTimeEra(eraId, opts = {}) {
+    const idx = ERA_ORDER.indexOf(eraId);
+    const validId = idx >= 0 ? eraId : 'today';
+    const validIdx = idx >= 0 ? idx : ERA_ORDER.length - 1;
+    const el = E.elements;
+    const H = global.WORLD_HISTORICAL_ERAS;
+    const eraObj = (H && Array.isArray(H.ERAS))
+      ? (H.ERAS.find(er => er.id === validId) || H.ERAS[H.ERAS.length - 1])
+      : null;
+
+    if (opts.openBar && !E.state.isTimelineOpen) {
+      E.state.isTimelineOpen = true;
+      if (el.timeScrubberBar) {
+        el.timeScrubberBar.classList.add('open');
+        el.timeScrubberBar.setAttribute('aria-hidden', 'false');
+      }
+      if (el.toggleTimelineBtn) el.toggleTimelineBtn.classList.add('active');
+    }
+
+    E.state.activeTimeEra = validId;
+
+    if (el.timelineRange) el.timelineRange.value = String(validIdx);
+    if (el.timelineEraButtons) {
+      el.timelineEraButtons.querySelectorAll('[data-era]').forEach(btn => {
+        const active = btn.getAttribute('data-era') === validId;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+    }
+    if (el.timelineEraTitle && eraObj) {
+      el.timelineEraTitle.textContent = eraObj.yearLabel;
+    }
+    if (el.timelineEraSubtitle && eraObj) {
+      el.timelineEraSubtitle.textContent = eraObj.headline;
+    }
+    if (el.toggleTimelineBtn) {
+      el.toggleTimelineBtn.classList.toggle('has-era', validId !== 'today');
+    }
+
+    renderLegendChips();
+    syncLegendResponsiveUI();
+    E.polygons.refreshPolygonVisuals();
+    E.overlays.markOverlaysDirty(true);
+    if (E.state.showArcs && E.arcs) {
+      E.arcs.updateArcs();
+    }
+    E.overlays.refreshOverlayHudRects();
+    if (!opts.skipRouter && E.router && typeof E.router.syncUrlHash === 'function') {
+      E.router.syncUrlHash();
+    }
+  }
+
+  function toggleTimeline(forceOpen, opts = {}) {
+    const el = E.elements;
+    const next = typeof forceOpen === 'boolean' ? forceOpen : !E.state.isTimelineOpen;
+    E.state.isTimelineOpen = next;
+
+    if (el.timeScrubberBar) {
+      el.timeScrubberBar.classList.toggle('open', next);
+      el.timeScrubberBar.setAttribute('aria-hidden', next ? 'false' : 'true');
+    }
+    if (el.toggleTimelineBtn) {
+      el.toggleTimelineBtn.classList.toggle('active', next);
+    }
+
+    if (next) {
+      if (E.state.isOverlayMenuOpen) {
+        E.state.isOverlayMenuOpen = false;
+        E.overlays.syncOverlayMenuUI();
+      }
+      if (E.state.isLegendExpandedMobile) {
+        E.state.isLegendExpandedMobile = false;
+        syncLegendResponsiveUI();
+      }
+      if (!opts.keepEra && E.state.activeTimeEra === 'today') {
+        setTimeEra('1492ce', { skipRouter: opts.skipRouter });
+      }
+    } else {
+      stopTimelinePlay();
+      if (!opts.keepEra && E.state.activeTimeEra !== 'today') {
+        setTimeEra('today', { skipRouter: opts.skipRouter });
+      }
+    }
+
+    E.overlays.refreshOverlayHudRects();
+    E.overlays.markOverlaysDirty(true);
+  }
+
+  function toggleTimelinePlay() {
+    if (E.state.isTimelinePlaying) {
+      stopTimelinePlay();
+      return;
+    }
+    E.state.isTimelinePlaying = true;
+    if (E.elements.timelinePlayBtn) {
+      E.elements.timelinePlayBtn.classList.add('active');
+      E.elements.timelinePlayBtn.textContent = '⏸ Pause';
+    }
+    if (E.state.activeTimeEra === 'today') {
+      setTimeEra(ERA_ORDER[0]);
+    }
+    timelinePlayTimer = setInterval(() => {
+      const curIdx = ERA_ORDER.indexOf(E.state.activeTimeEra);
+      const nextIdx = (curIdx + 1) % ERA_ORDER.length;
+      setTimeEra(ERA_ORDER[nextIdx]);
+    }, 1900);
+  }
+
+  function initTimeScrubber() {
+    const el = E.elements;
+    if (el.toggleTimelineBtn) {
+      el.toggleTimelineBtn.addEventListener('click', () => toggleTimeline());
+    }
+    if (el.timelineCloseBtn) {
+      el.timelineCloseBtn.addEventListener('click', () => toggleTimeline(false));
+    }
+    if (el.timelinePlayBtn) {
+      el.timelinePlayBtn.addEventListener('click', toggleTimelinePlay);
+    }
+    if (el.timelineRange) {
+      el.timelineRange.addEventListener('input', (e) => {
+        stopTimelinePlay();
+        const idx = parseInt(e.target.value, 10);
+        if (!Number.isNaN(idx) && ERA_ORDER[idx]) {
+          setTimeEra(ERA_ORDER[idx]);
+        }
+      });
+    }
+    if (el.timelineEraButtons) {
+      el.timelineEraButtons.querySelectorAll('[data-era]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          stopTimelinePlay();
+          const eraId = btn.getAttribute('data-era');
+          if (eraId) setTimeEra(eraId);
+        });
+      });
+    }
   }
 
   function initListModal() {
@@ -817,6 +1157,18 @@
         if (E.compare && typeof E.compare.closeCompareModal === 'function') {
           E.compare.closeCompareModal();
         }
+        if (E.passport && typeof E.passport.closePassportModal === 'function') {
+          E.passport.closePassportModal();
+        }
+        if (E.trip && typeof E.trip.closeTripModal === 'function') {
+          E.trip.closeTripModal();
+        }
+        if (E.scriptInspector && typeof E.scriptInspector.closeScriptModal === 'function') {
+          E.scriptInspector.closeScriptModal();
+        }
+        if (E.pins && typeof E.pins.closePinInspector === 'function') {
+          E.pins.closePinInspector();
+        }
         if (E.state.isQuizActive && E.quiz && typeof E.quiz.stopQuiz === 'function') {
           E.quiz.stopQuiz({ restoreOverlay: true });
         }
@@ -837,6 +1189,11 @@
     syncLegendResponsiveUI,
     clearLanguageFilter,
     filterBySpokenLanguage,
+    filterByScriptGroup,
+    toggleEndangeredPins,
+    initTimeScrubber,
+    toggleTimeline,
+    setTimeEra,
     initLegend,
     initSearch,
     initControls,

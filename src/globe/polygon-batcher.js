@@ -36,8 +36,14 @@
     const hz = oz + dz * t;
     const { lat, lng } = globe.toGeoCoords({ x: hx, y: hy, z: hz });
 
-    // Check microstate locator pins first (zoom-adaptive & touch-friendly precision)
+    // Check active 3D globe pins (Endangered Hotspots & Word-Route Stops) when not in Quiz
     const povAlt = Math.max(0.1, (Math.hypot(ox, oy, oz) - 100) / 100);
+    if (!E.state.isQuizActive && E.pins && typeof E.pins.pickPinAtLatLng === 'function') {
+      const pinHit = E.pins.pickPinAtLatLng(lat, lng, povAlt, isTouch);
+      if (pinHit) return pinHit;
+    }
+
+    // Check microstate locator pins next (zoom-adaptive & touch-friendly precision)
     const touchBoost = isTouch ? 1.35 : 1.0;
     const pinThreshDeg = Math.max(0.42, Math.min(2.2, 0.85 * Math.sqrt(povAlt) * 0.68 * touchBoost));
     const cosLat = Math.max(0.15, Math.cos(lat * Math.PI / 180));
@@ -365,10 +371,12 @@
         family: f.__family,
         familyGroup: f.__familyGroup,
         scriptGroup: f.__scriptGroup,
+        diversityTier: f.__diversityTier || 'Low Diversity',
         rgb: hexToLinearRgb(f.__color),
         rgbLanguage: hexToLinearRgb(f.__color),
         rgbFamily: hexToLinearRgb(f.__familyColor || f.__color),
         rgbScript: hexToLinearRgb(f.__scriptColor || f.__color),
+        rgbDiversity: hexToLinearRgb(f.__diversityColor || '#4f618f'),
         vStart,
         vCount: sliceVCount,
         iStart,
@@ -632,18 +640,22 @@
       ];
       const entry = {
         key: m.key,
+        country: m.country,
         lang: m.lang,
         family: m.family,
         familyGroup: m.familyGroup,
         scriptGroup: m.scriptGroup,
+        diversityTier: m.diversityTier || 'Low Diversity',
         rgb: m.rgb,
         rgbLanguage: m.rgbLanguage || m.rgb,
         rgbFamily: m.rgbFamily || m.rgb,
         rgbScript: m.rgbScript || m.rgb,
+        rgbDiversity: m.rgbDiversity || m.rgb,
         rimRgb: makeRim(m.rgb),
         rimRgbLanguage: makeRim(m.rgbLanguage || m.rgb),
         rimRgbFamily: makeRim(m.rgbFamily || m.rgb),
         rimRgbScript: makeRim(m.rgbScript || m.rgb),
+        rimRgbDiversity: makeRim(m.rgbDiversity || m.rgb),
         px, py, pz,
         nx, ny, nz,
         tx, ty, tz,
@@ -716,6 +728,9 @@
     targetContainer.add(highlightLine);
     targetContainer.add(microMesh);
     targetContainer.add(highlightMicroMesh);
+    if (E.pins && typeof E.pins.initPins === 'function') {
+      E.pins.initPins(targetContainer, BufferGeoCtor, BufferAttrCtor, MeshCtor, sampleCapMat);
+    }
 
     rb.capMesh = mergedCapMesh;
     rb.lineMesh = mergedLineMesh;
@@ -744,7 +759,7 @@
     const rb = E.renderBatch;
     if (!rb.merged) return;
 
-    const { srgbToLinear } = E.utils;
+    const { srgbToLinear, hexToLinearRgb } = E.utils;
     const { getCountryKey } = E.geo;
     const dimR = srgbToLinear(17 / 255);
     const dimG = srgbToLinear(26 / 255);
@@ -756,20 +771,43 @@
     const dimRimG = srgbToLinear(41 / 255);
     const dimRimB = srgbToLinear(59 / 255);
 
+    const eraId = E.state.activeTimeEra || 'today';
+    const isHistorical = eraId !== 'today' && global.WORLD_HISTORICAL_ERAS;
+    const eraRgbCache = isHistorical ? new Map() : null;
+    const getEraRgb = (hex) => {
+      let arr = eraRgbCache.get(hex);
+      if (!arr) {
+        arr = hexToLinearRgb(hex);
+        eraRgbCache.set(hex, arr);
+      }
+      return arr;
+    };
+
     const colorBy = E.state.colorByMode || 'language';
     const activeSpokenSet = E.state.activeFilterSpokenCountries;
     const activeLang = E.state.activeFilterLanguage;
     const activeFam = E.state.activeFilterFamily;
     const activeScr = E.state.activeFilterScript;
+    const activeDiv = E.state.activeFilterDiversityTier;
     const hasSpoken = Boolean(activeSpokenSet && activeSpokenSet.size > 0);
     const colors = rb.capColors;
     const slices = rb.countrySlices;
 
     for (let i = 0; i < slices.length; i++) {
       const s = slices[i];
-      const modeRgb = colorBy === 'family'
-        ? s.rgbFamily
-        : (colorBy === 'script' ? s.rgbScript : s.rgbLanguage);
+      let modeRgb;
+      if (isHistorical) {
+        const eraInfo = global.WORLD_HISTORICAL_ERAS.getCountryEraState(s.country, eraId);
+        modeRgb = eraInfo && eraInfo.color ? getEraRgb(eraInfo.color) : s.rgbLanguage;
+      } else if (colorBy === 'family') {
+        modeRgb = s.rgbFamily;
+      } else if (colorBy === 'script') {
+        modeRgb = s.rgbScript;
+      } else if (colorBy === 'diversity') {
+        modeRgb = s.rgbDiversity;
+      } else {
+        modeRgb = s.rgbLanguage;
+      }
       let match = true;
       if (hasSpoken) {
         match = activeSpokenSet.has(s.key);
@@ -779,6 +817,8 @@
         match = (s.familyGroup === activeFam || s.family === activeFam);
       } else if (activeScr) {
         match = (s.scriptGroup === activeScr);
+      } else if (activeDiv) {
+        match = (s.diversityTier === activeDiv);
       }
 
       const r = match ? modeRgb[0] : dimR;
@@ -799,17 +839,31 @@
       const mList = rb.microEntries;
       for (let i = 0; i < mList.length; i++) {
         const m = mList[i];
-        const modeRgb = colorBy === 'family'
-          ? m.rgbFamily
-          : (colorBy === 'script' ? m.rgbScript : m.rgbLanguage);
-        const modeRim = colorBy === 'family'
-          ? m.rimRgbFamily
-          : (colorBy === 'script' ? m.rimRgbScript : m.rimRgbLanguage);
+        let modeRgb;
+        let modeRim;
+        if (isHistorical) {
+          const eraInfo = global.WORLD_HISTORICAL_ERAS.getCountryEraState(m.country, eraId);
+          modeRgb = eraInfo && eraInfo.color ? getEraRgb(eraInfo.color) : m.rgbLanguage;
+          modeRim = [modeRgb[0] * 0.55 + 0.45, modeRgb[1] * 0.55 + 0.45, modeRgb[2] * 0.55 + 0.45];
+        } else if (colorBy === 'family') {
+          modeRgb = m.rgbFamily;
+          modeRim = m.rimRgbFamily;
+        } else if (colorBy === 'script') {
+          modeRgb = m.rgbScript;
+          modeRim = m.rimRgbScript;
+        } else if (colorBy === 'diversity') {
+          modeRgb = m.rgbDiversity;
+          modeRim = m.rimRgbDiversity;
+        } else {
+          modeRgb = m.rgbLanguage;
+          modeRim = m.rimRgbLanguage;
+        }
         let match = true;
         if (hasSpoken) match = activeSpokenSet.has(m.key);
         else if (activeLang) match = (m.lang === activeLang);
         else if (activeFam) match = (m.familyGroup === activeFam || m.family === activeFam);
         else if (activeScr) match = (m.scriptGroup === activeScr);
+        else if (activeDiv) match = (m.diversityTier === activeDiv);
 
         const dot = match ? modeRgb : [dimR, dimG, dimB];
         const col = match ? [collarR, collarG, collarB] : [dimR, dimG, dimB];

@@ -37,12 +37,28 @@
       E.overlays.initMapOverlays();
       E.controls.initSearch();
       E.controls.initControls();
+      if (E.controls && typeof E.controls.initTimeScrubber === 'function') E.controls.initTimeScrubber();
+      if (E.pins && typeof E.pins.initPinInspectorEvents === 'function') E.pins.initPinInspectorEvents();
       E.controls.initListModal();
+      if (E.passport && typeof E.passport.initPassport === 'function') E.passport.initPassport();
+      if (E.scriptInspector && typeof E.scriptInspector.initScriptInspector === 'function') E.scriptInspector.initScriptInspector();
+      if (E.trip && typeof E.trip.initTrip === 'function') E.trip.initTrip();
       if (E.compare && typeof E.compare.initCompare === 'function') E.compare.initCompare();
       if (E.quiz && typeof E.quiz.initQuiz === 'function') E.quiz.initQuiz();
       E.controls.initAccessibilityShortcuts();
       if (E.router && typeof E.router.initRouter === 'function') E.router.initRouter();
       E.overlays.refreshOverlayHudRects();
+
+      if (
+        'serviceWorker' in navigator &&
+        (window.location.protocol === 'https:' ||
+          window.location.hostname === 'localhost' ||
+          window.location.hostname === '127.0.0.1')
+      ) {
+        const regSw = () => navigator.serviceWorker.register('./sw.js').catch(() => {});
+        if (document.readyState === 'complete') regSw();
+        else window.addEventListener('load', regSw);
+      }
     } catch (err) {
       console.error('Initialization error:', err);
       if (E.elements.loadingText) {

@@ -115,7 +115,7 @@
   bottom: 78px;
   left: 0;
   right: 0;
-  width: 336px;
+  width: 364px;
   max-width: calc(100vw - 24px);
   margin: 0 auto;
   padding: 12px 14px;
@@ -289,5 +289,249 @@
 .tooltip-hint {
   font-size: 0.72rem;
   color: var(--text-secondary);
+}
+
+/* Historical Time-Scrubber Bar ("Languages Before 1492" Mode) */
+.time-scrubber-bar {
+  position: fixed;
+  bottom: 76px;
+  left: 0;
+  right: 0;
+  width: 560px;
+  max-width: calc(100vw - 24px);
+  margin: 0 auto;
+  padding: 11px 14px 12px;
+  z-index: 24;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(11, 17, 32, 0.96);
+  border: 1px solid rgba(245, 158, 11, 0.38);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.65);
+}
+
+.time-scrubber-bar.open {
+  display: flex;
+}
+
+.timeline-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.timeline-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.timeline-era-badge {
+  flex-shrink: 0;
+  padding: 2px 9px;
+  border-radius: var(--radius-full);
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  color: #fbbf24;
+  font-size: 0.74rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.timeline-era-headline {
+  font-size: 0.74rem;
+  color: #cbd5e1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.timeline-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.timeline-play-btn {
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #7dd3fc;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.timeline-play-btn.active {
+  background: rgba(245, 158, 11, 0.24);
+  border-color: #f59e0b;
+  color: #fde68a;
+}
+
+.timeline-track-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.timeline-range {
+  width: 100%;
+  accent-color: #f59e0b;
+  cursor: pointer;
+}
+
+.timeline-era-buttons {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.timeline-era-btn {
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background-color 0.14s ease, border-color 0.14s ease, color 0.14s ease;
+}
+
+.timeline-era-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.timeline-era-btn.active {
+  background: rgba(245, 158, 11, 0.22);
+  border-color: #f59e0b;
+  color: #fef3c7;
+}
+
+/* Endangered Hotspot / Word-Stop Pin Inspector Floating Card */
+.pin-inspector-card {
+  position: fixed;
+  top: 86px;
+  right: 24px;
+  width: 340px;
+  max-width: calc(100vw - 48px);
+  padding: 13px 15px 14px;
+  z-index: 29;
+  display: none;
+  flex-direction: column;
+  background: rgba(11, 17, 32, 0.96);
+  border: 1px solid rgba(245, 158, 11, 0.42);
+  box-shadow: 0 20px 46px rgba(0, 0, 0, 0.68);
+}
+
+.pin-inspector-card.open {
+  display: flex;
+}
+
+.pin-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.pin-inspector-body {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding-right: 22px;
+}
+
+.pin-inspector-kicker {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.pin-inspector-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.25;
+}
+
+.pin-inspector-native {
+  font-size: 0.8rem;
+  color: #7dd3fc;
+}
+
+.pin-phonetic {
+  color: #94a3b8;
+  font-size: 0.76rem;
+}
+
+.pin-inspector-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.73rem;
+  color: #cbd5e1;
+}
+
+.pin-status-badge {
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  border: 1px solid;
+  font-size: 0.67rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.pin-inspector-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.76rem;
+  color: #e2e8f0;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.pin-stat-lbl {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.pin-inspector-note {
+  font-size: 0.77rem;
+  line-height: 1.45;
+  color: #cbd5e1;
+}
+
+.pin-inspector-actions {
+  margin-top: 3px;
+}
+
+.pin-action-btn {
+  width: 100%;
+  padding: 7px 12px;
+  border-radius: var(--radius-full);
+  background: rgba(56, 189, 248, 0.16);
+  border: 1px solid rgba(56, 189, 248, 0.42);
+  color: var(--accent-cyan);
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pin-action-btn:hover {
+  background: rgba(56, 189, 248, 0.28);
+  color: #fff;
 }
 

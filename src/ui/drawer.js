@@ -175,8 +175,85 @@
       <span class="meta-badge">🌍 ${escapeHtml(c.continent || 'Continent')}</span>
     `;
 
-    el.drawerDiversityBadge.textContent = c.diversityLevel || 'Multilingual Diversity';
+    if (E.passport && typeof E.passport.recordCountryExplore === 'function') {
+      E.passport.recordCountryExplore(c);
+    }
+    if (E.trip && typeof E.trip.syncTripUI === 'function') {
+      E.trip.syncTripUI();
+    }
+
+    const divParts = [];
+    if (c.ldiTier) divParts.push(c.ldiTier);
+    else if (c.diversityLevel) divParts.push(c.diversityLevel);
+    if (typeof c.livingLanguages === 'number' && c.livingLanguages > 0) {
+      divParts.push(`~${c.livingLanguages.toLocaleString()} living`);
+    }
+    if (typeof c.ldiScore === 'number' && c.ldiScore > 0) {
+      divParts.push(`LDI ${c.ldiScore.toFixed(2)}`);
+    }
+    el.drawerDiversityBadge.textContent = divParts.length > 0 ? divParts.join(' • ') : 'Multilingual Diversity';
     el.drawerSummary.textContent = c.summary || 'Rich linguistic landscape with distinct regional and national cultural varieties.';
+
+    if (el.drawerEndangeredCallout) {
+      const H = global.WORLD_HISTORICAL_ERAS;
+      const cIso = (c.iso3 || '').toUpperCase();
+      const hotspots = (H && Array.isArray(H.ENDANGERED_HOTSPOTS))
+        ? H.ENDANGERED_HOTSPOTS.filter(h => (h.iso3 || '').toUpperCase() === cIso)
+        : [];
+      const activeEra = E.state.activeTimeEra || 'today';
+      const eraInfo = (H && activeEra !== 'today' && typeof H.getCountryEraState === 'function')
+        ? H.getCountryEraState(c, activeEra)
+        : null;
+
+      let calloutHtml = '';
+      if (eraInfo) {
+        const eraMeta = (H.ERAS || []).find(er => er.id === activeEra);
+        calloutHtml += `
+          <div class="drawer-era-callout">
+            <div class="drawer-callout-head">
+              <span class="drawer-callout-dot" style="background:${escapeHtml(eraInfo.color || '#38bdf8')};"></span>
+              <strong>${escapeHtml((eraMeta && eraMeta.yearLabel) || activeEra)}: ${escapeHtml(eraInfo.label)}</strong>
+            </div>
+            <div class="drawer-callout-note">${escapeHtml(eraInfo.note)}</div>
+          </div>
+        `;
+      }
+      if (hotspots.length > 0) {
+        calloutHtml += hotspots.map(h => `
+          <div class="drawer-endangered-card">
+            <div class="drawer-callout-head">
+              <span class="drawer-callout-dot" style="background:${escapeHtml(h.color || '#ef4444')};"></span>
+              <strong>Endangered Hotspot: ${escapeHtml(h.name)}</strong>
+              <span class="drawer-hotspot-status">${escapeHtml(h.status)}</span>
+            </div>
+            <div class="drawer-callout-note">${escapeHtml(h.revitalizationNote || '')}</div>
+            <button type="button" class="drawer-pin-jump-btn" data-pin-id="${escapeHtml(h.id)}">Show Pin on 3D Globe →</button>
+          </div>
+        `).join('');
+      }
+      el.drawerEndangeredCallout.innerHTML = calloutHtml;
+      el.drawerEndangeredCallout.hidden = !calloutHtml;
+
+      el.drawerEndangeredCallout.querySelectorAll('.drawer-pin-jump-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const pinId = btn.getAttribute('data-pin-id');
+          const pin = hotspots.find(h => h.id === pinId);
+          if (!pin) return;
+          if (!E.state.showEndangeredPins && E.controls && typeof E.controls.toggleEndangeredPins === 'function') {
+            E.controls.toggleEndangeredPins(true);
+          }
+          if (E.pins && typeof E.pins.openPinInspector === 'function') {
+            E.pins.openPinInspector(pin);
+          }
+          if (E.state.globe) {
+            E.state.globe.pointOfView({ lat: pin.lat, lng: pin.lng, altitude: Math.min(1.6, E.utils.getSelectAltitude()) }, 650);
+          }
+          if (E.utils.isBottomSheetLayout()) {
+            setMobileDrawerSnap('peek', true);
+          }
+        });
+      });
+    }
 
     if (el.drawerOriginSection && el.drawerOriginCard) {
       const ORIGINS = global.WORLD_ORIGINS;
@@ -331,7 +408,7 @@
             <div class="lang-tags">
               <span class="lang-tag">${escapeHtml(lang.type || 'Language')}</span>
               ${lang.family ? `<span class="lang-tag">${escapeHtml(lang.family)}</span>` : ''}
-              <span class="lang-tag">Script: ${escapeHtml(scriptLabel)}</span>
+              <button type="button" class="lang-tag is-script-trigger" data-script="${escapeHtml(scriptLabel)}" title="Meet the ${escapeHtml(scriptLabel)} script — Interactive character breakdown">Script: ${escapeHtml(scriptLabel)} ⓘ</button>
               ${lang.speakers ? `<span class="lang-tag">~${escapeHtml(lang.speakers)} speakers</span>` : ''}
             </div>
 
@@ -340,6 +417,16 @@
           </div>
         `;
       }).join('');
+
+      el.drawerLanguagesList.querySelectorAll('.is-script-trigger').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const scr = btn.getAttribute('data-script');
+          if (E.scriptInspector && typeof E.scriptInspector.openScript === 'function') {
+            E.scriptInspector.openScript(scr, c);
+          }
+        });
+      });
 
       el.drawerLanguagesList.querySelectorAll('.language-card[data-default-token]').forEach(card => {
         const triggerDefault = () => {
@@ -350,7 +437,7 @@
           }
         };
         card.addEventListener('click', (e) => {
-          if (e.target && e.target.closest('.lang-spotlight-chip')) return;
+          if (e.target && e.target.closest('.lang-spotlight-chip, .is-script-trigger')) return;
           triggerDefault();
         });
         card.addEventListener('keydown', (e) => {

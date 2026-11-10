@@ -16,6 +16,16 @@
 }
 
 @media (max-width: 1120px) and (min-width: 769px) {
+  .search-container {
+    flex: 0 1 230px;
+    min-width: 140px;
+  }
+
+  .nav-btn {
+    padding: 7px 10px;
+    font-size: 0.78rem;
+  }
+
   .arcs-info-panel {
     bottom: 78px;
     width: 350px;
@@ -201,6 +211,10 @@
     gap: 7px;
   }
 
+  .legend-panel.has-era-legend .legend-chips-container {
+    max-height: 205px;
+  }
+
   .legend-chip {
     padding: 6px 11px;
     font-size: 0.78rem;
@@ -243,8 +257,34 @@
   }
 
   .globe-tool-btn {
-    width: 38px;
-    height: 38px;
+    width: 33px;
+    height: 36px;
+  }
+
+  .time-scrubber-bar {
+    bottom: calc(70px + env(safe-area-inset-bottom) + var(--drawer-peek-offset, 0px));
+    left: 10px;
+    right: 10px;
+    width: auto;
+    padding: 10px 11px;
+  }
+
+  .timeline-era-headline {
+    display: none;
+  }
+
+  .pin-inspector-card {
+    top: auto;
+    bottom: calc(74px + env(safe-area-inset-bottom));
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .passport-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .globe-tool-btn.mobile-only-tool {
@@ -396,7 +436,7 @@
 
   .drawer-title-group {
     gap: 10px;
-    padding-right: 162px;
+    padding-right: 194px;
   }
 
   .drawer-country-name {
@@ -514,17 +554,17 @@
   }
 
   .brand-badge {
-    padding: 5px 10px;
-    gap: 6px;
+    padding: 4px 8px;
+    gap: 5px;
   }
 
   .brand-icon {
-    width: 21px;
-    height: 21px;
+    width: 20px;
+    height: 20px;
   }
 
   .brand-title {
-    font-size: 0.9rem;
+    font-size: 0.84rem;
   }
 
   .brand-subtitle {
@@ -532,14 +572,15 @@
   }
 
   .nav-actions {
-    gap: 4px;
+    gap: 3px;
+    flex-shrink: 1;
   }
 
   .nav-btn {
-    padding: 0 8px;
+    padding: 0 5px;
     font-size: 0.72rem;
-    min-height: 34px;
-    gap: 4px;
+    min-height: 32px;
+    gap: 3px;
   }
 
   .nav-btn svg {
@@ -548,10 +589,46 @@
   }
 
   .icon-btn,
-  #openListModalBtn {
-    width: 32px;
-    height: 34px;
+  #openListModalBtn,
+  #openQuizBtn,
+  #openCompareBtn {
+    width: 30px;
+    min-width: 30px;
+    height: 32px;
     padding: 0;
+    justify-content: center;
+  }
+
+  #openPassportBtn,
+  #openTripBtn {
+    width: auto;
+    min-width: 30px;
+    height: 32px;
+    padding: 0 5px;
+    gap: 3px;
+  }
+
+  #openPassportBtn .nav-btn-label,
+  #openTripBtn .nav-btn-label,
+  #openQuizBtn .nav-btn-label,
+  #openCompareBtn .nav-btn-label {
+    display: none;
+  }
+
+  .nav-count-badge {
+    min-width: 15px;
+    height: 15px;
+    padding: 0 3px;
+    font-size: 0.62rem;
+  }
+
+  .timeline-era-buttons {
+    gap: 4px;
+  }
+
+  .timeline-era-btn {
+    padding: 5px 2px;
+    font-size: 0.63rem;
   }
 }
 
@@ -650,7 +727,7 @@
   }
 
   .drawer-title-group {
-    padding-right: 118px;
+    padding-right: 158px;
   }
 
   .quiz-dock {

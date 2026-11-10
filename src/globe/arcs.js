@@ -360,6 +360,97 @@
     globe.pointOfView({ lat: targetLat, lng: targetLng, altitude: alt }, E.config.GLOBE_CONFIG.CORRIDOR_FLY_MS);
   }
 
+  function parseRouteStartYearCE(labelOrEra) {
+    if (typeof labelOrEra === 'number' && Number.isFinite(labelOrEra)) return labelOrEra;
+    const s = String(labelOrEra || '').trim();
+    if (!s) return -3000;
+    const bceMatch = s.match(/(\d+)\s*BCE/i);
+    if (bceMatch) return -parseInt(bceMatch[1], 10);
+    const milBce = s.match(/(\d+)(?:st|nd|rd|th)\s+mil\.\s*BCE/i);
+    if (milBce) return -parseInt(milBce[1], 10) * 1000;
+    const centCe = s.match(/(\d+)(?:st|nd|rd|th)(?:\s*[–-]\s*\d+(?:st|nd|rd|th))?\s*c\.\s*CE/i);
+    if (centCe) return (parseInt(centCe[1], 10) - 1) * 100;
+    const ceNum = s.match(/(\d{3,4})\+?\s*(?:[–-]\s*\d+\s*)?CE/i);
+    if (ceNum) return parseInt(ceNum[1], 10);
+    const milCe = s.match(/(\d+)(?:st|nd|rd|th)\s+mil\.\s*CE/i);
+    if (milCe) return (parseInt(milCe[1], 10) - 1) * 1000;
+    return -3000;
+  }
+
+  function getActiveMaxYearCE() {
+    const eraId = E.state.activeTimeEra || 'today';
+    if (eraId === 'today' || !global.WORLD_HISTORICAL_ERAS) return Infinity;
+    const era = (global.WORLD_HISTORICAL_ERAS.ERAS || []).find(x => x.id === eraId);
+    return era ? era.maxYearCE : Infinity;
+  }
+
+  function setArcTab(tab) {
+    const next = tab === 'words' ? 'words' : 'origins';
+    E.state.activeArcTab = next;
+    E.state.isArcsPanelCollapsed = false;
+    if (next !== 'words') {
+      E.state.activeWordStopId = null;
+      if (E.pins && E.state.activePinItem) E.pins.closePinInspector();
+    }
+    updateArcs();
+    syncDrawerOriginButton();
+    if (next === 'words' && global.WORLD_ETYMOLOGY) {
+      const wr = global.WORLD_ETYMOLOGY[E.state.activeWordRoute || 'tea'];
+      if (wr && wr.camera) flyToCorridorCamera(wr.camera);
+    } else if (next === 'origins' && global.WORLD_ORIGINS && global.WORLD_ORIGINS.corridors) {
+      const cor = global.WORLD_ORIGINS.corridors[E.state.activeOriginCorridor || 'all'];
+      if (cor && cor.camera) flyToCorridorCamera(cor.camera);
+    }
+    if (E.router && typeof E.router.syncUrlHash === 'function') {
+      E.router.syncUrlHash();
+    }
+  }
+
+  function setWordRoute(wordId) {
+    const ETYM = global.WORLD_ETYMOLOGY || {};
+    if (!ETYM[wordId]) return;
+    E.state.activeArcTab = 'words';
+    E.state.activeWordRoute = wordId;
+    E.state.activeWordStopId = null;
+    E.state.isArcsPanelCollapsed = false;
+    if (!E.state.showArcs) {
+      E.state.showArcs = true;
+      if (E.elements.toggleArcsBtn) E.elements.toggleArcsBtn.classList.add('active');
+    }
+    updateArcs();
+    const wr = ETYM[wordId];
+    if (wr && wr.camera) flyToCorridorCamera(wr.camera);
+    if (E.router && typeof E.router.syncUrlHash === 'function') {
+      E.router.syncUrlHash();
+    }
+  }
+
+  function selectWordStop(stopId) {
+    const ETYM = global.WORLD_ETYMOLOGY || {};
+    const route = ETYM[E.state.activeWordRoute || 'tea'];
+    if (!route || !route.stops) return;
+    const stop = route.stops.find(s => s.id === stopId);
+    if (!stop) return;
+    E.state.activeWordStopId = stop.id;
+    const globe = E.state.globe;
+    if (globe) {
+      const controls = globe.controls();
+      if (controls) controls.autoRotate = false;
+      const alt = Math.max(E.utils.getSelectAltitude(), 1.85);
+      globe.pointOfView({ lat: stop.lat, lng: stop.lng, altitude: alt }, 520);
+    }
+    if (E.pins) {
+      E.pins.openPinInspector({
+        __isPin: true,
+        kind: 'word',
+        item: stop,
+        routeId: route.id,
+        routeLabel: route.label
+      });
+    }
+    updateArcs();
+  }
+
   function syncDrawerOriginButton() {
     const animBtn = document.getElementById('animateCountryOriginBtn');
     if (!animBtn) return;
@@ -390,6 +481,18 @@
       el.arcsToggleCollapseBtn.setAttribute('aria-expanded', E.state.isArcsPanelCollapsed ? 'false' : 'true');
     }
 
+    const isWordsTab = E.state.activeArcTab === 'words';
+    if (el.arcsTabOriginsBtn) {
+      el.arcsTabOriginsBtn.classList.toggle('active', !isWordsTab);
+      el.arcsTabOriginsBtn.setAttribute('aria-selected', !isWordsTab ? 'true' : 'false');
+    }
+    if (el.arcsTabWordsBtn) {
+      el.arcsTabWordsBtn.classList.toggle('active', isWordsTab);
+      el.arcsTabWordsBtn.setAttribute('aria-selected', isWordsTab ? 'true' : 'false');
+    }
+    if (el.arcCorridorChips) el.arcCorridorChips.hidden = isWordsTab;
+    if (el.wordRouteChips) el.wordRouteChips.hidden = !isWordsTab;
+
     const ORIGINS = global.WORLD_ORIGINS;
     const corridors = (ORIGINS && ORIGINS.corridors) || {};
     const chips = [];
@@ -413,7 +516,7 @@
       if (cor) chips.push({ id, label: cor.shortLabel || cor.title, color: cor.color || '#38bdf8' });
     }
 
-    if (el.arcCorridorChips) {
+    if (el.arcCorridorChips && !isWordsTab) {
       el.arcCorridorChips.innerHTML = chips.map(ch => `
         <button type="button" class="arc-corridor-chip ${ch.id === E.state.activeOriginCorridor ? 'active' : ''}" data-corridor="${escapeHtml(ch.id)}" role="tab" aria-selected="${ch.id === E.state.activeOriginCorridor ? 'true' : 'false'}">
           <span class="legend-dot" style="background:${ch.color};"></span>
@@ -442,20 +545,93 @@
       });
     }
 
+    if (el.wordRouteChips && isWordsTab && global.WORLD_ETYMOLOGY) {
+      const wordOrder = ['tea', 'coffee', 'sugar', 'orange', 'zero', 'mother'];
+      el.wordRouteChips.innerHTML = wordOrder.map(id => {
+        const wr = global.WORLD_ETYMOLOGY[id];
+        if (!wr) return '';
+        const act = id === E.state.activeWordRoute;
+        return `
+          <button type="button" class="arc-corridor-chip ${act ? 'active' : ''}" data-word-route="${escapeHtml(id)}" role="tab" aria-selected="${act ? 'true' : 'false'}">
+            <span class="legend-dot" style="background:${escapeHtml(wr.color || '#f59e0b')};"></span>
+            <span>${escapeHtml(wr.label)}</span>
+          </button>
+        `;
+      }).join('');
+
+      el.wordRouteChips.querySelectorAll('.arc-corridor-chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const wid = btn.getAttribute('data-word-route');
+          if (wid) setWordRoute(wid);
+        });
+      });
+    }
+
     const accentColor = (payload && payload.color) || '#f59e0b';
     if (el.arcsLiveDot) {
       el.arcsLiveDot.style.background = accentColor;
       el.arcsLiveDot.style.boxShadow = `0 0 8px ${accentColor}`;
     }
     if (el.arcsPanelTitle) {
-      el.arcsPanelTitle.textContent = mode === 'filter'
-        ? `Origin & Diffusion • ${E.state.activeFilterLanguage}`
-        : mode === 'country' && E.state.selectedCountry
-          ? `Origin • ${E.state.selectedCountry.name}`
-          : 'Family Origin & Migration';
+      el.arcsPanelTitle.textContent = mode === 'word' && payload
+        ? `Word Route • ${payload.label}`
+        : mode === 'filter'
+          ? `Origin & Diffusion • ${E.state.activeFilterLanguage}`
+          : mode === 'country' && E.state.selectedCountry
+            ? `Origin • ${E.state.selectedCountry.name}`
+            : 'Family Origin & Migration';
     }
 
     if (!el.arcsInfoBody || !payload) {
+      E.overlays.refreshOverlayHudRects();
+      return;
+    }
+
+    if (mode === 'word') {
+      const branchesHtml = (payload.branches || []).map(br => `
+        <span class="word-branch-pill">
+          <span class="legend-dot" style="background:${escapeHtml(br.color)};"></span>
+          <span>${escapeHtml(br.label)}</span>
+        </span>
+      `).join('');
+
+      const stopsHtml = (payload.stops || []).map(st => {
+        const isAct = E.state.activeWordStopId === st.id;
+        return `
+          <button type="button" class="word-stop-btn ${isAct ? 'active' : ''}" data-stop-id="${escapeHtml(st.id)}">
+            <span class="word-stop-word">${escapeHtml(st.word)}</span>
+            <span class="word-stop-meta">${escapeHtml(st.country)} • ${escapeHtml(st.era)}</span>
+          </button>
+        `;
+      }).join('');
+
+      el.arcsInfoBody.innerHTML = `
+        <div class="arcs-route-title">${escapeHtml(payload.subtitle || payload.label)}</div>
+        <div class="arcs-meta-grid">
+          <div class="arcs-meta-pill">
+            <span class="arcs-meta-label">Earliest Etymon</span>
+            <strong>${escapeHtml(payload.etymon || '')}</strong>
+          </div>
+          <div class="arcs-meta-pill">
+            <span class="arcs-meta-label">Origin Hearth</span>
+            ${escapeHtml(payload.originHub || '')}
+          </div>
+        </div>
+        <div class="word-branches-bar">${branchesHtml}</div>
+        <p class="arcs-summary-text">${escapeHtml(payload.summary || '')}</p>
+        <div class="word-stops-label">Click any stop or globe beacon to inspect:</div>
+        <div class="word-stops-grid">${stopsHtml}</div>
+        <div class="arcs-legend-strip">
+          <span>Click stop to fly camera &amp; compare cognates</span>
+          <span>${payload.routeCount || 0} animated hop${payload.routeCount === 1 ? '' : 's'}</span>
+        </div>
+      `;
+
+      el.arcsInfoBody.querySelectorAll('.word-stop-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectWordStop(btn.getAttribute('data-stop-id'));
+        });
+      });
       E.overlays.refreshOverlayHudRects();
       return;
     }
@@ -514,6 +690,7 @@
       globe.arcsData([]);
       globe.ringsData([]);
       renderArcsInfoPanel('hidden', null);
+      if (E.pins) E.pins.refreshPins();
       return;
     }
 
@@ -521,6 +698,54 @@
     const rings = [];
     let panelMode = 'corridor';
     let panelPayload = null;
+    const maxYearCE = getActiveMaxYearCE();
+
+    if (E.state.activeArcTab === 'words' && global.WORLD_ETYMOLOGY) {
+      const ETYM = global.WORLD_ETYMOLOGY;
+      const wid = ETYM[E.state.activeWordRoute] ? E.state.activeWordRoute : 'tea';
+      E.state.activeWordRoute = wid;
+      const wr = ETYM[wid];
+
+      (wr.corridors || []).forEach((rt, idx) => {
+        if (rt.eraYearCE != null && rt.eraYearCE > maxYearCE) return;
+        addAnimatedRoutePair(arcs, {
+          from: rt.from,
+          to: rt.to,
+          originColor: rt.originColor || wr.color,
+          destColor: rt.destColor || wr.color,
+          wave: rt.wave || 1,
+          index: idx,
+          isPrimary: rt.isPrimary !== false
+        });
+      });
+
+      if (wr.stops && wr.stops.length > 0) {
+        const originStop = wr.stops[0];
+        rings.push({ lat: originStop.lat, lng: originStop.lng, color: wr.color || '#f59e0b', radius: 6.2 });
+        if (E.state.activeWordStopId) {
+          const selStop = wr.stops.find(s => s.id === E.state.activeWordStopId);
+          if (selStop && selStop !== originStop) {
+            rings.push({ lat: selStop.lat, lng: selStop.lng, color: '#ffffff', radius: 5.2 });
+          }
+        }
+      }
+
+      panelMode = 'word';
+      panelPayload = {
+        ...wr,
+        routeCount: arcs.filter(a => a._arcRole === 'pulse').length
+      };
+
+      globe.arcsData(arcs);
+      globe.ringsData(rings);
+      requestAnimationFrame(() => {
+        applyArcMeshProps();
+        requestAnimationFrame(applyArcMeshProps);
+      });
+      renderArcsInfoPanel(panelMode, panelPayload);
+      if (E.pins) E.pins.refreshPins();
+      return;
+    }
 
     if (E.state.activeOriginCorridor === 'country' && E.state.selectedCountry && ORIGINS) {
       const src = E.state.selectedCountry;
@@ -567,7 +792,7 @@
         });
       }
 
-      if (dest && E.config.ARC_EXPORTERS.has((src.iso3 || '').toUpperCase())) {
+      if (maxYearCE >= 1500 && dest && E.config.ARC_EXPORTERS.has((src.iso3 || '').toUpperCase())) {
         const canon = (src.canonicalLanguage || src.primaryLanguage || '').toLowerCase();
         let addedOut = 0;
         for (const c of E.state.countriesList) {
@@ -680,6 +905,7 @@
       }
       if (corridor.routes) {
         corridor.routes.forEach((rt, idx) => {
+          if (maxYearCE < Infinity && parseRouteStartYearCE(rt.label) > maxYearCE) return;
           addAnimatedRoutePair(arcs, {
             from: rt.from,
             to: rt.to,
@@ -695,7 +921,7 @@
       panelMode = 'corridor';
       panelPayload = {
         ...corridor,
-        routeCount: (corridor.routes && corridor.routes.length) || arcs.filter(a => a._arcRole === 'pulse').length
+        routeCount: arcs.filter(a => a._arcRole === 'pulse').length
       };
     }
 
@@ -706,6 +932,7 @@
       requestAnimationFrame(applyArcMeshProps);
     });
     renderArcsInfoPanel(panelMode, panelPayload);
+    if (E.pins) E.pins.refreshPins();
   }
 
   E.arcs = {
@@ -714,6 +941,9 @@
     getLanguageOriginSeed,
     flyToCorridorCamera,
     frameCountryOriginCamera,
+    setArcTab,
+    setWordRoute,
+    selectWordStop,
     syncDrawerOriginButton,
     renderArcsInfoPanel,
     updateArcs

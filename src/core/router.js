@@ -62,12 +62,28 @@
       params.set('fam', s.activeFilterFamily);
     } else if (s.activeFilterScript) {
       params.set('script', s.activeFilterScript);
+    } else if (s.activeFilterDiversityTier) {
+      params.set('div', s.activeFilterDiversityTier);
+    }
+    if (s.showEndangeredPins) {
+      params.set('pins', '1');
+    }
+    if (s.activeTimeEra && s.activeTimeEra !== 'today') {
+      params.set('era', s.activeTimeEra);
     }
     if (s.showArcs) {
-      params.set('arcs', s.activeOriginCorridor || 'all');
+      if (s.activeArcTab === 'words') {
+        params.set('arcs', 'word');
+        if (s.activeWordRoute) params.set('word', s.activeWordRoute);
+      } else {
+        params.set('arcs', s.activeOriginCorridor || 'all');
+      }
     }
     if (s.isCompareOpen && s.compareIsoA && s.compareIsoB) {
       params.set('compare', `${s.compareIsoA},${s.compareIsoB}`);
+    }
+    if (Array.isArray(s.tripBookmarks) && s.tripBookmarks.length > 0 && s.tripModalOpen) {
+      params.set('trip', s.tripBookmarks.join(','));
     }
 
     return params.toString();
@@ -122,6 +138,11 @@
     const filterParam = params.get('filter');
     const famParam = params.get('fam');
     const scriptParam = params.get('script');
+    const divParam = params.get('div');
+    const pinsParam = params.get('pins');
+    const eraParam = params.get('era');
+    const wordParam = params.get('word');
+    const tripParam = params.get('trip');
     const countryParam = params.get('country');
     const arcsParam = params.get('arcs');
     const compareParam = params.get('compare');
@@ -143,7 +164,16 @@
           if (E.elements.toggleArcsBtn) E.elements.toggleArcsBtn.classList.remove('active');
           if (E.arcs) E.arcs.updateArcs();
         }
-        if (!spokenParam && !filterParam && !famParam && !scriptParam && E.controls) {
+        if (!pinsParam && E.state.showEndangeredPins && E.controls) {
+          E.controls.toggleEndangeredPins(false, { skipRouter: true });
+        }
+        if (!eraParam && E.controls && (E.state.isTimelineOpen || E.state.activeTimeEra !== 'today')) {
+          E.controls.toggleTimeline(false, { skipRouter: true });
+        }
+        if (!tripParam && E.state.tripModalOpen && E.trip) {
+          E.trip.closeTripModal();
+        }
+        if (!spokenParam && !filterParam && !famParam && !scriptParam && !divParam && E.controls) {
           E.controls.clearLanguageFilter({ skipRouter: true });
         }
       }
@@ -204,8 +234,25 @@
         E.state.activeFilterSpokenCountries = null;
         E.state.activeFilterLanguage = null;
         E.state.activeFilterFamily = null;
+        E.state.activeFilterDiversityTier = null;
         E.state.activeFilterScript = grp ? grp.name : scriptParam;
         E.state.activeFilterColor = grp ? grp.color : findGroupColor(E.config.SCRIPT_GROUPS, scriptParam);
+      } else if (divParam) {
+        const grp = (E.config.DIVERSITY_GROUPS || []).find(g => g.name.toLowerCase() === divParam.toLowerCase());
+        E.state.activeFilterSpokenLang = null;
+        E.state.activeFilterSpokenCountries = null;
+        E.state.activeFilterLanguage = null;
+        E.state.activeFilterFamily = null;
+        E.state.activeFilterScript = null;
+        E.state.activeFilterDiversityTier = grp ? grp.name : divParam;
+        E.state.activeFilterColor = grp ? grp.color : findGroupColor(E.config.DIVERSITY_GROUPS, divParam);
+      }
+
+      if (pinsParam === '1' && E.controls) {
+        E.controls.toggleEndangeredPins(true, { skipRouter: true });
+      }
+      if (eraParam && E.controls) {
+        E.controls.setTimeEra(eraParam, { skipRouter: true, openBar: true });
       }
 
       if (E.controls) {
@@ -221,24 +268,35 @@
         E.drawer.selectCountry(targetCountry, animateCam && !compareParam, { skipRouter: true });
       }
 
-      // 4. Origin & Migration Arcs
+      // 4. Origin & Migration Arcs OR Word Etymology Routes
       if (arcsParam) {
         E.state.showArcs = true;
-        E.state.activeOriginCorridor = arcsParam;
+        if (arcsParam === 'word') {
+          E.state.activeArcTab = 'words';
+          if (wordParam && global.WORLD_ETYMOLOGY && global.WORLD_ETYMOLOGY[wordParam]) {
+            E.state.activeWordRoute = wordParam;
+          }
+        } else {
+          E.state.activeArcTab = 'origins';
+          E.state.activeOriginCorridor = arcsParam;
+        }
         if (E.elements.toggleArcsBtn) E.elements.toggleArcsBtn.classList.add('active');
         if (E.arcs) {
           E.arcs.updateArcs();
           E.arcs.syncDrawerOriginButton();
-          if (!targetCountry && !compareParam && global.WORLD_ORIGINS && global.WORLD_ORIGINS.corridors) {
-            const cor = global.WORLD_ORIGINS.corridors[E.state.activeOriginCorridor];
-            if (cor && cor.camera) {
-              E.arcs.flyToCorridorCamera(cor.camera);
+          if (!targetCountry && !compareParam) {
+            if (E.state.activeArcTab === 'words' && global.WORLD_ETYMOLOGY) {
+              const wr = global.WORLD_ETYMOLOGY[E.state.activeWordRoute];
+              if (wr && wr.camera) E.arcs.flyToCorridorCamera(wr.camera);
+            } else if (global.WORLD_ORIGINS && global.WORLD_ORIGINS.corridors) {
+              const cor = global.WORLD_ORIGINS.corridors[E.state.activeOriginCorridor];
+              if (cor && cor.camera) E.arcs.flyToCorridorCamera(cor.camera);
             }
           }
         }
       }
 
-      // 5. Compare Modal
+      // 5. Compare Modal & Trip Cheat-Sheet Modal
       if (compareParam && E.compare) {
         const parts = compareParam.split(',').map(s => s.trim()).filter(Boolean);
         if (parts.length >= 2) {
@@ -247,6 +305,10 @@
           const c = resolveCountryParam(parts[0]);
           if (c) E.compare.openCompareWithCountry(c);
         }
+      }
+      if (tripParam && E.trip) {
+        const isos = tripParam.split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
+        if (isos.length) E.trip.importBookmarks(isos, { open: true, skipRouter: true });
       }
 
       lastWrittenHash = buildHashString();
@@ -318,6 +380,7 @@
     buildHashString,
     syncUrlHash,
     applyHashState,
+    copyTextFallback,
     copyCurrentShareLink,
     initRouter
   };

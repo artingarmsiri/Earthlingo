@@ -221,7 +221,10 @@
       hoverRafId = 0;
       if (!hoverPointerActive || activePointers.size > 0 || isDragging) return;
       const hit = E.polygons.pickTargetAtScreen(hoverClientX, hoverClientY, false);
-      if (hit) {
+      if (hit && hit.__isPin && typeof E.tooltip.showTooltipForPin === 'function') {
+        E.tooltip.setGlobeCursor('pointer');
+        E.tooltip.showTooltipForPin(hit, hoverClientX, hoverClientY);
+      } else if (hit) {
         E.tooltip.setGlobeCursor('pointer');
         E.tooltip.showTooltipForCountry(hit, hoverClientX, hoverClientY);
       } else {
@@ -360,6 +363,8 @@
         const hit = E.polygons.pickTargetAtScreen(e.clientX, e.clientY, isTouch);
         if (E.state.isQuizActive && E.quiz && typeof E.quiz.handleGlobePick === 'function') {
           E.quiz.handleGlobePick(hit);
+        } else if (hit && hit.__isPin && E.pins) {
+          E.pins.openPinInspector(hit);
         } else if (hit && hit.languages) {
           E.drawer.selectCountry(hit);
         } else if (isTouch && E.utils.isBottomSheetLayout() && E.state.selectedCountry) {

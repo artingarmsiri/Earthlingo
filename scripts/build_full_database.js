@@ -484,6 +484,31 @@ function getLanguageDefaults(name, iso3, iso2) {
   const pop = d.pop || "Populous";
   const cont = d.cont || "Global";
 
+  function inferBuildScript(iso, b, langLabel) {
+    if (['SAU','EGY','IRQ','SYR','JOR','LBN','PSE','YEM','OMN','ARE','QAT','BHR','KWT','LBY','TUN','DZA','ESH'].includes(iso) || b.startsWith('ar')) return 'Arabic';
+    if (b.startsWith('ru') || b.startsWith('bg') || b.startsWith('sr') || b.startsWith('be') || b.startsWith('mk') || b.startsWith('ky') || b.startsWith('tg') || iso === 'KAZ' || iso === 'MNG') return 'Cyrillic';
+    if (b.startsWith('zh') || iso === 'TWN') return 'Hanzi';
+    if (b.startsWith('ko')) return 'Hangul';
+    if (b.startsWith('he')) return 'Hebrew Alphabet';
+    if (b.startsWith('el')) return 'Greek Alphabet';
+    if (b.startsWith('hy')) return 'Armenian Alphabet';
+    if (b.startsWith('ka')) return 'Georgian (Mkhedruli)';
+    if (b.startsWith('bn')) return 'Bengali–Assamese';
+    if (b.startsWith('ne') || b.startsWith('hi')) return 'Devanagari';
+    if (b.startsWith('si')) return 'Sinhala Script';
+    if (b.startsWith('lo')) return 'Lao Script';
+    if (b.startsWith('km')) return 'Khmer Script';
+    if (b.startsWith('my')) return 'Burmese Script';
+    if (b.startsWith('dz')) return 'Tibetan Script';
+    if (b.startsWith('dv')) return 'Thaana';
+    if (b.startsWith('ti') || b.startsWith('am')) return 'Geʻez Script';
+    return 'Latin';
+  }
+
+  const parts = langName.split('&');
+  const primaryPart = parts[0].trim();
+  const secondaryPart = parts[1] ? parts[1].trim() : '';
+
   return {
     iso3: iso3, iso2: iso2, geoName: name, commonName: name,
     officialName: name, nativeName: name, flag: flag,
@@ -492,8 +517,8 @@ function getLanguageDefaults(name, iso3, iso2) {
     diversityLevel: "Multilingual & Dialect Diversity",
     summary: `${name} has a rich linguistic tapestry centered around ${langName}, reflecting its cultural heritage, historical migrations, and regional identity.`,
     languages: [
-      { name: langName.split('&')[0].trim(), nativeName: langName.split('&')[0].trim(), type: "Official State Language", percentage: "75%", speakers: pop, family: fam, script: "Official National Script", bcp47: bcp, regions: "Nationwide", notes: `Principal medium of education, administration, and cultural life in ${name}.` },
-      ...(langName.includes('&') ? [{ name: langName.split('&')[1].trim(), nativeName: langName.split('&')[1].trim(), type: "Recognized Co-official / National", percentage: "25%", speakers: "Substantial", family: fam, script: "National Script", bcp47: bcp, regions: "Regional & Urban Centers", notes: `Widely spoken alongside the principal language.` }] : [])
+      { name: primaryPart, nativeName: primaryPart, type: "Official State Language", percentage: "75%", speakers: pop, family: fam, script: inferBuildScript(iso3, bcp, primaryPart), bcp47: bcp, regions: "Nationwide", notes: `Principal medium of education, administration, and cultural life in ${name}.` },
+      ...(secondaryPart ? [{ name: secondaryPart, nativeName: secondaryPart, type: "Recognized Co-official / National", percentage: "25%", speakers: "Substantial", family: fam, script: inferBuildScript(iso3, bcp, secondaryPart), bcp47: bcp, regions: "Regional & Urban Centers", notes: `Widely spoken alongside the principal language.` }] : [])
     ],
     accents: [
       { name: `Standard ${name}`, region: "Capital & Major Cities", description: "Clear enunciation, national broadcast cadence, formal administrative register.", sample: `Official greeting and standard expressions heard across ${name}.` },

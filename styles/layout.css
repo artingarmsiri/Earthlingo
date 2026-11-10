@@ -372,6 +372,105 @@
   box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
 }
 
+.legend-chip-count {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.legend-spotlight-chip {
+  border-color: var(--accent-cyan);
+  background: rgba(56, 189, 248, 0.16);
+  color: #e0f2fe;
+}
+
+/* Color-By Segmented Control & Auto-Sync Pill */
+.color-by-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.color-by-segmented {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 2px;
+}
+
+.color-by-segmented.is-full {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.color-by-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.71rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: background-color 0.14s ease, color 0.14s ease;
+  white-space: nowrap;
+}
+
+.color-by-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.color-by-btn.active {
+  background: rgba(56, 189, 248, 0.24);
+  color: #e0f2fe;
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.48);
+}
+
+.color-sync-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-muted);
+  font-size: 0.69rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background-color 0.14s ease, border-color 0.14s ease, color 0.14s ease;
+}
+
+.color-sync-btn:hover {
+  color: var(--text-primary);
+  border-color: rgba(148, 163, 184, 0.4);
+}
+
+.color-sync-btn.active {
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(16, 185, 129, 0.42);
+  color: #a7f3d0;
+}
+
+.color-sync-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #64748b;
+}
+
+.color-sync-btn.active .color-sync-dot {
+  background: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.75);
+}
+
 .legend-dot {
   width: 8px;
   height: 8px;

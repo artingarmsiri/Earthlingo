@@ -45,6 +45,29 @@
     return { shortName: 'Latin', glyph: 'Aa', fullDetail: 'Latin Alphabet' };
   }
 
+  function resolveLanguageScriptLabel(lang, country) {
+    if (!lang) {
+      return country ? resolveCountryScriptMeta(country).fullDetail : 'Latin';
+    }
+    const raw = (lang.script || '').trim();
+    if (raw && raw !== 'Official National Script' && raw !== 'National Script') {
+      return raw;
+    }
+    const lname = (lang.name || '').toLowerCase();
+    if (lname.includes('arabic')) return 'Arabic';
+    if (lname.includes('russian') || lname.includes('ukrainian') || lname.includes('belarusian') || lname.includes('bulgarian') || lname.includes('macedonian')) return 'Cyrillic';
+    if (lname.includes('hebrew')) return 'Hebrew Alphabet';
+    if (lname.includes('greek')) return 'Greek Alphabet';
+    if (lname.includes('amharic') || lname.includes('tigrinya')) return 'Geʻez Script';
+    if (lname.includes('hindi') || lname.includes('nepali')) return 'Devanagari';
+    if (lname.includes('bengali')) return 'Bengali–Assamese';
+    if (lname.includes('tamil')) return 'Tamil Script';
+    if (lname.includes('sinhala')) return 'Sinhala Script';
+    if (lname.includes('hangul') || lname.includes('korean')) return 'Hangul';
+    if (country) return resolveCountryScriptMeta(country).fullDetail;
+    return 'Latin';
+  }
+
   function compactCountryTitle(name) {
     if (!name) return '';
     return name
@@ -173,6 +196,7 @@
   E.labelFormatter = {
     getMeasureCtx,
     resolveCountryScriptMeta,
+    resolveLanguageScriptLabel,
     compactCountryTitle,
     compactFamilyLabel,
     compactLanguageLabel,

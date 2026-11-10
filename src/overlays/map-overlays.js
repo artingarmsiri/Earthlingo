@@ -153,12 +153,19 @@
       if (areaWeight >= 18 || isIslandHub) minTier = 0;
       else if (areaWeight >= 2.2) minTier = 1;
 
+      const famGrp = E.geo.resolveCountryFamilyGroup(c);
+      const scrGrp = E.geo.resolveCountryScriptGroup(c);
+
       anchors.push({
         key,
         iso,
         country: c,
         canonLang: c.canonicalLanguage || c.primaryLanguage || '',
+        familyGroup: famGrp.name,
+        scriptGroup: scrGrp.name,
         color: c.color || '#38bdf8',
+        familyColor: famGrp.color || '#0ea5e9',
+        scriptColor: scrGrp.color || '#0ea5e9',
         wx: coords.x,
         wy: coords.y,
         wz: coords.z,
@@ -230,6 +237,9 @@
     }
     if (E.state.showArcs && !drawerOpen) {
       addRect(el.arcsInfoPanel);
+    }
+    if (E.state.isQuizActive) {
+      addRect(el.quizDock);
     }
     addRect(el.globeControlsBar);
 
@@ -399,7 +409,12 @@
 
     const hudBoxes = overlayState.hudRects;
     const selKey = E.state.selectedCountry ? E.geo.getCountryKey(E.state.selectedCountry) : '';
-    const activeFilter = E.state.activeFilterLanguage;
+    const colorBy = E.state.colorByMode || 'language';
+    const activeSpoken = E.state.activeFilterSpokenCountries;
+    const hasSpoken = Boolean(activeSpoken && activeSpoken.size > 0);
+    const activeFilterLang = E.state.activeFilterLanguage;
+    const activeFilterFam = E.state.activeFilterFamily;
+    const activeFilterScr = E.state.activeFilterScript;
     const anchors = overlayState.anchors;
     const prevVisible = overlayState.prevVisibleKeys;
     const placed = overlayState.placedBoxes;
@@ -410,7 +425,11 @@
     for (let i = 0; i < anchors.length; i++) {
       const a = anchors[i];
       const isSelected = a.key === selKey;
-      const isFiltered = Boolean(activeFilter && a.canonLang === activeFilter);
+      let isFiltered = false;
+      if (hasSpoken) isFiltered = activeSpoken.has(a.key);
+      else if (activeFilterLang) isFiltered = (a.canonLang === activeFilterLang);
+      else if (activeFilterFam) isFiltered = (a.familyGroup === activeFilterFam);
+      else if (activeFilterScr) isFiltered = (a.scriptGroup === activeFilterScr);
       if (!isSelected && !isFiltered && a.minTier > zoomTier) continue;
 
       const dot = a.nx * ux + a.ny * uy + a.nz * uz;
@@ -546,14 +565,17 @@
 
       const el = slot.el;
       const showSub = isDetailTier && Boolean(cand.labelInfo.s);
-      const sig = `${key}|${mode}|${zoomTier}|${cand.isSelected ? 1 : 0}|${cand.isFiltered ? 1 : 0}`;
+      const dotColor = colorBy === 'family'
+        ? cand.a.familyColor
+        : (colorBy === 'script' ? cand.a.scriptColor : cand.a.color);
+      const sig = `${key}|${mode}|${colorBy}|${zoomTier}|${cand.isSelected ? 1 : 0}|${cand.isFiltered ? 1 : 0}`;
       if (slot.lastSig !== sig) {
         slot.lastSig = sig;
         slot.titleEl.textContent = cand.labelInfo.t;
         slot.subEl.textContent = showSub ? cand.labelInfo.s : '';
-        if (slot.lastColor !== cand.a.color) {
-          slot.lastColor = cand.a.color;
-          slot.dotEl.style.background = cand.a.color;
+        if (slot.lastColor !== dotColor) {
+          slot.lastColor = dotColor;
+          slot.dotEl.style.background = dotColor;
         }
         el.className =
           'map-overlay-label' +
@@ -612,6 +634,13 @@
     }
   }
 
+  function getSyncedColorModeForOverlay(overlayMode) {
+    if (overlayMode === 'families') return 'family';
+    if (overlayMode === 'scripts') return 'script';
+    if (overlayMode === 'off') return E.state.colorByMode || 'language';
+    return 'language';
+  }
+
   function syncOverlayMenuUI() {
     const el = E.elements;
     const mode = E.state.mapOverlayMode;
@@ -632,16 +661,30 @@
         btn.setAttribute('aria-checked', active ? 'true' : 'false');
       });
     }
+    if (E.controls && typeof E.controls.syncColorByUI === 'function') {
+      E.controls.syncColorByUI();
+    }
     refreshOverlayHudRects();
   }
 
-  function setMapOverlayMode(mode) {
+  function setMapOverlayMode(mode, opts = {}) {
     const valid = E.config.OVERLAY_CONFIG.VALID_MODES;
     const nextMode = valid.has(mode) ? mode : 'countries';
     E.state.mapOverlayMode = nextMode;
+
+    if (!opts.skipSync && E.state.colorByAutoSync && nextMode !== 'off' && E.controls && typeof E.controls.setColorByMode === 'function') {
+      const targetColor = getSyncedColorModeForOverlay(nextMode);
+      if (targetColor !== E.state.colorByMode) {
+        E.controls.setColorByMode(targetColor, { fromSync: true, skipRouter: true });
+      }
+    }
+
     syncOverlayMenuUI();
     if (nextMode === 'off') hideAllOverlaySlots();
     markOverlaysDirty(true);
+    if (!opts.skipRouter && E.router && typeof E.router.syncUrlHash === 'function') {
+      E.router.syncUrlHash();
+    }
   }
 
   function initMapOverlays() {
@@ -721,6 +764,7 @@
     syncOverlayZoomBadge,
     markOverlaysDirty,
     updateCountryOverlays,
+    getSyncedColorModeForOverlay,
     syncOverlayMenuUI,
     setMapOverlayMode,
     initMapOverlays,

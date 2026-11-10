@@ -23,6 +23,210 @@
     return country.iso3 || country.name || '';
   }
 
+  function resolveCountryFamilyGroup(country) {
+    const groups = E.config.FAMILY_GROUPS;
+    const raw = ((country && country.languageFamily) || '').trim();
+    const lower = raw.toLowerCase();
+    const pick = (groupName) => groups.find(g => g.name === groupName) || groups[groups.length - 1];
+
+    if (lower.includes('slavic')) return pick('Indo-European (Slavic)');
+    if (lower.includes('indo-iranian') || lower.includes('dravidian')) return pick('Indo-European (Indo-Iranian)');
+    if (lower.startsWith('indo-european (germanic')) return pick('Indo-European (Germanic)');
+    if (lower === 'indo-european / austronesian') return pick('Indo-European (Germanic)');
+    if (lower.startsWith('indigenous american')) return pick('Indigenous, Creoles & Other');
+    if (lower.includes('romance') || lower === 'indo-european / quechuan') return pick('Indo-European (Romance)');
+    if (lower.includes('baltic') || lower.includes('hellenic') || lower === 'indo-european (other)') {
+      return pick('Indo-European (Other)');
+    }
+    if (lower.startsWith('afroasiatic')) return pick('Afroasiatic');
+    if (lower.startsWith('niger-congo')) return pick('Niger-Congo');
+    if (lower.startsWith('austronesian')) return pick('Austronesian');
+    if (lower.includes('sino-tibetan')) return pick('Sino-Tibetan');
+    if (lower.includes('turkic')) return pick('Turkic');
+    if (lower.includes('japonic') || lower.includes('koreanic')) return pick('Japonic & Koreanic');
+    if (lower.includes('austroasiatic') || lower.includes('kra-dai')) return pick('Austroasiatic & Kra-Dai');
+    if (lower.includes('uralic')) return pick('Uralic');
+    return pick('Indigenous, Creoles & Other');
+  }
+
+  function resolveCountryScriptGroup(country) {
+    const groups = E.config.SCRIPT_GROUPS;
+    const pick = (groupName) => groups.find(g => g.name === groupName) || groups[0];
+    const meta = (E.labelFormatter && typeof E.labelFormatter.resolveCountryScriptMeta === 'function')
+      ? E.labelFormatter.resolveCountryScriptMeta(country || {})
+      : { shortName: 'Latin' };
+    const s = (meta.shortName || 'Latin').toLowerCase();
+
+    if (s.startsWith('latin')) return pick('Latin');
+    if (s.includes('arabic') || s.includes('perso')) return pick('Arabic & Perso-Arabic');
+    if (s.startsWith('cyrillic')) return pick('Cyrillic');
+    if (s.includes('hangul')) return pick('Hangul');
+    if (s.includes('hanzi') || s.includes('kanji')) return pick('Hanzi & Kanji');
+    if (s.includes('geʻez') || s.includes("ge'ez")) return pick('Geʻez (Ethiopic)');
+    if (s.includes('thai') || s.includes('lao') || s.includes('khmer') || s.includes('burmese')) return pick('SE Asian Brahmic');
+    if (s.includes('devanagari') || s.includes('bengali') || s.includes('sinhala') || s.includes('tibetan') || s.includes('thaana')) {
+      return pick('Indic & Himalayan');
+    }
+    if (s.includes('greek') || s.includes('hebrew') || s.includes('armenian') || s.includes('georgian')) {
+      return pick('Greek, Hebrew & Caucasus');
+    }
+    return pick('Latin');
+  }
+
+  function splitOutsideParens(str) {
+    const parts = [];
+    let cur = '';
+    let depth = 0;
+    for (let i = 0; i < str.length; i++) {
+      const ch = str[i];
+      if (ch === '(') depth++;
+      else if (ch === ')' && depth > 0) depth--;
+      if (depth === 0 && (ch === ',' || ch === '&' || ch === '/')) {
+        if (cur.trim()) parts.push(cur.trim());
+        cur = '';
+      } else {
+        cur += ch;
+      }
+    }
+    if (cur.trim()) parts.push(cur.trim());
+    return parts;
+  }
+
+  function matchSpokenAlias(segment) {
+    const aliases = E.config.SPOKEN_TOKEN_ALIASES || [];
+    for (let i = 0; i < aliases.length; i++) {
+      if (aliases[i].pattern.test(segment)) {
+        return aliases[i].token;
+      }
+    }
+    return null;
+  }
+
+  function extractSpokenLanguageTokens(langEntry) {
+    if (!langEntry || !langEntry.name) return [];
+    const rawName = String(langEntry.name).trim();
+    const tokens = [];
+    const addToken = (t) => {
+      if (t && !tokens.includes(t)) tokens.push(t);
+    };
+
+    const outerParts = splitOutsideParens(rawName);
+    for (let i = 0; i < outerParts.length; i++) {
+      const part = outerParts[i];
+      const base = part.replace(/\([^)]*\)/g, '').trim();
+      const matched = matchSpokenAlias(base);
+      if (matched) {
+        addToken(matched);
+      } else if (base && !/^(indigenous|regional|other|local|minority|various|tribal)\b/i.test(base)) {
+        addToken(base);
+      }
+      // Also check parenthetical lists (e.g. "Indigenous Languages (Guarani, Yanomami)") for multi-nation tongues
+      const parenMatch = part.match(/\(([^)]+)\)/);
+      if (parenMatch) {
+        const innerParts = parenMatch[1].split(/[,&/]/);
+        for (let j = 0; j < innerParts.length; j++) {
+          const innerAlias = matchSpokenAlias(innerParts[j].trim());
+          if (innerAlias) addToken(innerAlias);
+        }
+      }
+    }
+    if (tokens.length === 0) {
+      addToken(rawName.replace(/\([^)]*\)/g, '').trim() || rawName);
+    }
+    return tokens;
+  }
+
+  function buildSpokenLanguageIndex() {
+    const db = E.state.languagesDb;
+    if (!db) return new Map();
+
+    // Ensure unique countriesList is populated
+    if (!E.state.countriesList || E.state.countriesList.length === 0) {
+      const seen = new Set();
+      E.state.countriesList = [];
+      for (const key in db) {
+        const c = db[key];
+        if (c && c.name && !seen.has(c.name)) {
+          seen.add(c.name);
+          E.state.countriesList.push(c);
+        }
+      }
+      E.state.countriesList.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    const spokenIndex = new Map();
+    const langColorMap = new Map((E.config.SHARED_LANGUAGES || []).map(l => [l.name.toLowerCase(), l.color]));
+
+    const upsertCountryMeta = (c) => {
+      if (!c) return;
+      const famGrp = resolveCountryFamilyGroup(c);
+      const scrGrp = resolveCountryScriptGroup(c);
+      c.__familyGroup = famGrp.name;
+      c.__familyColor = famGrp.color;
+      c.__scriptGroup = scrGrp.name;
+      c.__scriptColor = scrGrp.color;
+    };
+
+    for (let i = 0; i < E.state.countriesList.length; i++) {
+      const c = E.state.countriesList[i];
+      const key = getCountryKey(c);
+      upsertCountryMeta(c);
+      const cTokens = [];
+      (c.languages || []).forEach(lang => {
+        const toks = extractSpokenLanguageTokens(lang);
+        lang.__tokens = toks;
+        toks.forEach(tok => {
+          if (!cTokens.includes(tok)) cTokens.push(tok);
+          let rec = spokenIndex.get(tok);
+          if (!rec) {
+            rec = {
+              token: tok,
+              countries: new Set(),
+              countryList: [],
+              color: langColorMap.get(tok.toLowerCase()) || c.color || '#38bdf8'
+            };
+            spokenIndex.set(tok, rec);
+          }
+          if (!rec.countries.has(key)) {
+            rec.countries.add(key);
+            rec.countryList.push(c);
+          }
+        });
+      });
+      c.__spokenTokens = cTokens;
+    }
+
+    // Mirror metadata onto all alias keys in db (ISO3 and name)
+    for (const k in db) {
+      const c = db[k];
+      if (!c) continue;
+      upsertCountryMeta(c);
+      if (!c.__spokenTokens && Array.isArray(c.languages)) {
+        const seenT = [];
+        c.languages.forEach(lang => {
+          const toks = extractSpokenLanguageTokens(lang);
+          lang.__tokens = toks;
+          toks.forEach(t => { if (!seenT.includes(t)) seenT.push(t); });
+        });
+        c.__spokenTokens = seenT;
+      }
+    }
+
+    E.state.spokenIndex = spokenIndex;
+    return spokenIndex;
+  }
+
+  function getCountryColorForMode(country, colorByMode) {
+    if (!country) return '#0284c7';
+    if (colorByMode === 'family') {
+      return country.__familyColor || resolveCountryFamilyGroup(country).color;
+    }
+    if (colorByMode === 'script') {
+      return country.__scriptColor || resolveCountryScriptGroup(country).color;
+    }
+    return country.color || '#0284c7';
+  }
+
   function getMicrostates() {
     const { MICROSTATE_ISOS } = E.config;
     const { hexToLinearRgb } = E.utils;
@@ -33,6 +237,8 @@
     for (const iso of MICROSTATE_ISOS) {
       const c = db[iso];
       if (c && c.centroid && (c.centroid[0] !== 0 || c.centroid[1] !== 0)) {
+        const famColor = c.__familyColor || resolveCountryFamilyGroup(c).color;
+        const scrColor = c.__scriptColor || resolveCountryScriptGroup(c).color;
         list.push({
           iso3: c.iso3,
           key: getCountryKey(c),
@@ -42,7 +248,12 @@
           lng: c.centroid[0],
           lang: c.canonicalLanguage || c.primaryLanguage || '',
           family: c.languageFamily || '',
+          familyGroup: c.__familyGroup || resolveCountryFamilyGroup(c).name,
+          scriptGroup: c.__scriptGroup || resolveCountryScriptGroup(c).name,
           rgb: hexToLinearRgb(c.color),
+          rgbLanguage: hexToLinearRgb(c.color),
+          rgbFamily: hexToLinearRgb(famColor),
+          rgbScript: hexToLinearRgb(scrColor),
           country: c
         });
       }
@@ -51,13 +262,18 @@
   }
 
   function prepareFeatureMetadata() {
+    buildSpokenLanguageIndex();
     const features = (E.state.geoData && E.state.geoData.features) || [];
     for (const f of features) {
       const country = getCountryData(f.properties);
       f.__country = country;
       f.__color = country ? country.color : '#0284c7';
       f.__lang = country ? (country.canonicalLanguage || country.primaryLanguage) : 'English';
-      f.__family = country ? country.languageFamily : 'Indo-European';
+      f.__family = country ? country.languageFamily : 'Indo-European (Germanic)';
+      f.__familyGroup = country ? (country.__familyGroup || resolveCountryFamilyGroup(country).name) : 'Indo-European (Germanic)';
+      f.__scriptGroup = country ? (country.__scriptGroup || resolveCountryScriptGroup(country).name) : 'Latin';
+      f.__familyColor = country ? (country.__familyColor || '#0ea5e9') : '#0ea5e9';
+      f.__scriptColor = country ? (country.__scriptColor || '#0ea5e9') : '#0ea5e9';
       f.__key = getFeatureKey(f);
     }
   }
@@ -182,6 +398,11 @@
     getCountryData,
     getFeatureKey,
     getCountryKey,
+    resolveCountryFamilyGroup,
+    resolveCountryScriptGroup,
+    extractSpokenLanguageTokens,
+    buildSpokenLanguageIndex,
+    getCountryColorForMode,
     getMicrostates,
     prepareFeatureMetadata,
     buildSpatialIndex,

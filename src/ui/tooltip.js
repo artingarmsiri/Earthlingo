@@ -11,6 +11,7 @@
   let lastGlobeCursor = '';
   let lastTipTx = NaN;
   let lastTipTy = NaN;
+  let lastTipSig = '';
 
   function setGlobeCursor(nextCursor) {
     const gv = E.elements.globeViz;
@@ -24,20 +25,40 @@
     const el = E.elements.globeHoverTooltip;
     if (!el || !country) return;
     const { escapeHtml } = E.utils;
+    const colorBy = E.state.colorByMode || 'language';
+    const quizOn = Boolean(E.state.isQuizActive);
+    const sig = `${country.iso3 || country.name}|${colorBy}|${quizOn ? 1 : 0}`;
 
-    if (E.state.hoveredCountry !== country) {
+    if (E.state.hoveredCountry !== country || lastTipSig !== sig) {
       E.state.hoveredCountry = country;
-      if (country.languages) {
-        const langColor = country.color || '#38bdf8';
+      lastTipSig = sig;
+      if (quizOn) {
+        el.innerHTML = `
+          <div class="custom-globe-tooltip">
+            <div class="tooltip-title"><span>${country.flag || '🌐'}</span> <span>${escapeHtml(country.name)}</span></div>
+            <div class="tooltip-hint">Click to submit your Quiz guess</div>
+          </div>
+        `;
+      } else if (country.languages) {
+        const langColor = E.geo.getCountryColorForMode(country, colorBy);
         const langSummary = country.languages.length > 1
           ? country.languages.slice(0, 3).map(l => `${escapeHtml(l.name)}${l.percentage ? ` (${escapeHtml(l.percentage)})` : ''}`).join(', ')
           : escapeHtml(country.canonicalLanguage || country.primaryLanguage || '');
         const multiCount = country.languages.length;
         const accentCount = country.accents ? country.accents.length : 0;
+        let modeLine = '';
+        if (colorBy === 'family') {
+          modeLine = `<div class="tooltip-lang">Family: <b style="color: ${langColor};">${escapeHtml(country.__familyGroup || country.languageFamily || '')}</b></div>`;
+        } else if (colorBy === 'script') {
+          const scrMeta = E.labelFormatter && E.labelFormatter.resolveCountryScriptMeta(country);
+          modeLine = `<div class="tooltip-lang">Script: <b style="color: ${langColor};">${escapeHtml((scrMeta && scrMeta.fullDetail) || country.__scriptGroup || '')}</b></div>`;
+        } else {
+          modeLine = `<div class="tooltip-lang">Languages: <b style="color: ${langColor};">${langSummary}</b></div>`;
+        }
         el.innerHTML = `
           <div class="custom-globe-tooltip">
             <div class="tooltip-title"><span>${country.flag || '🌐'}</span> <span>${escapeHtml(country.name)}</span></div>
-            <div class="tooltip-lang">Languages: <b style="color: ${langColor};">${langSummary}</b></div>
+            ${modeLine}
             <div class="tooltip-hint">${multiCount} language${multiCount === 1 ? '' : 's'} • ${accentCount} accent${accentCount === 1 ? '' : 's'} • Click for details</div>
           </div>
         `;
@@ -85,6 +106,7 @@
       tooltipPlaceBelow = false;
       lastTipTx = NaN;
       lastTipTy = NaN;
+      lastTipSig = '';
       if (E.elements.globeHoverTooltip) {
         E.elements.globeHoverTooltip.classList.remove('visible');
       }

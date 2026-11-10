@@ -435,6 +435,9 @@
             frameCountryOriginCamera(E.state.selectedCountry, ORIGINS.resolveCountryOrigin(E.state.selectedCountry));
           }
           syncDrawerOriginButton();
+          if (E.router && typeof E.router.syncUrlHash === 'function') {
+            E.router.syncUrlHash();
+          }
         });
       });
     }

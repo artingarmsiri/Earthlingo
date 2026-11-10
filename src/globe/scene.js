@@ -350,14 +350,17 @@
 
     const handlePointerEnd = (e, isCancel) => {
       const wasTracked = activePointers.delete(e.pointerId);
-      if (!isCancel && wasTracked && activePointers.size === 0 && !isDragging && !multiTouchGesture) {
+      const isPrimaryMouse = (e.pointerType || downPointerType) !== 'mouse' || e.button === 0;
+      if (!isCancel && isPrimaryMouse && wasTracked && activePointers.size === 0 && !isDragging && !multiTouchGesture) {
         const isTouch = (e.pointerType || downPointerType) === 'touch';
         if (E.utils.isMobileViewport() && E.state.isLegendExpandedMobile) {
           E.state.isLegendExpandedMobile = false;
           E.controls.syncLegendResponsiveUI();
         }
         const hit = E.polygons.pickTargetAtScreen(e.clientX, e.clientY, isTouch);
-        if (hit && hit.languages) {
+        if (E.state.isQuizActive && E.quiz && typeof E.quiz.handleGlobePick === 'function') {
+          E.quiz.handleGlobePick(hit);
+        } else if (hit && hit.languages) {
           E.drawer.selectCountry(hit);
         } else if (isTouch && E.utils.isBottomSheetLayout() && E.state.selectedCountry) {
           E.drawer.closeCountryDrawer();

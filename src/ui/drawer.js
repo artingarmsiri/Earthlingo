@@ -101,12 +101,17 @@
     }
   }
 
-  function selectCountry(country, animateCamera = true) {
+  function selectCountry(country, animateCamera = true, opts = {}) {
     if (!country) return;
+    if (E.state.isQuizActive && !opts.allowDuringQuiz && E.quiz && typeof E.quiz.stopQuiz === 'function') {
+      E.quiz.stopQuiz({ restoreOverlay: true, skipRouter: true });
+    }
     if (!E.state.selectedCountry && E.state.activeOriginCorridor && E.state.activeOriginCorridor !== 'country') {
       E.state._prevCorridorBeforeCountry = E.state.activeOriginCorridor;
     }
     E.state.selectedCountry = country;
+    E.state.quizHighlightIso = null;
+    E.state.quizHighlightColor = null;
     E.tooltip.hideTooltip();
 
     if (E.state.isLegendExpandedMobile) {
@@ -140,10 +145,13 @@
       }
     }
 
-    renderCountryDrawer(country);
+    renderCountryDrawer(country, opts);
+    if (!opts.skipRouter && E.router && typeof E.router.syncUrlHash === 'function') {
+      E.router.syncUrlHash();
+    }
   }
 
-  function renderCountryDrawer(c) {
+  function renderCountryDrawer(c, opts = {}) {
     const el = E.elements;
     const { escapeHtml } = E.utils;
 
@@ -242,6 +250,9 @@
               E.arcs.frameCountryOriginCamera(c, origin);
             }
             E.arcs.syncDrawerOriginButton();
+            if (E.router && typeof E.router.syncUrlHash === 'function') {
+              E.router.syncUrlHash();
+            }
           });
         }
       } else {
@@ -249,17 +260,62 @@
       }
     }
 
-    // Spoken Languages (First Section)
+    // Spoken Languages (First Section) — Interactive Spotlight Cards
     const languages = c.languages || [];
     el.languagesCount.textContent = `${languages.length} Language${languages.length === 1 ? '' : 's'}`;
 
     if (languages.length === 0) {
       el.drawerLanguagesList.innerHTML = `<div class="lang-notes">Information about spoken languages is being updated.</div>`;
     } else {
+      const spokenIndex = E.state.spokenIndex;
+      const activeSpoken = E.state.activeFilterSpokenLang;
+
       el.drawerLanguagesList.innerHTML = languages.map(lang => {
         const pctNum = parseFloat(lang.percentage) || 20;
+        const scriptLabel = (E.labelFormatter && typeof E.labelFormatter.resolveLanguageScriptLabel === 'function')
+          ? E.labelFormatter.resolveLanguageScriptLabel(lang, c)
+          : (lang.script || 'Latin');
+        const tokens = (lang.__tokens && lang.__tokens.length > 0)
+          ? lang.__tokens
+          : E.geo.extractSpokenLanguageTokens(lang);
+
+        const tokenStats = tokens.map(tok => {
+          const rec = spokenIndex && spokenIndex.get(tok);
+          return {
+            token: tok,
+            count: rec ? rec.countries.size : 1,
+            color: (rec && rec.color) || langColor
+          };
+        });
+
+        // Default token when clicking card body: pick most distinctive multi-nation / minority token if bundled
+        const defaultStat = tokenStats.length === 1
+          ? tokenStats[0]
+          : (tokenStats.find(s => !['English', 'Spanish', 'French'].includes(s.token)) || tokenStats[0]);
+        const isCardActive = Boolean(activeSpoken && tokenStats.some(s => s.token === activeSpoken));
+
+        const spotlightRowHtml = tokenStats.length > 1
+          ? `<div class="lang-spotlight-chips" aria-label="Spotlight spoken languages">
+              <span class="lang-spotlight-prefix">Spotlight:</span>
+              ${tokenStats.map(s => `
+                <button type="button" class="lang-spotlight-chip ${activeSpoken === s.token ? 'active' : ''}" data-spotlight-token="${escapeHtml(s.token)}" data-spotlight-color="${s.color}">
+                  <span>${escapeHtml(s.token)}</span>
+                  <span class="chip-count">${s.count}</span>
+                </button>
+              `).join('')}
+            </div>`
+          : `<div class="lang-spotlight-hint">
+              <span class="lang-spotlight-dot" style="background: ${defaultStat.color};"></span>
+              <span>${isCardActive
+                ? `Highlighting all ${defaultStat.count} nation${defaultStat.count === 1 ? '' : 's'} — Click to reset`
+                : (defaultStat.count > 1
+                  ? `Spoken in ${defaultStat.count} nations — Click to spotlight`
+                  : `Spotlight ${escapeHtml(defaultStat.token)} on globe`)
+              }</span>
+            </div>`;
+
         return `
-          <div class="language-card">
+          <div class="language-card is-interactive ${isCardActive ? 'spotlight-active' : ''}" data-default-token="${escapeHtml(defaultStat.token)}" data-default-color="${defaultStat.color}" role="button" tabindex="0" aria-pressed="${isCardActive ? 'true' : 'false'}">
             <div class="lang-header">
               <div class="lang-name-row">
                 <span class="lang-name">${escapeHtml(lang.name)}</span>
@@ -275,14 +331,47 @@
             <div class="lang-tags">
               <span class="lang-tag">${escapeHtml(lang.type || 'Language')}</span>
               ${lang.family ? `<span class="lang-tag">${escapeHtml(lang.family)}</span>` : ''}
-              ${lang.script ? `<span class="lang-tag">Script: ${escapeHtml(lang.script)}</span>` : ''}
+              <span class="lang-tag">Script: ${escapeHtml(scriptLabel)}</span>
               ${lang.speakers ? `<span class="lang-tag">~${escapeHtml(lang.speakers)} speakers</span>` : ''}
             </div>
 
             ${lang.notes ? `<div class="lang-notes">${escapeHtml(lang.notes)}</div>` : ''}
+            ${spotlightRowHtml}
           </div>
         `;
       }).join('');
+
+      el.drawerLanguagesList.querySelectorAll('.language-card[data-default-token]').forEach(card => {
+        const triggerDefault = () => {
+          const tok = card.getAttribute('data-default-token');
+          const col = card.getAttribute('data-default-color');
+          if (tok && E.controls && typeof E.controls.filterBySpokenLanguage === 'function') {
+            E.controls.filterBySpokenLanguage(tok, col);
+          }
+        };
+        card.addEventListener('click', (e) => {
+          if (e.target && e.target.closest('.lang-spotlight-chip')) return;
+          triggerDefault();
+        });
+        card.addEventListener('keydown', (e) => {
+          if (e.target && e.target !== card) return;
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            triggerDefault();
+          }
+        });
+      });
+
+      el.drawerLanguagesList.querySelectorAll('.lang-spotlight-chip').forEach(chip => {
+        chip.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const tok = chip.getAttribute('data-spotlight-token');
+          const col = chip.getAttribute('data-spotlight-color');
+          if (tok && E.controls && typeof E.controls.filterBySpokenLanguage === 'function') {
+            E.controls.filterBySpokenLanguage(tok, col);
+          }
+        });
+      });
     }
 
     // Accents & Regional Dialects
@@ -311,26 +400,32 @@
       `).join('');
     }
 
-    // Interactive Phrasebook with Audio TTS
+    // Interactive Phrasebook with Audio TTS + Voice Availability Feedback
     const phrases = c.phrases || [];
     if (phrases.length === 0) {
       el.drawerPhrasesList.innerHTML = `<div class="lang-notes">Common phrase audio is being updated.</div>`;
     } else {
-      el.drawerPhrasesList.innerHTML = phrases.map((ph, idx) => `
-        <div class="phrase-card">
-          <div class="phrase-info">
-            <span class="phrase-label">${escapeHtml(ph.type || 'Phrase')}</span>
-            <span class="phrase-text">${escapeHtml(ph.text)}</span>
-            ${ph.phonetic ? `<span class="phrase-phonetic">/${escapeHtml(ph.phonetic)}/</span>` : ''}
+      el.drawerPhrasesList.innerHTML = phrases.map((ph, idx) => {
+        const bcp = ph.bcp47 || 'en-US';
+        const vs = checkVoiceSupport(bcp);
+        const showNoVoice = !vs.supported || (vs.voicesLoaded && !vs.hasLocalVoice);
+        return `
+          <div class="phrase-card" data-bcp47="${escapeHtml(bcp)}">
+            <div class="phrase-info">
+              <span class="phrase-label">${escapeHtml(ph.type || 'Phrase')}</span>
+              <span class="phrase-text">${escapeHtml(ph.text)}</span>
+              ${ph.phonetic ? `<span class="phrase-phonetic">/${escapeHtml(ph.phonetic)}/</span>` : ''}
+              <span class="phrase-voice-hint ${showNoVoice ? 'visible' : ''}">No local audio voice — phonetic guide shown</span>
+            </div>
+            <button class="speak-btn ${showNoVoice ? 'no-local-voice' : ''}" data-phrase-idx="${idx}" title="${showNoVoice ? `No local audio voice for ${escapeHtml(bcp)} — phonetic guide shown` : 'Listen to pronunciation'}" aria-label="Listen to phrase">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              </svg>
+            </button>
           </div>
-          <button class="speak-btn" data-phrase-idx="${idx}" title="Listen to pronunciation" aria-label="Listen to phrase">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-            </svg>
-          </button>
-        </div>
-      `).join('');
+        `;
+      }).join('');
 
       el.drawerPhrasesList.querySelectorAll('.speak-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -349,12 +444,45 @@
     el.countryDrawer.classList.add('open');
     el.countryDrawer.setAttribute('aria-hidden', 'false');
     document.body.classList.add('drawer-is-open');
-    setMobileDrawerSnap('half', true);
+    setMobileDrawerSnap((opts && opts.snap) || 'half', true);
     E.overlays.refreshOverlayHudRects();
     E.overlays.markOverlaysDirty(true);
   }
 
-  function closeCountryDrawer() {
+  function syncDrawerSpotlightCards() {
+    const list = E.elements.drawerLanguagesList;
+    if (!list) return;
+    const active = E.state.activeFilterSpokenLang;
+    const spokenIndex = E.state.spokenIndex;
+
+    list.querySelectorAll('.language-card[data-default-token]').forEach(card => {
+      const defTok = card.getAttribute('data-default-token');
+      const chips = card.querySelectorAll('.lang-spotlight-chip');
+      let matchedAny = false;
+      if (chips.length > 0) {
+        chips.forEach(ch => {
+          const t = ch.getAttribute('data-spotlight-token');
+          const on = Boolean(active && t === active);
+          ch.classList.toggle('active', on);
+          if (on) matchedAny = true;
+        });
+      } else {
+        matchedAny = Boolean(active && defTok === active);
+        const hintSpan = card.querySelector('.lang-spotlight-hint > span:last-child');
+        if (hintSpan && defTok) {
+          const rec = spokenIndex && spokenIndex.get(defTok);
+          const count = rec ? rec.countries.size : 1;
+          hintSpan.textContent = matchedAny
+            ? `Highlighting all ${count} nation${count === 1 ? '' : 's'} — Click to reset`
+            : (count > 1 ? `Spoken in ${count} nations — Click to spotlight` : `Spotlight ${defTok} on globe`);
+        }
+      }
+      card.classList.toggle('spotlight-active', matchedAny);
+      card.setAttribute('aria-pressed', matchedAny ? 'true' : 'false');
+    });
+  }
+
+  function closeCountryDrawer(opts = {}) {
     const drawer = E.elements.countryDrawer;
     if (!drawer) return;
     drawer.classList.remove('open', 'is-dragging', 'snap-peek', 'snap-half', 'snap-full');
@@ -384,6 +512,9 @@
         if (controls) controls.autoRotate = true;
       }
     }
+    if (!opts.skipRouter && E.router && typeof E.router.syncUrlHash === 'function') {
+      E.router.syncUrlHash();
+    }
   }
 
   function setupMobileDrawerGestures() {
@@ -391,6 +522,24 @@
     const header = E.elements.drawerHeader;
     const body = E.elements.drawerBody;
     if (!drawer || !header) return;
+
+    if (E.elements.drawerCompareBtn) {
+      E.elements.drawerCompareBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (E.compare && typeof E.compare.openCompareWithCountry === 'function') {
+          E.compare.openCompareWithCountry(E.state.selectedCountry);
+        }
+      });
+    }
+
+    if (E.elements.drawerShareBtn) {
+      E.elements.drawerShareBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (E.router && typeof E.router.copyCurrentShareLink === 'function') {
+          E.router.copyCurrentShareLink(E.elements.drawerShareBtn);
+        }
+      });
+    }
 
     if (E.elements.drawerSnapBtn) {
       E.elements.drawerSnapBtn.addEventListener('click', (e) => {
@@ -657,34 +806,104 @@
     }
   }
 
-  function playSpeechSynthesis(text, bcp47, buttonEl) {
+  const TTS_BASE_ALIASES = {
+    he: ['he', 'iw'],
+    iw: ['iw', 'he'],
+    id: ['id', 'in'],
+    in: ['in', 'id'],
+    nb: ['nb', 'no', 'nn'],
+    nn: ['nn', 'no', 'nb'],
+    no: ['no', 'nb', 'nn']
+  };
+
+  function findSpeechVoice(bcp47) {
+    if (!('speechSynthesis' in window)) return null;
+    const voices = window.speechSynthesis.getVoices() || [];
+    if (voices.length === 0) return null;
+    const target = String(bcp47 || 'en-US').toLowerCase().replace('_', '-');
+    const base = target.split('-')[0];
+    const altBases = TTS_BASE_ALIASES[base] || [base];
+
+    return (
+      voices.find(v => String(v.lang || '').toLowerCase().replace('_', '-') === target) ||
+      voices.find(v => {
+        const vBase = String(v.lang || '').toLowerCase().replace('_', '-').split('-')[0];
+        return altBases.includes(vBase);
+      }) ||
+      null
+    );
+  }
+
+  function checkVoiceSupport(bcp47) {
     if (!('speechSynthesis' in window)) {
-      alert('Speech synthesis is not supported in this browser. Please try Chrome, Edge, Safari, or Firefox.');
+      return { supported: false, voicesLoaded: false, hasLocalVoice: false, voice: null };
+    }
+    const voices = window.speechSynthesis.getVoices() || [];
+    const voice = findSpeechVoice(bcp47);
+    return {
+      supported: true,
+      voicesLoaded: voices.length > 0,
+      hasLocalVoice: Boolean(voice),
+      voice
+    };
+  }
+
+  function refreshVisiblePhraseHints() {
+    document.querySelectorAll('.phrase-card[data-bcp47]').forEach(card => {
+      const bcp = card.getAttribute('data-bcp47') || 'en-US';
+      const vs = checkVoiceSupport(bcp);
+      const showNoVoice = !vs.supported || (vs.voicesLoaded && !vs.hasLocalVoice);
+      const hint = card.querySelector('.phrase-voice-hint');
+      const btn = card.querySelector('.speak-btn');
+      if (hint) hint.classList.toggle('visible', showNoVoice);
+      if (btn) btn.classList.toggle('no-local-voice', showNoVoice);
+    });
+  }
+
+  if ('speechSynthesis' in window && typeof window.speechSynthesis.addEventListener === 'function') {
+    window.speechSynthesis.addEventListener('voiceschanged', refreshVisiblePhraseHints);
+  }
+
+  function playSpeechSynthesis(text, bcp47, buttonEl, hintEl) {
+    const targetCard = buttonEl ? buttonEl.closest('.phrase-card') : null;
+    const resolvedHint = hintEl || (targetCard ? targetCard.querySelector('.phrase-voice-hint') : null);
+
+    if (!('speechSynthesis' in window)) {
+      if (resolvedHint) resolvedHint.classList.add('visible');
       return;
     }
 
     window.speechSynthesis.cancel();
-    const cleanText = text.split('/')[0].replace(/\([^)]*\)/g, '').trim();
+    const cleanText = String(text || '').split('/')[0].replace(/\([^)]*\)/g, '').trim();
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.lang = bcp47 || 'en-US';
     utterance.rate = 0.9;
     utterance.pitch = 1.0;
 
-    const voices = window.speechSynthesis.getVoices();
-    if (voices.length > 0) {
-      const matchVoice = voices.find(v => v.lang === bcp47 || v.lang.startsWith(bcp47.split('-')[0]));
-      if (matchVoice) {
-        utterance.voice = matchVoice;
-      }
+    const support = checkVoiceSupport(bcp47);
+    if (support.voice) {
+      utterance.voice = support.voice;
+    }
+    if (!support.hasLocalVoice) {
+      if (resolvedHint) resolvedHint.classList.add('visible');
+      if (buttonEl) buttonEl.classList.add('no-local-voice');
     }
 
     if (buttonEl) {
       buttonEl.classList.add('speaking');
       utterance.onend = () => buttonEl.classList.remove('speaking');
-      utterance.onerror = () => buttonEl.classList.remove('speaking');
+      utterance.onerror = () => {
+        buttonEl.classList.remove('speaking');
+        if (resolvedHint) resolvedHint.classList.add('visible');
+      };
     }
 
-    window.speechSynthesis.speak(utterance);
+    try {
+      window.speechSynthesis.speak(utterance);
+    } catch (_err) {
+      if (buttonEl) buttonEl.classList.remove('speaking');
+      if (resolvedHint) resolvedHint.classList.add('visible');
+    }
   }
 
   E.drawer = {
@@ -692,8 +911,11 @@
     setMobileDrawerSnap,
     selectCountry,
     renderCountryDrawer,
+    syncDrawerSpotlightCards,
     closeCountryDrawer,
     setupMobileDrawerGestures,
+    findSpeechVoice,
+    checkVoiceSupport,
     playSpeechSynthesis
   };
 })(window);

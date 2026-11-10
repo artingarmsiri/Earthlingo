@@ -363,7 +363,12 @@
         country: f.__country,
         lang: f.__lang,
         family: f.__family,
+        familyGroup: f.__familyGroup,
+        scriptGroup: f.__scriptGroup,
         rgb: hexToLinearRgb(f.__color),
+        rgbLanguage: hexToLinearRgb(f.__color),
+        rgbFamily: hexToLinearRgb(f.__familyColor || f.__color),
+        rgbScript: hexToLinearRgb(f.__scriptColor || f.__color),
         vStart,
         vCount: sliceVCount,
         iStart,
@@ -620,16 +625,25 @@
 
       mV += M_SEGS * 5;
 
+      const makeRim = (cRgb) => [
+        cRgb[0] * 0.55 + 0.45,
+        cRgb[1] * 0.55 + 0.45,
+        cRgb[2] * 0.55 + 0.45
+      ];
       const entry = {
         key: m.key,
         lang: m.lang,
         family: m.family,
+        familyGroup: m.familyGroup,
+        scriptGroup: m.scriptGroup,
         rgb: m.rgb,
-        rimRgb: [
-          m.rgb[0] * 0.55 + 0.45,
-          m.rgb[1] * 0.55 + 0.45,
-          m.rgb[2] * 0.55 + 0.45
-        ],
+        rgbLanguage: m.rgbLanguage || m.rgb,
+        rgbFamily: m.rgbFamily || m.rgb,
+        rgbScript: m.rgbScript || m.rgb,
+        rimRgb: makeRim(m.rgb),
+        rimRgbLanguage: makeRim(m.rgbLanguage || m.rgb),
+        rimRgbFamily: makeRim(m.rgbFamily || m.rgb),
+        rimRgbScript: makeRim(m.rgbScript || m.rgb),
         px, py, pz,
         nx, ny, nz,
         tx, ty, tz,
@@ -742,23 +756,34 @@
     const dimRimG = srgbToLinear(41 / 255);
     const dimRimB = srgbToLinear(59 / 255);
 
+    const colorBy = E.state.colorByMode || 'language';
+    const activeSpokenSet = E.state.activeFilterSpokenCountries;
     const activeLang = E.state.activeFilterLanguage;
     const activeFam = E.state.activeFilterFamily;
+    const activeScr = E.state.activeFilterScript;
+    const hasSpoken = Boolean(activeSpokenSet && activeSpokenSet.size > 0);
     const colors = rb.capColors;
     const slices = rb.countrySlices;
 
     for (let i = 0; i < slices.length; i++) {
       const s = slices[i];
-      let r, g, b;
-      if (activeLang) {
-        if (s.lang === activeLang) { r = s.rgb[0]; g = s.rgb[1]; b = s.rgb[2]; }
-        else { r = dimR; g = dimG; b = dimB; }
+      const modeRgb = colorBy === 'family'
+        ? s.rgbFamily
+        : (colorBy === 'script' ? s.rgbScript : s.rgbLanguage);
+      let match = true;
+      if (hasSpoken) {
+        match = activeSpokenSet.has(s.key);
+      } else if (activeLang) {
+        match = (s.lang === activeLang);
       } else if (activeFam) {
-        if (s.family === activeFam) { r = s.rgb[0]; g = s.rgb[1]; b = s.rgb[2]; }
-        else { r = dimR; g = dimG; b = dimB; }
-      } else {
-        r = s.rgb[0]; g = s.rgb[1]; b = s.rgb[2];
+        match = (s.familyGroup === activeFam || s.family === activeFam);
+      } else if (activeScr) {
+        match = (s.scriptGroup === activeScr);
       }
+
+      const r = match ? modeRgb[0] : dimR;
+      const g = match ? modeRgb[1] : dimG;
+      const b = match ? modeRgb[2] : dimB;
 
       const end = (s.vStart + s.vCount) * 3;
       for (let k = s.vStart * 3; k < end; k += 3) {
@@ -774,13 +799,21 @@
       const mList = rb.microEntries;
       for (let i = 0; i < mList.length; i++) {
         const m = mList[i];
+        const modeRgb = colorBy === 'family'
+          ? m.rgbFamily
+          : (colorBy === 'script' ? m.rgbScript : m.rgbLanguage);
+        const modeRim = colorBy === 'family'
+          ? m.rimRgbFamily
+          : (colorBy === 'script' ? m.rimRgbScript : m.rimRgbLanguage);
         let match = true;
-        if (activeLang) match = (m.lang === activeLang);
-        else if (activeFam) match = (m.family === activeFam);
+        if (hasSpoken) match = activeSpokenSet.has(m.key);
+        else if (activeLang) match = (m.lang === activeLang);
+        else if (activeFam) match = (m.familyGroup === activeFam || m.family === activeFam);
+        else if (activeScr) match = (m.scriptGroup === activeScr);
 
-        const dot = match ? m.rgb : [dimR, dimG, dimB];
+        const dot = match ? modeRgb : [dimR, dimG, dimB];
         const col = match ? [collarR, collarG, collarB] : [dimR, dimG, dimB];
-        const rim = match ? m.rimRgb : [dimRimR, dimRimG, dimRimB];
+        const rim = match ? modeRim : [dimRimR, dimRimG, dimRimB];
         const segs = m.segs;
 
         const cOff = m.vStart * 3;
@@ -805,8 +838,16 @@
       rb.microMesh.geometry.attributes.color.needsUpdate = true;
     }
 
+    const quizIso = E.state.quizHighlightIso;
     const sel = E.state.selectedCountry;
-    const selKey = sel ? getCountryKey(sel) : '';
+    const selKey = quizIso || (sel ? getCountryKey(sel) : '');
+    const highlightHex = quizIso ? (E.state.quizHighlightColor || '#10b981') : '#ffffff';
+    if (rb.highlightMesh && rb.highlightMesh.material && rb.highlightMesh.material.color) {
+      rb.highlightMesh.material.color.set(highlightHex);
+    }
+    if (rb.highlightMicroMesh && rb.highlightMicroMesh.material && rb.highlightMicroMesh.material.color) {
+      rb.highlightMicroMesh.material.color.set(highlightHex);
+    }
     const slice = selKey ? rb.sliceByKey.get(selKey) : null;
     if (slice && slice.iCount > 0) {
       const pSrc = rb.capPositions;

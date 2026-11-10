@@ -38,7 +38,10 @@
       E.controls.initSearch();
       E.controls.initControls();
       E.controls.initListModal();
+      if (E.compare && typeof E.compare.initCompare === 'function') E.compare.initCompare();
+      if (E.quiz && typeof E.quiz.initQuiz === 'function') E.quiz.initQuiz();
       E.controls.initAccessibilityShortcuts();
+      if (E.router && typeof E.router.initRouter === 'function') E.router.initRouter();
       E.overlays.refreshOverlayHudRects();
     } catch (err) {
       console.error('Initialization error:', err);

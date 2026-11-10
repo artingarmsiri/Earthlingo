@@ -53,18 +53,30 @@
 
   .nav-actions {
     order: 2;
-    gap: 6px;
+    gap: 5px;
   }
 
   .nav-btn {
-    padding: 7px 12px;
-    font-size: 0.8rem;
-    min-height: 38px;
+    padding: 6px 10px;
+    font-size: 0.76rem;
+    min-height: 36px;
+    gap: 5px;
   }
 
   .icon-btn {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
+  }
+
+  #openListModalBtn .nav-btn-list-label {
+    display: none;
+  }
+
+  #openListModalBtn {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    justify-content: center;
   }
 
   .search-container {
@@ -348,8 +360,8 @@
 
   .drawer-header-actions {
     top: 14px;
-    right: 14px;
-    gap: 6px;
+    right: 12px;
+    gap: 5px;
   }
 
   .country-drawer.snap-full .drawer-header-actions {
@@ -358,6 +370,13 @@
 
   .drawer-snap-btn {
     display: flex;
+    width: 34px;
+    height: 34px;
+  }
+
+  .drawer-action-btn {
+    width: 34px;
+    height: 34px;
   }
 
   .country-drawer.snap-full .drawer-snap-btn svg {
@@ -366,18 +385,22 @@
 
   .drawer-close-btn {
     top: 14px;
-    right: 14px;
-    width: 36px;
-    height: 36px;
+    right: 12px;
+    width: 34px;
+    height: 34px;
   }
 
   .drawer-flag {
     font-size: 2.2rem;
   }
 
+  .drawer-title-group {
+    gap: 10px;
+    padding-right: 162px;
+  }
+
   .drawer-country-name {
     font-size: 1.25rem;
-    padding-right: 84px;
   }
 
   .drawer-badges-row {
@@ -426,6 +449,110 @@
     grid-template-columns: 1fr;
     gap: 8px;
   }
+
+  .list-modal-toolbar {
+    flex-wrap: wrap;
+    padding: 10px 16px;
+    gap: 8px;
+  }
+
+  .list-search-wrap {
+    flex-basis: 100%;
+  }
+
+  .list-modal-continent {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .compare-toolbar {
+    flex-wrap: wrap;
+    padding: 10px 16px;
+    gap: 7px;
+  }
+
+  .compare-select {
+    flex: 1 1 120px;
+  }
+
+  .compare-presets-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 8px 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .compare-cards-grid,
+  .compare-overlap-grid,
+  .compare-duel-pair {
+    grid-template-columns: 1fr;
+  }
+
+  .quiz-dock {
+    bottom: calc(74px + env(safe-area-inset-bottom));
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: 420px;
+    margin: 0 auto;
+    max-height: 46dvh;
+    z-index: 28;
+  }
+
+  .color-by-row {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+}
+
+/* Compact phones (e.g. 375px - 440px width): keep Brand + Nav Actions on one single row */
+@media (max-width: 440px) {
+  .top-nav {
+    gap: 6px;
+    left: 10px;
+    right: 10px;
+  }
+
+  .brand-badge {
+    padding: 5px 10px;
+    gap: 6px;
+  }
+
+  .brand-icon {
+    width: 21px;
+    height: 21px;
+  }
+
+  .brand-title {
+    font-size: 0.9rem;
+  }
+
+  .brand-subtitle {
+    display: none;
+  }
+
+  .nav-actions {
+    gap: 4px;
+  }
+
+  .nav-btn {
+    padding: 0 8px;
+    font-size: 0.72rem;
+    min-height: 34px;
+    gap: 4px;
+  }
+
+  .nav-btn svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .icon-btn,
+  #openListModalBtn {
+    width: 32px;
+    height: 34px;
+    padding: 0;
+  }
 }
 
 /* Ultra-narrow screens (e.g. 320px - 360px width) */
@@ -440,8 +567,21 @@
   }
 
   .nav-btn {
-    padding: 6px 10px;
-    font-size: 0.76rem;
+    padding: 6px 8px;
+    font-size: 0.72rem;
+  }
+
+  #openQuizBtn span,
+  #openCompareBtn span {
+    display: none;
+  }
+
+  #openQuizBtn,
+  #openCompareBtn {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    justify-content: center;
   }
 
   .globe-controls-bar {
@@ -509,8 +649,19 @@
     display: none;
   }
 
-  .drawer-country-name {
-    padding-right: 40px;
+  .drawer-title-group {
+    padding-right: 118px;
+  }
+
+  .quiz-dock {
+    bottom: calc(64px + env(safe-area-inset-bottom));
+    right: 16px;
+    left: auto;
+    width: 350px;
+    max-width: calc(100% - 32px);
+    margin: 0;
+    max-height: calc(100dvh - 140px);
+    z-index: 28;
   }
 
   .arcs-info-panel {

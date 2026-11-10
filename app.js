@@ -60,12 +60,15 @@
     searchInput: document.getElementById('searchInput'),
     searchClearBtn: document.getElementById('searchClearBtn'),
     searchResultsDropdown: document.getElementById('searchResultsDropdown'),
+    floatingLegend: document.getElementById('floatingLegend'),
     legendPanel: document.getElementById('legendPanel'),
-    legendToggleBtn: document.getElementById('legendToggleBtn'),
+    legendCloseBtn: document.getElementById('legendCloseBtn'),
     legendMobileLabel: document.getElementById('legendMobileLabel'),
     legendActiveDot: document.getElementById('legendActiveDot'),
     legendChips: document.getElementById('legendChips'),
     legendResetBtn: document.getElementById('legendResetBtn'),
+    toggleLegendMobileBtn: document.getElementById('toggleLegendMobileBtn'),
+    mobileLegendFilterDot: document.getElementById('mobileLegendFilterDot'),
     toggleRotateBtn: document.getElementById('toggleRotateBtn'),
     zoomInBtn: document.getElementById('zoomInBtn'),
     zoomOutBtn: document.getElementById('zoomOutBtn'),
@@ -130,9 +133,9 @@
     const h = renderBatch.viewportH || window.innerHeight || 800;
     const aspect = w / Math.max(1, h);
     if (aspect >= 0.9) return 2.5;
-    // Scale altitude on portrait viewports so full globe + glow fits comfortably inside width (~86% fill)
+    // Scale altitude on portrait viewports so full globe + glow fits cleanly inside width (~90% fill)
     const tanHalfV = 0.46631; // tan(25 deg) for Globe.gl's 50-deg vertical FOV
-    const targetTanX = Math.max(0.16, aspect * tanHalfV * 0.86);
+    const targetTanX = Math.max(0.16, aspect * tanHalfV * 0.9);
     const dOverR = Math.sqrt(1 + 1 / (targetTanX * targetTanX));
     return Math.min(5.2, Math.max(2.5, dOverR - 1));
   }
@@ -349,13 +352,16 @@
 
   let pickRayVec = null;
   function pickTargetAtScreen(clientX, clientY, isTouch = false) {
-    if (!state.globe) return null;
+    if (!state.globe || !elements.globeViz) return null;
     const camera = state.globe.camera();
     if (!camera) return null;
     if (!pickRayVec) pickRayVec = camera.position.clone();
 
-    const ndcX = (clientX / renderBatch.viewportW) * 2 - 1;
-    const ndcY = -(clientY / renderBatch.viewportH) * 2 + 1;
+    const rect = elements.globeViz.getBoundingClientRect();
+    const w = rect.width || renderBatch.viewportW || 1;
+    const h = rect.height || renderBatch.viewportH || 1;
+    const ndcX = ((clientX - rect.left) / w) * 2 - 1;
+    const ndcY = -((clientY - rect.top) / h) * 2 + 1;
     camera.updateMatrixWorld();
     pickRayVec.set(ndcX, ndcY, 0.5).unproject(camera).sub(camera.position).normalize();
 
@@ -1082,8 +1088,33 @@
     }
   }
 
+  function syncViewportSize(reframeIfUnselected = false) {
+    const rect = elements.globeViz ? elements.globeViz.getBoundingClientRect() : null;
+    const w = Math.max(1, Math.round((rect && rect.width) || (elements.globeViz && elements.globeViz.clientWidth) || window.innerWidth));
+    const h = Math.max(1, Math.round((rect && rect.height) || (elements.globeViz && elements.globeViz.clientHeight) || window.innerHeight));
+    const prevPortrait = (renderBatch.viewportW / Math.max(1, renderBatch.viewportH)) < 0.9;
+    renderBatch.viewportW = w;
+    renderBatch.viewportH = h;
+    if (state.globe) {
+      state.globe.width(w).height(h);
+      const renderer = state.globe.renderer();
+      if (renderer) renderer.setPixelRatio(getTargetPixelRatio());
+      const nowPortrait = (w / Math.max(1, h)) < 0.9;
+      if (reframeIfUnselected && !state.selectedCountry && (nowPortrait !== prevPortrait)) {
+        state.globe.pointOfView({ altitude: getDefaultAltitude() }, 0);
+      }
+    }
+    syncLegendResponsiveUI();
+  }
+
   // Initialize Globe.GL with 2-Draw-Call Merged World Rendering
   function initGlobe() {
+    const initRect = elements.globeViz ? elements.globeViz.getBoundingClientRect() : null;
+    const initW = Math.max(1, Math.round((initRect && initRect.width) || window.innerWidth));
+    const initH = Math.max(1, Math.round((initRect && initRect.height) || window.innerHeight));
+    renderBatch.viewportW = initW;
+    renderBatch.viewportH = initH;
+
     state.globe = Globe({
       rendererConfig: {
         antialias: true,
@@ -1092,6 +1123,8 @@
         powerPreference: 'high-performance'
       }
     })(elements.globeViz)
+      .width(initW)
+      .height(initH)
       .backgroundColor('#090d16')
       .enablePointerInteraction(false)
       .showAtmosphere(state.showAtmosphere)
@@ -1177,29 +1210,39 @@
       }
     });
 
-    // Zero-lag O(1) Analytic Sphere + Spatial Grid Hover/Click Listener
-    let isPointerDown = false;
+    // Zero-lag O(1) Analytic Sphere + Spatial Grid Hover/Click Listener (Multi-Touch Safe)
+    const activePointers = new Map();
     let downX = 0, downY = 0;
     let downPointerType = 'mouse';
     let isDragging = false;
+    let multiTouchGesture = false;
     let lastHoverTs = 0;
 
     elements.globeViz.addEventListener('pointerdown', (e) => {
-      isPointerDown = true;
+      activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (activePointers.size > 1) {
+        multiTouchGesture = true;
+        isDragging = true;
+        hideTooltip();
+        return;
+      }
       isDragging = false;
+      multiTouchGesture = false;
       downX = e.clientX;
       downY = e.clientY;
       downPointerType = e.pointerType || 'mouse';
     }, { passive: true });
 
     elements.globeViz.addEventListener('pointermove', (e) => {
-      if (isPointerDown) {
-        const dx = e.clientX - downX;
-        const dy = e.clientY - downY;
-        const dragThreshSq = downPointerType === 'touch' ? 100 : 16;
-        if (dx * dx + dy * dy > dragThreshSq) {
-          isDragging = true;
-          hideTooltip();
+      if (activePointers.size > 0) {
+        if (activePointers.has(e.pointerId) && activePointers.size === 1) {
+          const dx = e.clientX - downX;
+          const dy = e.clientY - downY;
+          const dragThreshSq = downPointerType === 'touch' ? 144 : 16;
+          if (dx * dx + dy * dy > dragThreshSq) {
+            isDragging = true;
+            hideTooltip();
+          }
         }
         return;
       }
@@ -1217,45 +1260,56 @@
       }
     }, { passive: true });
 
-    elements.globeViz.addEventListener('pointerup', (e) => {
-      if (isPointerDown && !isDragging) {
-        const hit = pickTargetAtScreen(e.clientX, e.clientY, downPointerType === 'touch');
+    const handlePointerEnd = (e, isCancel) => {
+      const wasTracked = activePointers.delete(e.pointerId);
+      if (!isCancel && wasTracked && activePointers.size === 0 && !isDragging && !multiTouchGesture) {
+        const isTouch = (e.pointerType || downPointerType) === 'touch';
+        if (isMobileViewport() && state.isLegendExpandedMobile) {
+          state.isLegendExpandedMobile = false;
+          syncLegendResponsiveUI();
+        }
+        const hit = pickTargetAtScreen(e.clientX, e.clientY, isTouch);
         if (hit && hit.languages) {
           selectCountry(hit);
+        } else if (isTouch && isBottomSheetLayout() && state.selectedCountry) {
+          elements.closeDrawerBtn.click();
         }
       }
-      isPointerDown = false;
-      isDragging = false;
-    }, { passive: true });
+      if (activePointers.size === 0) {
+        isDragging = false;
+        multiTouchGesture = false;
+      }
+    };
+
+    elements.globeViz.addEventListener('pointerup', (e) => handlePointerEnd(e, false), { passive: true });
+    elements.globeViz.addEventListener('pointercancel', (e) => handlePointerEnd(e, true), { passive: true });
 
     elements.globeViz.addEventListener('pointerleave', () => {
-      isPointerDown = false;
-      isDragging = false;
+      if (activePointers.size === 0) {
+        isDragging = false;
+        multiTouchGesture = false;
+      }
       hideTooltip();
     }, { passive: true });
 
-    // Handle Window Resize & Orientation Changes cleanly with rAF throttle
+    // Handle Window Resize, iOS VisualViewport & Orientation Changes cleanly
     let resizeRaf = 0;
-    let prevPortrait = renderBatch.viewportW / Math.max(1, renderBatch.viewportH) < 0.9;
-    window.addEventListener('resize', () => {
+    const scheduleViewportSync = (reframe = true) => {
       if (resizeRaf) return;
       resizeRaf = requestAnimationFrame(() => {
         resizeRaf = 0;
-        renderBatch.viewportW = window.innerWidth;
-        renderBatch.viewportH = window.innerHeight;
-        const nowPortrait = renderBatch.viewportW / Math.max(1, renderBatch.viewportH) < 0.9;
-        if (state.globe) {
-          state.globe.width(renderBatch.viewportW).height(renderBatch.viewportH);
-          const renderer = state.globe.renderer();
-          if (renderer) renderer.setPixelRatio(getTargetPixelRatio());
-          if (nowPortrait !== prevPortrait && !state.selectedCountry) {
-            state.globe.pointOfView({ altitude: getDefaultAltitude() }, 0);
-          }
-        }
-        prevPortrait = nowPortrait;
-        syncLegendResponsiveUI();
+        syncViewportSize(reframe);
       });
-    });
+    };
+    window.addEventListener('resize', () => scheduleViewportSync(true), { passive: true });
+    window.addEventListener('orientationchange', () => {
+      scheduleViewportSync(true);
+      setTimeout(() => syncViewportSize(true), 160);
+      setTimeout(() => syncViewportSize(true), 380);
+    }, { passive: true });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', () => scheduleViewportSync(false), { passive: true });
+    }
 
     // Merge all generated polygon & border geometries after Globe.gl finishes frame-1 build
     requestAnimationFrame(waitForPolygonsAndMerge);
@@ -1366,6 +1420,10 @@
     if (!country) return;
     state.selectedCountry = country;
     hideTooltip();
+    if (state.isLegendExpandedMobile) {
+      state.isLegendExpandedMobile = false;
+      syncLegendResponsiveUI();
+    }
 
     // Update merged vertex colors and raised highlight in <0.3ms
     refreshPolygonVisuals();
@@ -1566,23 +1624,31 @@
   }
 
   function syncLegendResponsiveUI() {
-    if (!elements.legendPanel || !elements.legendToggleBtn) return;
+    if (!elements.legendPanel) return;
     const mobile = isMobileViewport();
-    const expanded = !mobile || state.isLegendExpandedMobile;
-    elements.legendPanel.classList.toggle('collapsed', mobile && !state.isLegendExpandedMobile);
-    elements.legendToggleBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    const isOpen = !mobile || state.isLegendExpandedMobile;
+
+    if (elements.floatingLegend) {
+      elements.floatingLegend.classList.toggle('mobile-open', mobile && state.isLegendExpandedMobile);
+    }
+    if (elements.toggleLegendMobileBtn) {
+      elements.toggleLegendMobileBtn.classList.toggle('active', mobile && state.isLegendExpandedMobile);
+      elements.toggleLegendMobileBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      elements.toggleLegendMobileBtn.classList.toggle('has-filter', Boolean(state.activeFilterLanguage));
+    }
 
     const hasActive = Boolean(state.activeFilterLanguage);
     elements.legendPanel.classList.toggle('has-active-filter', hasActive);
     if (elements.legendActiveDot) {
       elements.legendActiveDot.style.background = state.activeFilterColor || '#38bdf8';
     }
+    if (elements.mobileLegendFilterDot) {
+      elements.mobileLegendFilterDot.style.background = state.activeFilterColor || '#38bdf8';
+    }
     if (elements.legendMobileLabel) {
-      if (hasActive) {
-        elements.legendMobileLabel.textContent = state.activeFilterLanguage;
-      } else {
-        elements.legendMobileLabel.textContent = state.isLegendExpandedMobile ? 'Shared Languages' : 'Languages';
-      }
+      elements.legendMobileLabel.textContent = hasActive
+        ? `Filter: ${state.activeFilterLanguage}`
+        : 'Shared Languages';
     }
   }
 
@@ -1639,10 +1705,16 @@
       });
     });
 
-    if (elements.legendToggleBtn) {
-      elements.legendToggleBtn.addEventListener('click', () => {
-        if (!isMobileViewport()) return;
+    if (elements.toggleLegendMobileBtn) {
+      elements.toggleLegendMobileBtn.addEventListener('click', () => {
         state.isLegendExpandedMobile = !state.isLegendExpandedMobile;
+        syncLegendResponsiveUI();
+      });
+    }
+
+    if (elements.legendCloseBtn) {
+      elements.legendCloseBtn.addEventListener('click', () => {
+        state.isLegendExpandedMobile = false;
         syncLegendResponsiveUI();
       });
     }
@@ -1727,11 +1799,19 @@
           if (found) {
             elements.searchInput.value = found.name;
             elements.searchResultsDropdown.style.display = 'none';
+            elements.searchInput.blur();
             selectCountry(found);
           }
         });
       });
     });
+
+    elements.searchInput.addEventListener('blur', () => {
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        syncViewportSize(false);
+      }, 80);
+    }, { passive: true });
 
     elements.searchClearBtn.addEventListener('click', () => {
       elements.searchInput.value = '';

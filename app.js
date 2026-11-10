@@ -16,6 +16,9 @@
     isRotating: false,
     showAtmosphere: true,
     showArcs: false,
+    activeOriginCorridor: 'all',
+    _prevCorridorBeforeCountry: 'all',
+    isArcsPanelCollapsed: false,
     globe: null,
     hoveredCountry: null,
     hoveredPolygon: null
@@ -75,6 +78,13 @@
     resetViewBtn: document.getElementById('resetViewBtn'),
     toggleAtmosphereBtn: document.getElementById('toggleAtmosphereBtn'),
     toggleArcsBtn: document.getElementById('toggleArcsBtn'),
+    arcsInfoPanel: document.getElementById('arcsInfoPanel'),
+    arcsLiveDot: document.getElementById('arcsLiveDot'),
+    arcsPanelTitle: document.getElementById('arcsPanelTitle'),
+    arcsToggleCollapseBtn: document.getElementById('arcsToggleCollapseBtn'),
+    arcsCloseBtn: document.getElementById('arcsCloseBtn'),
+    arcCorridorChips: document.getElementById('arcCorridorChips'),
+    arcsInfoBody: document.getElementById('arcsInfoBody'),
     countryDrawer: document.getElementById('countryDrawer'),
     drawerBody: document.querySelector('.drawer-body'),
     closeDrawerBtn: document.getElementById('closeDrawerBtn'),
@@ -84,6 +94,9 @@
     drawerBadges: document.getElementById('drawerBadges'),
     drawerDiversityBadge: document.getElementById('drawerDiversityBadge'),
     drawerSummary: document.getElementById('drawerSummary'),
+    drawerOriginSection: document.getElementById('drawerOriginSection'),
+    drawerOriginEra: document.getElementById('drawerOriginEra'),
+    drawerOriginCard: document.getElementById('drawerOriginCard'),
     languagesCount: document.getElementById('languagesCount'),
     drawerLanguagesList: document.getElementById('drawerLanguagesList'),
     accentsCount: document.getElementById('accentsCount'),
@@ -113,6 +126,25 @@
       srgbToLinear(((n >> 8) & 255) / 255),
       srgbToLinear((n & 255) / 255)
     ];
+  }
+
+  function hexToRgba(hex, alpha = 1) {
+    if (!hex || typeof hex !== 'string') return `rgba(56, 189, 248, ${alpha})`;
+    const clean = hex.trim().replace('#', '');
+    let r = 56, g = 189, b = 248;
+    if (clean.length === 3) {
+      r = parseInt(clean[0] + clean[0], 16);
+      g = parseInt(clean[1] + clean[1], 16);
+      b = parseInt(clean[2] + clean[2], 16);
+    } else if (clean.length >= 6) {
+      const n = parseInt(clean.slice(0, 6), 16);
+      if (!Number.isNaN(n)) {
+        r = (n >> 16) & 255;
+        g = (n >> 8) & 255;
+        b = n & 255;
+      }
+    }
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   }
 
   function isMobileViewport() {
@@ -1142,14 +1174,27 @@
     // Cache microstates for 1-draw-call surface locator badges & O(1) spatial picking
     renderBatch.microstates = getMicrostates();
 
-    // Shared-language Arcs configuration (zero-cost until toggled)
+    // Animated Origin & Migration Arcs + Pulsing Urheimat Rings (zero-cost until toggled)
+    const arcCurveRes = isMobileViewport() ? 42 : 60;
     state.globe
-      .arcColor(d => d.color || '#38bdf8')
-      .arcAltitudeAutoScale(0.38)
-      .arcStroke(0.55)
-      .arcDashLength(1)
-      .arcDashGap(0)
-      .arcsTransitionDuration(0);
+      .arcColor(d => d.colors || d.color || '#38bdf8')
+      .arcAltitudeAutoScale(d => d.altScale ?? 0.36)
+      .arcStroke(d => d.stroke ?? 0.56)
+      .arcCurveResolution(arcCurveRes)
+      .arcCircularResolution(6)
+      .arcDashLength(d => d.dashLength ?? 0.36)
+      .arcDashGap(d => d.dashGap ?? 0.28)
+      .arcDashInitialGap(d => d.initialGap ?? 0)
+      .arcDashAnimateTime(d => d.animateTime ?? 2200)
+      .arcsTransitionDuration(0)
+      .ringLat(d => d.lat)
+      .ringLng(d => d.lng)
+      .ringAltitude(0.0045)
+      .ringColor(d => t => hexToRgba(d.color || '#f59e0b', Math.max(0, 0.82 * (1 - t))))
+      .ringMaxRadius(d => d.radius || 5)
+      .ringPropagationSpeed(1.45)
+      .ringRepeatPeriod(1500)
+      .ringResolution(36);
 
     // Base Ocean Sphere Configuration (Prevents Z-fighting with Early-Z intact)
     try {
@@ -1341,91 +1386,635 @@
     requestAnimationFrame(waitForPolygonsAndMerge);
   }
 
-  // Build / Refresh Shared-Language Arcs
+  function addAnimatedRoutePair(arcs, opts) {
+    const {
+      from,
+      to,
+      originColor = '#f59e0b',
+      destColor = '#38bdf8',
+      wave = 1,
+      index = 0,
+      isPrimary = true,
+      altScale
+    } = opts || {};
+    if (!from || !to || from.length < 2 || to.length < 2) return;
+    const startLng = Number(from[0]);
+    const startLat = Number(from[1]);
+    const endLng = Number(to[0]);
+    const endLat = Number(to[1]);
+    if (!Number.isFinite(startLat) || !Number.isFinite(startLng) || !Number.isFinite(endLat) || !Number.isFinite(endLng)) {
+      return;
+    }
+    let dLng = Math.abs(endLng - startLng);
+    if (dLng > 180) dLng = 360 - dLng;
+    if (Math.abs(endLat - startLat) + dLng < 0.25) return;
+
+    const w = Math.max(1, wave || 1);
+    const baseAlt = altScale != null
+      ? altScale
+      : Math.max(0.24, (isPrimary ? 0.37 : 0.30) - (w - 1) * 0.035 + (index % 3) * 0.012);
+
+    // Subtle continuous guide rail keeping full migration trajectory legible
+    arcs.push({
+      startLat,
+      startLng,
+      endLat,
+      endLng,
+      colors: [hexToRgba(originColor, isPrimary ? 0.25 : 0.16), hexToRgba(destColor, isPrimary ? 0.34 : 0.24)],
+      stroke: isPrimary ? 0.24 : 0.16,
+      altScale: baseAlt,
+      dashLength: 1,
+      dashGap: 0,
+      initialGap: 0,
+      animateTime: 0
+    });
+
+    // Animated directional pulse flowing Homeland -> Destination
+    arcs.push({
+      startLat,
+      startLng,
+      endLat,
+      endLng,
+      colors: [originColor, destColor],
+      stroke: isPrimary ? 0.56 : 0.42,
+      altScale: baseAlt + 0.007,
+      dashLength: isPrimary ? 0.35 : 0.28,
+      dashGap: isPrimary ? 0.30 : 0.36,
+      initialGap: ((w - 1) * 0.28 + (index % 5) * 0.16) % 0.95,
+      animateTime: 1850 + (w - 1) * 280 + (index % 4) * 140
+    });
+  }
+
+  function getLanguageOriginSeed(langName) {
+    const ORIGINS = window.WORLD_ORIGINS;
+    const HUBS = ORIGINS ? ORIGINS.HUBS : null;
+    if (!HUBS || !langName) return null;
+    const k = langName.toLowerCase();
+    const map = {
+      spanish: {
+        hub: HUBS.IBERIA,
+        chain: [HUBS.PIE_STEPPE, HUBS.ITALY_ROME, HUBS.IBERIA],
+        title: 'Spanish (Castilian) Lineage & Atlantic Spread',
+        homeland: 'Pontic–Caspian Steppe → Rome → Iberian Peninsula',
+        era: 'c. 4000 BCE (PIE) → 2nd c. BCE (Latin) → 1492+ CE',
+        mechanism: 'Vulgar Latin in Roman Hispania followed by post-1492 maritime expansion across the Americas & Equatorial Guinea',
+        note: 'Castilian Spanish preserves spoken Iberian Latin grammar alongside Basque, Celtic, and >4,000 Arabic loanwords before spreading across 20+ nations.'
+      },
+      english: {
+        hub: HUBS.BRITAIN,
+        chain: [HUBS.PIE_STEPPE, HUBS.CENTRAL_EUR_GER, HUBS.BRITAIN],
+        title: 'English Lineage & Maritime Global Dispersal',
+        homeland: 'Pontic Steppe → North Sea Coast → Great Britain',
+        era: 'c. 4000 BCE (PIE) → 5th c. CE (Anglo-Saxon) → 1607+ CE',
+        mechanism: 'Ingvaeonic West Germanic arrival in Britain, infused with Old Norse & Norman-French lexicon, then British maritime spread',
+        note: 'Although over half of modern English vocabulary was borrowed from French and Latin, its core grammar and basic vocabulary remain West Germanic.'
+      },
+      french: {
+        hub: HUBS.FRANCE,
+        chain: [HUBS.PIE_STEPPE, HUBS.ITALY_ROME, HUBS.FRANCE],
+        title: 'French Lineage & Global Francophonie Diffusion',
+        homeland: 'Pontic Steppe → Rome → Gaul (Northern France)',
+        era: 'c. 4000 BCE (PIE) → 1st c. BCE (Gaulish Latin) → 17th–20th c. CE',
+        mechanism: 'Roman Vulgar Latin adapted in Celtic Gaul (with Frankish Germanic phonology) → Atlantic, Quebec & African administrative spread',
+        note: 'Across much of Francophone Africa, French serves as an administrative superstrate alongside older indigenous Niger-Congo or Afroasiatic families.'
+      },
+      arabic: {
+        hub: HUBS.HEJAZ_ARABIA,
+        chain: [HUBS.LEVANT_CORE, HUBS.HEJAZ_ARABIA],
+        title: 'Arabic (Central Semitic) Origin & Diffusion',
+        homeland: 'Levant Semitic Hearth → Arabian Peninsula → MENA',
+        era: 'c. 3800 BCE (Proto-Semitic) → 7th–11th c. CE (Arabic Expansion)',
+        mechanism: 'Central Semitic emergence in N. Arabia/Syria → 7th–11th c. CE Arab-Islamic & Banu Hilal expansions across Fertile Crescent & North Africa',
+        note: 'Regional Arabic varieties preserve Coptic (Egypt), Aramaic (Levant/Iraq), Amazigh (Maghreb), and South Arabian substratal layers.'
+      },
+      portuguese: {
+        hub: HUBS.PORTUGAL,
+        chain: [HUBS.PIE_STEPPE, HUBS.ITALY_ROME, HUBS.PORTUGAL],
+        title: 'Portuguese Lineage & Oceanic Voyaging Arcs',
+        homeland: 'Pontic Steppe → Rome → Galicia–Northern Portugal',
+        era: 'c. 4000 BCE (PIE) → 9th c. CE (Galician-Portuguese) → 15th–16th c. CE',
+        mechanism: 'Northwestern Iberian Romance propelled across South Atlantic & Indian Ocean maritime routes (Brazil, PALOP Africa, Timor-Leste)',
+        note: 'Portuguese-lexifier creoles (Kabuverdianu, Forro) represent some of the oldest surviving Atlantic contact languages.'
+      },
+      russian: {
+        hub: HUBS.MOSCOW_RUS,
+        chain: [HUBS.PIE_STEPPE, HUBS.PRIPYAT_SLAV, HUBS.MOSCOW_RUS],
+        title: 'Russian (East Slavic) Steppe-to-Eurasia Spread',
+        homeland: 'Pontic Steppe → Pripyat–Dnieper Basin → Upper Volga',
+        era: 'c. 4000 BCE (PIE) → 6th–9th c. CE (East Slavic) → 16th–20th c. CE',
+        mechanism: 'Medieval Kyivan Rus\' & Muscovy expansion eastward across Uralic, Turkic, and Siberian language territories',
+        note: 'East Slavic functions across northern Eurasia alongside indigenous Uralic, Caucasian, and Turkic families.'
+      },
+      german: {
+        hub: HUBS.CENTRAL_EUR_GER,
+        chain: [HUBS.PIE_STEPPE, HUBS.CENTRAL_EUR_GER],
+        title: 'German (West Germanic) Continental Roots',
+        homeland: 'Pontic Steppe → Elbe–Rhine Germanic Basin',
+        era: 'c. 4000 BCE (PIE) → c. 500 BCE (Proto-Germanic) → 6th–16th c. CE',
+        mechanism: 'High German consonant shift across Alps/Rhine and medieval Central European settlement',
+        note: 'Spans Standard High German alongside Low German, Austro-Bavarian, and Alemannic Swiss varieties.'
+      },
+      dutch: {
+        hub: HUBS.CENTRAL_EUR_GER,
+        chain: [HUBS.PIE_STEPPE, HUBS.CENTRAL_EUR_GER],
+        title: 'Dutch (Low Franconian Germanic) Maritime Arcs',
+        homeland: 'Pontic Steppe → Lower Rhine–Meuse–Scheldt Delta',
+        era: 'c. 4000 BCE (PIE) → Medieval Low Franconian → 17th c. CE Maritime',
+        mechanism: 'Low Franconian Germanic carried along 17th-c. Dutch maritime routes to Suriname, Caribbean ABC islands, & Southern Africa (Afrikaans)',
+        note: 'Afrikaans diverged in Southern Africa from 17th-century Dutch through Khoisan, Bantu, and Malay contact.'
+      },
+      italian: {
+        hub: HUBS.ITALY_ROME,
+        chain: [HUBS.PIE_STEPPE, HUBS.ITALY_ROME],
+        title: 'Italian (Italo-Romance) Continental Lineage',
+        homeland: 'Pontic Steppe → Central Italian Peninsula (Latium / Tuscany)',
+        era: 'c. 4000 BCE (PIE) → c. 1200 BCE (Italic) → 14th c. CE (Tuscan)',
+        mechanism: 'Continuous in-situ evolution from Roman Vulgar Latin with Florentine literary standardization',
+        note: 'Shared across Italy, San Marino, Vatican City, and southern Switzerland alongside Gallo-Italic & Neapolitan regional languages.'
+      },
+      swedish: {
+        hub: HUBS.SCANDINAVIA,
+        chain: [HUBS.PIE_STEPPE, HUBS.CENTRAL_EUR_GER, HUBS.SCANDINAVIA],
+        title: 'Swedish (East Norse North Germanic) Roots',
+        homeland: 'Pontic Steppe → North European Plain → Southern Scandinavia',
+        era: 'c. 4000 BCE (PIE) → c. 800 CE (Old East Norse)',
+        mechanism: 'Nordic Bronze Age continuity & medieval Baltic settlement in Åland & coastal Finland',
+        note: 'Closely related to Danish and Norwegian within the North Germanic continuum descending from Old Norse.'
+      },
+      turkish: {
+        hub: HUBS.ANATOLIA_TURK,
+        chain: [HUBS.ALTAI_ORKHON, HUBS.TIANSHAN_CA, HUBS.AZERBAIJAN_OGHUZ, HUBS.ANATOLIA_TURK],
+        title: 'Turkish (Oghuz Turkic) Eurasian Corridor',
+        homeland: 'Eastern Eurasian Steppe (Altai–Orkhon) → Central Asia → Anatolia',
+        era: 'c. 500 BCE (Proto-Turkic) → 11th c. CE (Seljuk Entry)',
+        mechanism: 'Nomadic Oghuz Seljuk movement from Transoxiana across Iran into Anatolia & Cyprus',
+        note: 'Turkic is an independent primary family unrelated genetically to Arabic or Persian, and not part of a proven "Altaic" macro-family.'
+      },
+      mandarin: {
+        hub: HUBS.NORTH_CHINA,
+        chain: [HUBS.YELLOW_RIVER, HUBS.NORTH_CHINA],
+        title: 'Mandarin (Sino-Tibetan Sinitic) Dispersal',
+        homeland: 'Middle–Upper Yellow River Basin → North China Plain → South & Overseas',
+        era: 'c. 4500 BCE (Sino-Tibetan) → 1st Mil. BCE–Present',
+        mechanism: 'Yellow River millet agriculture & Qin–Han state spread; northern Koine standardization & maritime diaspora',
+        note: 'Sino-Tibetan unites Sinitic (Mandarin, Yue, Min, Wu) with ~400 Tibeto-Burman languages across the Himalayas & Myanmar.'
+      },
+      hindi: {
+        hub: HUBS.PUNJAB_INDIA,
+        chain: [HUBS.PIE_STEPPE, HUBS.CA_STEPPE, HUBS.PUNJAB_INDIA],
+        title: 'Hindi-Urdu (Indo-Aryan) & South Asian Convergence',
+        homeland: 'Pontic Steppe → Central Asia → Punjab & Gangetic Plain',
+        era: 'c. 4000 BCE (PIE) → c. 1500 BCE (Vedic Sanskrit) → Modern',
+        mechanism: 'Indo-Aryan arrival converging structurally with indigenous Dravidian and Munda families across India',
+        note: 'Hindi and Urdu share Khariboli spoken grammar while drawing learned registers from Sanskrit vs Perso-Arabic.'
+      },
+      swahili: {
+        hub: HUBS.SWAHILI_COAST,
+        chain: [HUBS.CAMEROON_BANTU, HUBS.GREAT_LAKES, HUBS.SWAHILI_COAST],
+        title: 'Swahili (Sabaki Bantu) Indian Ocean Lingua Franca',
+        homeland: 'Cameroon–Nigeria Borderlands → Great Lakes → East African Coast',
+        era: 'c. 3000 BCE (Bantu) → 8th–10th c. CE (Coastal Swahili)',
+        mechanism: 'Eastern Bantu migration meeting Indian Ocean monsoon maritime trade (Arabic/Persian contact)',
+        note: 'Retains full Bantu noun-class syntax while incorporating rich maritime Arabic/Persian trade lexicon.'
+      },
+      persian: {
+        hub: HUBS.IRAN_PLATEAU,
+        chain: [HUBS.PIE_STEPPE, HUBS.CA_STEPPE, HUBS.IRAN_PLATEAU],
+        title: 'Persian (Iranian Indo-European) Migration & Silk Road',
+        homeland: 'Pontic Steppe → Central Asian Steppe → Iranian Plateau',
+        era: 'c. 4000 BCE (PIE) → c. 1000–550 BCE (Old Persian)',
+        mechanism: 'Indo-Iranian Sintashta/Andronovo movement south into the Iranian Plateau, Persia, Khorasan & Central Asia',
+        note: 'Modern Persian (Iran), Dari (Afghanistan), and Tajik (Tajikistan) remain mutually intelligible varieties of one Western Iranian continuum.'
+      },
+      japanese: {
+        hub: HUBS.TOKYO_JPN,
+        chain: [HUBS.MANCHURIA_KOR, HUBS.KOREA_PEN, HUBS.KYUSHU_JPN],
+        title: 'Japonic Independent Family: Yayoi Maritime Entry',
+        homeland: 'Korean Peninsula / Kyushu Corridor (Independent Japonic Family)',
+        era: 'c. 1000–300 BCE (Yayoi Agricultural Entry)',
+        mechanism: 'Wet-rice Yayoi arrival across Korea Strait interacting with older Jōmon populations; no genetic link to Sinitic',
+        note: 'Japanese & Ryukyuan form an independent primary family despite historic borrowing of Chinese characters and learned vocabulary.'
+      },
+      korean: {
+        hub: HUBS.KOREA_PEN,
+        chain: [HUBS.MANCHURIA_KOR, HUBS.KOREA_PEN],
+        title: 'Koreanic Independent Family: Manchuria–Peninsula Hearth',
+        homeland: 'Southern Manchuria (Liaodong) & Korean Peninsula',
+        era: 'c. 1500–300 BCE (Bronze-Age Samhan)',
+        mechanism: 'Independent primary Koreanic family consolidated under Silla unification (~668 CE)',
+        note: 'Koreanic is unrelated genetically to Chinese or Japanese; grammatical parallels across NE Asia stem from millennia of areal contact.'
+      },
+      greek: {
+        hub: HUBS.BALKANS,
+        chain: [HUBS.PIE_STEPPE, HUBS.BALKANS],
+        title: 'Greek (Hellenic Indo-European): 3,400+ Year Record',
+        homeland: 'Pontic–Caspian Steppe → Northern Balkans → Aegean Basin',
+        era: 'c. 4000 BCE (PIE) → c. 2200–1450 BCE (Linear B Mycenaean)',
+        mechanism: 'Early Bronze-Age Indo-European arrival in the Aegean, maritime settlements across Cyprus & Mediterranean',
+        note: 'Hellenic preserves an autonomous Indo-European branch continuously attested in writing since ~1450 BCE.'
+      },
+      vietnamese: {
+        hub: HUBS.RED_RIVER_VNM,
+        chain: [HUBS.RED_RIVER_VNM],
+        title: 'Vietnamese (Austroasiatic): Red River Valley Roots',
+        homeland: 'Red River Delta & Annamite Cordillera (Proto-Vietic / Austroasiatic)',
+        era: 'c. 2500–1500 BCE (Austroasiatic) → 1st Mil. CE',
+        mechanism: 'Indigenous Austroasiatic riverine rice civilization with deep Sino-Vietnamese literary contact',
+        note: 'Crucially, Vietnamese is Austroasiatic—closer genetically to Khmer than to Chinese—despite areal tones and Han-Viet vocabulary.'
+      },
+      thai: {
+        hub: HUBS.CHAO_PHRAYA,
+        chain: [HUBS.GUANGXI_KRA, [102.6, 18.0], HUBS.CHAO_PHRAYA],
+        title: 'Thai (Kra-Dai / Tai-Kadai) Southern China Migration',
+        homeland: 'Lingnan (Guangxi–Guizhou) → Laos → Chao Phraya Basin',
+        era: 'c. 1st Mil. BCE (Lingnan) → 10th–13th c. CE (Sukhothai / Chao Phraya)',
+        mechanism: 'Southwestern Tai riverine migration out of southern China into Mainland SE Asia over earlier Mon-Khmer lands',
+        note: 'Thai belongs to Kra-Dai (unrelated genetically to Sinitic or Austroasiatic Khmer/Vietnamese despite shared typological traits).'
+      }
+    };
+    return map[k] || null;
+  }
+
+  function flyToCorridorCamera(cam) {
+    if (!state.globe || !cam) return;
+    const controls = state.globe.controls();
+    if (controls) controls.autoRotate = false;
+    const scale = Math.max(1, getDefaultAltitude() / 2.5);
+    const alt = Math.min(5.0, (cam.altitude || 2.5) * (isMobileViewport() ? Math.min(1.55, scale) : 1));
+    state.globe.pointOfView({ lat: cam.lat, lng: cam.lng, altitude: alt }, 650);
+    if (state.isRotating && controls) {
+      setTimeout(() => {
+        if (state.isRotating) controls.autoRotate = true;
+      }, 700);
+    }
+  }
+
+  function frameCountryOriginCamera(country, origin) {
+    if (!state.globe || !country || !country.centroid) return;
+    const controls = state.globe.controls();
+    if (controls) controls.autoRotate = false;
+    const [destLng, destLat] = country.centroid;
+    let targetLng = destLng;
+    let targetLat = destLat;
+    let alt = Math.max(getSelectAltitude(), isMobileViewport() ? 2.65 : 2.35);
+
+    const chain = (origin && origin.chain) || [];
+    if (chain.length > 0) {
+      const refPt = chain[0];
+      let dLng = refPt[0] - destLng;
+      if (dLng > 180) dLng -= 360;
+      if (dLng < -180) dLng += 360;
+      const dLat = refPt[1] - destLat;
+      const span = Math.hypot(dLng * Math.cos((destLat * Math.PI) / 180), dLat);
+      targetLng = destLng + dLng * 0.34;
+      if (targetLng > 180) targetLng -= 360;
+      if (targetLng < -180) targetLng += 360;
+      targetLat = destLat + dLat * 0.34;
+      alt = Math.max(getSelectAltitude() + 0.35, Math.min(3.5, (isMobileViewport() ? 2.35 : 1.95) + span / 62));
+    }
+
+    if (isBottomSheetLayout()) {
+      targetLat = Math.max(-72, Math.min(72, targetLat - 16));
+    } else {
+      targetLat = Math.max(-72, Math.min(72, targetLat));
+    }
+
+    state.globe.pointOfView({ lat: targetLat, lng: targetLng, altitude: alt }, 650);
+  }
+
+  function syncDrawerOriginButton() {
+    const animBtn = document.getElementById('animateCountryOriginBtn');
+    if (!animBtn) return;
+    const isActive = Boolean(state.showArcs && state.selectedCountry && state.activeOriginCorridor === 'country');
+    animBtn.classList.toggle('active', isActive);
+    const labelSpan = animBtn.querySelector('span');
+    if (labelSpan) {
+      labelSpan.textContent = isActive ? 'Animating Origin Arcs (Click to Hide)' : 'Animate Origin Arcs on Globe';
+    }
+  }
+
+  function renderArcsInfoPanel(mode, payload) {
+    const panel = elements.arcsInfoPanel;
+    if (!panel) return;
+    if (!state.showArcs) {
+      panel.classList.remove('open');
+      panel.setAttribute('aria-hidden', 'true');
+      return;
+    }
+
+    panel.classList.add('open');
+    panel.classList.toggle('collapsed', state.isArcsPanelCollapsed);
+    panel.setAttribute('aria-hidden', 'false');
+    if (elements.arcsToggleCollapseBtn) {
+      elements.arcsToggleCollapseBtn.setAttribute('aria-expanded', state.isArcsPanelCollapsed ? 'false' : 'true');
+    }
+
+    const ORIGINS = window.WORLD_ORIGINS;
+    const corridors = (ORIGINS && ORIGINS.corridors) || {};
+    const chips = [];
+    if (state.selectedCountry) {
+      chips.push({
+        id: 'country',
+        label: `${state.selectedCountry.flag || ''} ${state.selectedCountry.name}`.trim(),
+        color: state.selectedCountry.color || '#38bdf8'
+      });
+    }
+    if (state.activeFilterLanguage) {
+      chips.push({
+        id: 'filter',
+        label: `Filter: ${state.activeFilterLanguage}`,
+        color: state.activeFilterColor || '#38bdf8'
+      });
+    }
+    const order = ['all', 'indo-european', 'austronesian', 'bantu', 'afroasiatic', 'turkic', 'sino-tibetan', 'uralic', 'se-asia', 'americas'];
+    for (const id of order) {
+      const cor = corridors[id];
+      if (cor) chips.push({ id, label: cor.shortLabel || cor.title, color: cor.color || '#38bdf8' });
+    }
+
+    if (elements.arcCorridorChips) {
+      elements.arcCorridorChips.innerHTML = chips.map(ch => `
+        <button type="button" class="arc-corridor-chip ${ch.id === state.activeOriginCorridor ? 'active' : ''}" data-corridor="${escapeHtml(ch.id)}" role="tab" aria-selected="${ch.id === state.activeOriginCorridor ? 'true' : 'false'}">
+          <span class="legend-dot" style="background:${ch.color};"></span>
+          <span>${escapeHtml(ch.label)}</span>
+        </button>
+      `).join('');
+
+      elements.arcCorridorChips.querySelectorAll('.arc-corridor-chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const cid = btn.getAttribute('data-corridor');
+          if (!cid) return;
+          state.activeOriginCorridor = cid;
+          state.isArcsPanelCollapsed = false;
+          updateArcs();
+          const cor = corridors[cid];
+          if (cor && cor.camera) {
+            flyToCorridorCamera(cor.camera);
+          } else if (cid === 'country' && state.selectedCountry && ORIGINS) {
+            frameCountryOriginCamera(state.selectedCountry, ORIGINS.resolveCountryOrigin(state.selectedCountry));
+          }
+          syncDrawerOriginButton();
+        });
+      });
+    }
+
+    const accentColor = (payload && payload.color) || '#f59e0b';
+    if (elements.arcsLiveDot) {
+      elements.arcsLiveDot.style.background = accentColor;
+      elements.arcsLiveDot.style.boxShadow = `0 0 8px ${accentColor}`;
+    }
+    if (elements.arcsPanelTitle) {
+      elements.arcsPanelTitle.textContent = mode === 'filter'
+        ? `Origin & Diffusion • ${state.activeFilterLanguage}`
+        : mode === 'country' && state.selectedCountry
+          ? `Origin • ${state.selectedCountry.name}`
+          : 'Family Origin & Migration';
+    }
+
+    if (!elements.arcsInfoBody || !payload) return;
+
+    const stagesHtml = (payload.stages && payload.stages.length > 0)
+      ? `<div class="origin-stages-list">
+          ${payload.stages.map(st => `
+            <div class="origin-stage-item">
+              <span class="origin-stage-era">${escapeHtml(st.era)}</span>
+              <span>${escapeHtml(st.label)}</span>
+            </div>
+          `).join('')}
+        </div>`
+      : '';
+
+    elements.arcsInfoBody.innerHTML = `
+      <div class="arcs-route-title">${escapeHtml(payload.title || 'Language Origin & Migration')}</div>
+      <div class="arcs-meta-grid">
+        <div class="arcs-meta-pill">
+          <span class="arcs-meta-label">Primary Homeland (Urheimat)</span>
+          ${escapeHtml(payload.homeland || '')}
+        </div>
+        <div class="arcs-meta-pill">
+          <span class="arcs-meta-label">Chronology &amp; Branches</span>
+          <div><strong style="color:#f8fafc;">${escapeHtml(payload.timeframe || payload.era || '')}</strong></div>
+          ${payload.branches ? `<div style="margin-top:3px;">${escapeHtml(payload.branches)}</div>` : ''}
+        </div>
+        <div class="arcs-meta-pill">
+          <span class="arcs-meta-label">Historical Dispersal Driver</span>
+          ${escapeHtml(payload.mechanism || payload.driver || '')}
+        </div>
+      </div>
+      ${payload.summary ? `<p class="arcs-summary-text">${escapeHtml(payload.summary)}</p>` : ''}
+      ${stagesHtml}
+      ${payload.scholarshipNote ? `
+        <div class="arcs-note-box">
+          <strong style="color:#f8fafc;">Scholarly Evidence:</strong> ${escapeHtml(payload.scholarshipNote)}
+        </div>
+      ` : ''}
+      <div class="arcs-legend-strip">
+        <span class="arcs-flow-sample">
+          <span class="arcs-flow-bar" style="background:linear-gradient(90deg, #f59e0b, ${accentColor});"></span>
+          <span>Pulse: Homeland → Destination</span>
+        </span>
+        <span>${payload.routeCount || 0} animated route${payload.routeCount === 1 ? '' : 's'}</span>
+      </div>
+    `;
+  }
+
+  // Build / Refresh Animated Origin & Migration Arcs + Urheimat Rings
   function updateArcs() {
     if (!state.globe) return;
+    const ORIGINS = window.WORLD_ORIGINS;
     if (!state.showArcs) {
       state.globe.arcsData([]);
+      state.globe.ringsData([]);
+      renderArcsInfoPanel('hidden', null);
       return;
     }
 
     const arcs = [];
-    if (state.selectedCountry && state.selectedCountry.centroid) {
-      const src = state.selectedCountry;
-      const srcLng = src.centroid[0];
-      const srcLat = src.centroid[1];
-      const canon = (src.canonicalLanguage || src.primaryLanguage || '').toLowerCase();
-      const seenIso = new Set([src.iso3]);
+    const rings = [];
+    let panelMode = 'corridor';
+    let panelPayload = null;
 
-      for (const c of state.countriesList) {
-        if (!c || !c.centroid || seenIso.has(c.iso3)) continue;
-        seenIso.add(c.iso3);
-        const cCanon = (c.canonicalLanguage || c.primaryLanguage || '').toLowerCase();
-        if (canon && cCanon === canon) {
-          arcs.push({
-            startLat: srcLat,
-            startLng: srcLng,
-            endLat: c.centroid[1],
-            endLng: c.centroid[0],
-            color: src.color || '#38bdf8'
-          });
-          if (arcs.length >= 24) break;
+    if (state.activeOriginCorridor === 'country' && state.selectedCountry && ORIGINS) {
+      const src = state.selectedCountry;
+      const origin = ORIGINS.resolveCountryOrigin(src);
+      const dest = src.centroid;
+      const chain = (origin && origin.chain) ? [...origin.chain] : [];
+
+      if (chain.length > 0 && dest) {
+        const lastPt = chain[chain.length - 1];
+        let dLng = Math.abs(dest[0] - lastPt[0]);
+        if (dLng > 180) dLng = 360 - dLng;
+        if (Math.abs(dest[1] - lastPt[1]) + dLng >= 0.45) {
+          chain.push(dest);
         }
-      }
-    } else if (state.activeFilterLanguage) {
-      const lang = state.activeFilterLanguage.toLowerCase();
-      const matching = state.countriesList.filter(
-        c => c.centroid && (c.canonicalLanguage || c.primaryLanguage || '').toLowerCase() === lang
-      );
-      if (matching.length > 1) {
-        const preferredHubs = {
-          spanish: 'ESP', english: 'GBR', french: 'FRA', portuguese: 'PRT',
-          arabic: 'SAU', russian: 'RUS', german: 'DEU', dutch: 'NLD',
-          italian: 'ITA', swedish: 'SWE', turkish: 'TUR', mandarin: 'CHN',
-          hindi: 'IND', swahili: 'KEN', persian: 'IRN'
-        };
-        const hubIso = preferredHubs[lang];
-        const hub = (hubIso && matching.find(c => c.iso3 === hubIso)) || matching[0];
-        let count = 0;
-        for (let i = 0; i < matching.length && count < 18; i++) {
-          if (matching[i] === hub) continue;
-          arcs.push({
-            startLat: hub.centroid[1],
-            startLng: hub.centroid[0],
-            endLat: matching[i].centroid[1],
-            endLng: matching[i].centroid[0],
-            color: hub.color || '#38bdf8'
+        rings.push({ lat: chain[0][1], lng: chain[0][0], color: '#f59e0b', radius: 6.0 });
+        for (let i = 0; i < chain.length - 1; i++) {
+          addAnimatedRoutePair(arcs, {
+            from: chain[i],
+            to: chain[i + 1],
+            originColor: i === 0 ? '#f59e0b' : (origin.color || src.color || '#38bdf8'),
+            destColor: origin.color || src.color || '#38bdf8',
+            wave: i + 1,
+            index: i,
+            isPrimary: true
           });
-          count++;
         }
+      } else if (dest) {
+        rings.push({ lat: dest[1], lng: dest[0], color: (origin && origin.color) || src.color || '#f59e0b', radius: 5.5 });
       }
-    } else {
-      const hubs = [
-        { iso: 'ESP', targets: ['MEX', 'COL', 'ARG', 'PER', 'CHL'] },
-        { iso: 'GBR', targets: ['USA', 'CAN', 'AUS', 'NZL', 'IND'] },
-        { iso: 'FRA', targets: ['CAN', 'SEN', 'CIV', 'MDG'] },
-        { iso: 'PRT', targets: ['BRA', 'AGO', 'MOZ'] },
-        { iso: 'SAU', targets: ['EGY', 'MAR', 'DZA', 'IRQ'] }
-      ];
-      for (const hub of hubs) {
-        const src = state.languagesDb[hub.iso];
-        if (!src || !src.centroid) continue;
-        for (const tIso of hub.targets) {
-          const tgt = state.languagesDb[tIso];
-          if (tgt && tgt.centroid) {
-            arcs.push({
-              startLat: src.centroid[1],
-              startLng: src.centroid[0],
-              endLat: tgt.centroid[1],
-              endLng: tgt.centroid[0],
-              color: src.color || '#38bdf8'
+
+      if (origin && origin.secondaryRoutes && dest) {
+        origin.secondaryRoutes.forEach((sr, idx) => {
+          addAnimatedRoutePair(arcs, {
+            from: sr.from,
+            to: sr.to || dest,
+            originColor: sr.color || '#c084fc',
+            destColor: src.color || '#38bdf8',
+            wave: 2,
+            index: idx + 1,
+            isPrimary: true,
+            altScale: 0.28
+          });
+          rings.push({ lat: sr.from[1], lng: sr.from[0], color: sr.color || '#c084fc', radius: 4.0 });
+        });
+      }
+
+      const ORIGIN_EXPORTERS = new Set(['ESP', 'GBR', 'FRA', 'PRT', 'SAU', 'RUS', 'ITA', 'DEU', 'NLD', 'SWE', 'TUR', 'CHN']);
+      if (dest && ORIGIN_EXPORTERS.has((src.iso3 || '').toUpperCase())) {
+        const canon = (src.canonicalLanguage || src.primaryLanguage || '').toLowerCase();
+        let addedOut = 0;
+        for (const c of state.countriesList) {
+          if (!c || !c.centroid || c.iso3 === src.iso3) continue;
+          const cCanon = (c.canonicalLanguage || c.primaryLanguage || '').toLowerCase();
+          if (canon && cCanon === canon) {
+            addAnimatedRoutePair(arcs, {
+              from: dest,
+              to: c.centroid,
+              originColor: src.color || '#38bdf8',
+              destColor: c.color || src.color || '#38bdf8',
+              wave: 3,
+              index: addedOut,
+              isPrimary: false,
+              altScale: 0.31 + (addedOut % 3) * 0.025
             });
+            addedOut++;
+            if (addedOut >= 10) break;
           }
         }
       }
+
+      panelMode = 'country';
+      panelPayload = {
+        title: (origin && origin.title) || `${src.name} Linguistic Lineage`,
+        homeland: origin && origin.homeland,
+        era: origin && origin.era,
+        driver: origin && origin.driver,
+        summary: origin && origin.notes,
+        stages: origin && origin.stages,
+        scholarshipNote: `Pulses trace chronological migration hops into ${src.name}. Click any family tab above to compare global corridors.`,
+        color: (origin && origin.color) || src.color || '#38bdf8',
+        routeCount: Math.round(arcs.length / 2)
+      };
+    } else if (state.activeOriginCorridor === 'filter' && state.activeFilterLanguage) {
+      const lang = state.activeFilterLanguage;
+      const langLower = lang.toLowerCase();
+      const matching = state.countriesList.filter(
+        c => c.centroid && (c.canonicalLanguage || c.primaryLanguage || '').toLowerCase() === langLower
+      );
+      const seed = getLanguageOriginSeed(lang);
+      const filterColor = state.activeFilterColor || (matching[0] && matching[0].color) || '#38bdf8';
+
+      if (seed && seed.chain && seed.chain.length > 0) {
+        rings.push({ lat: seed.chain[0][1], lng: seed.chain[0][0], color: '#f59e0b', radius: 6.0 });
+        for (let i = 0; i < seed.chain.length - 1; i++) {
+          addAnimatedRoutePair(arcs, {
+            from: seed.chain[i],
+            to: seed.chain[i + 1],
+            originColor: i === 0 ? '#f59e0b' : filterColor,
+            destColor: filterColor,
+            wave: i + 1,
+            index: i,
+            isPrimary: true
+          });
+        }
+        const hubPt = seed.hub || seed.chain[seed.chain.length - 1];
+        if (matching.length === 1 && matching[0].centroid) {
+          addAnimatedRoutePair(arcs, {
+            from: seed.chain[seed.chain.length - 1],
+            to: matching[0].centroid,
+            originColor: filterColor,
+            destColor: filterColor,
+            wave: seed.chain.length,
+            index: 0,
+            isPrimary: true
+          });
+        } else {
+          let count = 0;
+          for (let i = 0; i < matching.length && count < 18; i++) {
+            const m = matching[i];
+            if (!m.centroid) continue;
+            addAnimatedRoutePair(arcs, {
+              from: hubPt,
+              to: m.centroid,
+              originColor: filterColor,
+              destColor: m.color || filterColor,
+              wave: Math.min(3, seed.chain.length),
+              index: count,
+              isPrimary: false,
+              altScale: 0.30 + (count % 4) * 0.025
+            });
+            count++;
+          }
+        }
+      }
+
+      panelMode = 'filter';
+      panelPayload = {
+        title: (seed && seed.title) || `${lang} Origin & Shared Distribution`,
+        homeland: (seed && seed.homeland) || 'Historical Diffusion Network',
+        era: (seed && seed.era) || 'Prehistoric Urheimat → Modern Distribution',
+        branches: `Primary in ${matching.length} mapped countr${matching.length === 1 ? 'y' : 'ies'}`,
+        mechanism: (seed && seed.mechanism) || 'Historical linguistic convergence & maritime/continental dispersal',
+        scholarshipNote: (seed && seed.note) || `Tracing historical spread of ${lang}.`,
+        color: filterColor,
+        routeCount: Math.round(arcs.length / 2)
+      };
+    } else if (ORIGINS && ORIGINS.corridors) {
+      const cid = ORIGINS.corridors[state.activeOriginCorridor] ? state.activeOriginCorridor : 'all';
+      state.activeOriginCorridor = cid;
+      const corridor = ORIGINS.corridors[cid];
+
+      if (corridor.nodes) {
+        corridor.nodes.forEach(n => {
+          if (n && n.pt) {
+            rings.push({ lat: n.pt[1], lng: n.pt[0], color: n.color || corridor.color, radius: n.radius || 5 });
+          }
+        });
+      }
+      if (corridor.routes) {
+        corridor.routes.forEach((rt, idx) => {
+          addAnimatedRoutePair(arcs, {
+            from: rt.from,
+            to: rt.to,
+            originColor: rt.originColor || corridor.accentColor || '#f59e0b',
+            destColor: rt.color || corridor.color || '#38bdf8',
+            wave: rt.wave || 1,
+            index: idx,
+            isPrimary: true
+          });
+        });
+      }
+
+      panelMode = 'corridor';
+      panelPayload = {
+        ...corridor,
+        routeCount: (corridor.routes && corridor.routes.length) || Math.round(arcs.length / 2)
+      };
     }
 
     state.globe.arcsData(arcs);
+    state.globe.ringsData(rings);
+    renderArcsInfoPanel(panelMode, panelPayload);
   }
 
   // Color brightness adjuster helper
@@ -1444,6 +2033,9 @@
   // Select Country and Fly Camera
   function selectCountry(country, animateCamera = true) {
     if (!country) return;
+    if (!state.selectedCountry && state.activeOriginCorridor && state.activeOriginCorridor !== 'country') {
+      state._prevCorridorBeforeCountry = state.activeOriginCorridor;
+    }
     state.selectedCountry = country;
     hideTooltip();
     if (state.isLegendExpandedMobile) {
@@ -1453,7 +2045,10 @@
 
     // Update merged vertex colors and raised highlight in <0.3ms
     refreshPolygonVisuals();
-    if (state.globe && state.showArcs) updateArcs();
+    if (state.globe && state.showArcs) {
+      state.activeOriginCorridor = 'country';
+      updateArcs();
+    }
 
     // Animate camera to country's centroid snappily (framed above portrait bottom sheet on mobile)
     if (animateCamera && state.globe && country.centroid) {
@@ -1499,6 +2094,86 @@
     // Overview & Summary
     elements.drawerDiversityBadge.textContent = c.diversityLevel || 'Multilingual Diversity';
     elements.drawerSummary.textContent = c.summary || 'Rich linguistic landscape with distinct regional and national cultural varieties.';
+
+    // Origin & Migration History Card
+    if (elements.drawerOriginSection && elements.drawerOriginCard) {
+      const ORIGINS = window.WORLD_ORIGINS;
+      const origin = ORIGINS && typeof ORIGINS.resolveCountryOrigin === 'function'
+        ? ORIGINS.resolveCountryOrigin(c)
+        : null;
+      if (origin) {
+        elements.drawerOriginSection.style.display = 'flex';
+        if (elements.drawerOriginEra) {
+          const rawEra = (origin.era || '').split('•')[0].replace(/\([^)]*\)/g, '').replace(/\s*→\s*c\.\s*/g, ' → ').replace(/\s+/g, ' ').trim();
+          elements.drawerOriginEra.textContent = rawEra.length > 28 ? `${rawEra.slice(0, 26).trim()}…` : (rawEra || 'Lineage');
+        }
+        const isThisCountryAnimating = Boolean(
+          state.showArcs &&
+          state.activeOriginCorridor === 'country' &&
+          state.selectedCountry &&
+          getCountryKey(state.selectedCountry) === getCountryKey(c)
+        );
+        const hasArcPath = Boolean(
+          (origin.chain && origin.chain.length > 0) ||
+          (origin.secondaryRoutes && origin.secondaryRoutes.length > 0)
+        );
+        const secondaryHtml = (origin.secondaryRoutes && origin.secondaryRoutes.length > 0)
+          ? `<div class="origin-driver-row"><span class="arcs-meta-label">Secondary / Contact Stratum</span>${origin.secondaryRoutes.map(sr => escapeHtml(sr.label)).join(' • ')}</div>`
+          : '';
+        elements.drawerOriginCard.innerHTML = `
+          <div class="origin-homeland-banner">${escapeHtml(origin.homeland)}</div>
+          <div class="origin-driver-row">
+            <span class="arcs-meta-label">Era &amp; Dispersal Mechanism</span>
+            <div><strong style="color:#f8fafc;">${escapeHtml(origin.era)}</strong></div>
+            <div style="margin-top:3px;">${escapeHtml(origin.driver)}</div>
+          </div>
+          ${secondaryHtml}
+          ${origin.stages && origin.stages.length > 0 ? `
+            <div class="origin-stages-list">
+              ${origin.stages.map(st => `
+                <div class="origin-stage-item">
+                  <span class="origin-stage-era">${escapeHtml(st.era)}</span>
+                  <span>${escapeHtml(st.label)}</span>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+          <p class="origin-notes-text">${escapeHtml(origin.notes)}</p>
+          ${hasArcPath ? `
+            <button type="button" id="animateCountryOriginBtn" class="origin-animate-btn ${isThisCountryAnimating ? 'active' : ''}">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M4 14.5c4-4.5 12-4.5 16 0"></path>
+                <path d="M7 11.5c2.5-3 7.5-3 10 0"></path>
+                <circle cx="4" cy="15" r="1.5"></circle>
+                <circle cx="20" cy="15" r="1.5"></circle>
+              </svg>
+              <span>${isThisCountryAnimating ? 'Animating Origin Arcs (Click to Hide)' : 'Animate Origin Arcs on Globe'}</span>
+            </button>
+          ` : ''}
+        `;
+
+        const animBtn = document.getElementById('animateCountryOriginBtn');
+        if (animBtn) {
+          animBtn.addEventListener('click', () => {
+            const currentlyActive = Boolean(state.showArcs && state.activeOriginCorridor === 'country');
+            if (currentlyActive) {
+              state.showArcs = false;
+              if (elements.toggleArcsBtn) elements.toggleArcsBtn.classList.remove('active');
+              updateArcs();
+            } else {
+              state.showArcs = true;
+              state.activeOriginCorridor = 'country';
+              if (elements.toggleArcsBtn) elements.toggleArcsBtn.classList.add('active');
+              updateArcs();
+              frameCountryOriginCamera(c, origin);
+            }
+            syncDrawerOriginButton();
+          });
+        }
+      } else {
+        elements.drawerOriginSection.style.display = 'none';
+      }
+    }
 
     // Languages Breakdown (Multiple Languages)
     const languages = c.languages || [];
@@ -1602,6 +2277,7 @@
     // Open Drawer
     elements.countryDrawer.classList.add('open');
     elements.countryDrawer.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('drawer-is-open');
   }
 
   // HTML escape helper
@@ -1726,7 +2402,13 @@
           elements.legendResetBtn.style.display = 'inline-block';
           syncLegendResponsiveUI();
           refreshPolygonVisuals();
-          if (state.globe && state.showArcs) updateArcs();
+          if (state.globe && state.showArcs) {
+            if (!state.selectedCountry) {
+              state.activeOriginCorridor = 'filter';
+              state.isArcsPanelCollapsed = false;
+            }
+            updateArcs();
+          }
         }
       });
     });
@@ -1734,6 +2416,11 @@
     if (elements.toggleLegendMobileBtn) {
       elements.toggleLegendMobileBtn.addEventListener('click', () => {
         state.isLegendExpandedMobile = !state.isLegendExpandedMobile;
+        if (state.isLegendExpandedMobile && state.showArcs && elements.arcsInfoPanel) {
+          state.isArcsPanelCollapsed = true;
+          elements.arcsInfoPanel.classList.add('collapsed');
+          if (elements.arcsToggleCollapseBtn) elements.arcsToggleCollapseBtn.setAttribute('aria-expanded', 'false');
+        }
         syncLegendResponsiveUI();
       });
     }
@@ -1755,6 +2442,9 @@
     state.activeFilterColor = null;
     elements.legendChips.querySelectorAll('.legend-chip').forEach(c => c.classList.remove('active'));
     elements.legendResetBtn.style.display = 'none';
+    if (state.activeOriginCorridor === 'filter') {
+      state.activeOriginCorridor = state.selectedCountry ? 'country' : (state._prevCorridorBeforeCountry || 'all');
+    }
     syncLegendResponsiveUI();
     refreshPolygonVisuals();
     if (state.globe && state.showArcs) updateArcs();
@@ -1886,12 +2576,46 @@
       elements.toggleAtmosphereBtn.classList.toggle('active', state.showAtmosphere);
     });
 
-    // Toggle Shared-Language Arcs
+    // Toggle Animated Origin & Migration Arcs
     if (elements.toggleArcsBtn) {
       elements.toggleArcsBtn.addEventListener('click', () => {
         state.showArcs = !state.showArcs;
         elements.toggleArcsBtn.classList.toggle('active', state.showArcs);
+        if (state.showArcs) {
+          state.isArcsPanelCollapsed = false;
+          if (isMobileViewport() && state.isLegendExpandedMobile) {
+            state.isLegendExpandedMobile = false;
+            syncLegendResponsiveUI();
+          }
+          if (state.selectedCountry) {
+            state.activeOriginCorridor = 'country';
+          } else if (state.activeFilterLanguage) {
+            state.activeOriginCorridor = 'filter';
+          } else if (state.activeOriginCorridor === 'country' || state.activeOriginCorridor === 'filter') {
+            state.activeOriginCorridor = state._prevCorridorBeforeCountry || 'all';
+          }
+        }
         updateArcs();
+        syncDrawerOriginButton();
+      });
+    }
+
+    if (elements.arcsToggleCollapseBtn) {
+      elements.arcsToggleCollapseBtn.addEventListener('click', () => {
+        state.isArcsPanelCollapsed = !state.isArcsPanelCollapsed;
+        if (elements.arcsInfoPanel) {
+          elements.arcsInfoPanel.classList.toggle('collapsed', state.isArcsPanelCollapsed);
+        }
+        elements.arcsToggleCollapseBtn.setAttribute('aria-expanded', state.isArcsPanelCollapsed ? 'false' : 'true');
+      });
+    }
+
+    if (elements.arcsCloseBtn) {
+      elements.arcsCloseBtn.addEventListener('click', () => {
+        state.showArcs = false;
+        if (elements.toggleArcsBtn) elements.toggleArcsBtn.classList.remove('active');
+        updateArcs();
+        syncDrawerOriginButton();
       });
     }
 
@@ -1899,7 +2623,13 @@
     elements.closeDrawerBtn.addEventListener('click', () => {
       elements.countryDrawer.classList.remove('open');
       elements.countryDrawer.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('drawer-is-open');
       state.selectedCountry = null;
+      if (state.activeOriginCorridor === 'country') {
+        state.activeOriginCorridor = state.activeFilterLanguage
+          ? 'filter'
+          : (state._prevCorridorBeforeCountry || 'all');
+      }
       refreshPolygonVisuals();
       if (state.globe) {
         if (state.showArcs) updateArcs();
@@ -1997,9 +2727,18 @@
         elements.resetViewBtn.click();
       } else if (e.key === 'Escape') {
         elements.countryDrawer.classList.remove('open');
+        elements.countryDrawer.setAttribute('aria-hidden', 'true');
         elements.infoModal.classList.remove('open');
+        elements.infoModal.setAttribute('aria-hidden', 'true');
         elements.listModal.classList.remove('open');
+        elements.listModal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('drawer-is-open');
         state.selectedCountry = null;
+        if (state.activeOriginCorridor === 'country') {
+          state.activeOriginCorridor = state.activeFilterLanguage
+            ? 'filter'
+            : (state._prevCorridorBeforeCountry || 'all');
+        }
         hideTooltip();
         refreshPolygonVisuals();
         if (state.globe) {

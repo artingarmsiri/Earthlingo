@@ -1433,8 +1433,17 @@ body.drawer-is-open .arcs-info-panel {
   left: 0;
   z-index: 90;
   pointer-events: none;
-  display: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(-9999px, -9999px, 0);
+  transform-origin: top left;
+  contain: layout style;
   will-change: transform;
+}
+
+.globe-hover-tooltip.visible {
+  opacity: 1;
+  visibility: visible;
 }
 
 .scene-tooltip {
@@ -1457,7 +1466,7 @@ body.drawer-is-open .arcs-info-panel {
   flex-direction: column;
   gap: 3px;
   white-space: nowrap;
-  contain: content;
+  contain: layout style;
 }
 
 .tooltip-title {

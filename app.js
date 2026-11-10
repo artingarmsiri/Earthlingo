@@ -51,6 +51,8 @@
     sliceByKey: new Map(),
     spatialGrid: null,
     microstates: [],
+    viewportLeft: 0,
+    viewportTop: 0,
     viewportW: window.innerWidth,
     viewportH: window.innerHeight
   };
@@ -493,11 +495,10 @@
     if (!camera) return null;
     if (!pickRayVec) pickRayVec = camera.position.clone();
 
-    const rect = elements.globeViz.getBoundingClientRect();
-    const w = rect.width || renderBatch.viewportW || 1;
-    const h = rect.height || renderBatch.viewportH || 1;
-    const ndcX = ((clientX - rect.left) / w) * 2 - 1;
-    const ndcY = -((clientY - rect.top) / h) * 2 + 1;
+    const w = renderBatch.viewportW || 1;
+    const h = renderBatch.viewportH || 1;
+    const ndcX = ((clientX - renderBatch.viewportLeft) / w) * 2 - 1;
+    const ndcY = -((clientY - renderBatch.viewportTop) / h) * 2 + 1;
     camera.updateMatrixWorld();
     pickRayVec.set(ndcX, ndcY, 0.5).unproject(camera).sub(camera.position).normalize();
 
@@ -517,7 +518,7 @@
     const { lat, lng } = state.globe.toGeoCoords({ x: hx, y: hy, z: hz });
 
     // Check microstate locator pins first (zoom-adaptive & touch-friendly precision)
-    const povAlt = state.globe.pointOfView().altitude || 2.5;
+    const povAlt = Math.max(0.1, (Math.hypot(ox, oy, oz) - 100) / 100);
     const touchBoost = isTouch ? 1.35 : 1.0;
     const pinThreshDeg = Math.max(0.42, Math.min(2.2, 0.85 * Math.sqrt(povAlt) * 0.68 * touchBoost));
     const cosLat = Math.max(0.15, Math.cos(lat * Math.PI / 180));
@@ -538,6 +539,19 @@
 
     const feat = lookupFeatureAtLatLng(lat, lng);
     return feat ? (feat.__country || getCountryData(feat.properties) || { name: feat.properties.name }) : null;
+  }
+
+  let tooltipBoxW = 240;
+  let tooltipBoxH = 64;
+  let tooltipVisible = false;
+  let tooltipPlaceBelow = false;
+  let lastGlobeCursor = '';
+
+  function setGlobeCursor(nextCursor) {
+    if (elements.globeViz && lastGlobeCursor !== nextCursor) {
+      lastGlobeCursor = nextCursor;
+      elements.globeViz.style.cursor = nextCursor;
+    }
   }
 
   function showTooltipForCountry(country, clientX, clientY) {
@@ -562,19 +576,40 @@
       } else {
         el.innerHTML = `<div class="custom-globe-tooltip"><b>${escapeHtml(country.name)}</b></div>`;
       }
-      el.style.display = 'block';
+      if (!tooltipVisible) {
+        el.classList.add('visible');
+        tooltipVisible = true;
+      }
+      tooltipBoxW = el.offsetWidth || 240;
+      tooltipBoxH = el.offsetHeight || 64;
+    } else if (!tooltipVisible) {
+      el.classList.add('visible');
+      tooltipVisible = true;
     }
-    const flipY = clientY < 130 ? '18px' : '-118%';
-    const clampedX = Math.max(135, Math.min(renderBatch.viewportW - 135, clientX));
-    el.style.transform = `translate3d(${clampedX}px, ${clientY}px, 0) translate(-50%, ${flipY})`;
+    const vw = renderBatch.viewportW || window.innerWidth;
+    const vh = renderBatch.viewportH || window.innerHeight;
+    const halfW = tooltipBoxW * 0.5;
+    const tx = Math.max(12, Math.min(vw - tooltipBoxW - 12, clientX - halfW));
+    // Hysteresis around top edge prevents sudden vertical flip flicker
+    const aboveTop = clientY - tooltipBoxH - 14;
+    if (!tooltipPlaceBelow && aboveTop < 12) tooltipPlaceBelow = true;
+    else if (tooltipPlaceBelow && aboveTop >= 24) tooltipPlaceBelow = false;
+    const ty = tooltipPlaceBelow
+      ? Math.min(vh - tooltipBoxH - 12, clientY + 20)
+      : Math.max(12, aboveTop);
+    el.style.transform = `translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, 0)`;
   }
 
   function hideTooltip() {
-    if (state.hoveredCountry) {
+    if (state.hoveredCountry || tooltipVisible) {
       state.hoveredCountry = null;
-      if (elements.globeHoverTooltip) elements.globeHoverTooltip.style.display = 'none';
-      elements.globeViz.style.cursor = 'default';
+      tooltipVisible = false;
+      tooltipPlaceBelow = false;
+      if (elements.globeHoverTooltip) {
+        elements.globeHoverTooltip.classList.remove('visible');
+      }
     }
+    setGlobeCursor('default');
   }
 
   // Merge all 1,620 country polygons & lines into 2 WebGL draw calls + 1 reusable highlight overlay
@@ -1395,6 +1430,8 @@
     const w = Math.max(1, Math.round((rect && rect.width) || (elements.globeViz && elements.globeViz.clientWidth) || window.innerWidth));
     const h = Math.max(1, Math.round((rect && rect.height) || (elements.globeViz && elements.globeViz.clientHeight) || window.innerHeight));
     const prevPortrait = (renderBatch.viewportW / Math.max(1, renderBatch.viewportH)) < 0.9;
+    renderBatch.viewportLeft = rect ? rect.left : 0;
+    renderBatch.viewportTop = rect ? rect.top : 0;
     renderBatch.viewportW = w;
     renderBatch.viewportH = h;
     if (state.globe) {
@@ -1419,6 +1456,8 @@
     const initRect = elements.globeViz ? elements.globeViz.getBoundingClientRect() : null;
     const initW = Math.max(1, Math.round((initRect && initRect.width) || window.innerWidth));
     const initH = Math.max(1, Math.round((initRect && initRect.height) || window.innerHeight));
+    renderBatch.viewportLeft = initRect ? initRect.left : 0;
+    renderBatch.viewportTop = initRect ? initRect.top : 0;
     renderBatch.viewportW = initW;
     renderBatch.viewportH = initH;
 
@@ -1578,7 +1617,12 @@
       }
     });
 
-    controls.addEventListener('change', clampCameraBounds);
+    controls.addEventListener('change', () => {
+      clampCameraBounds();
+      if (hoverPointerActive && activePointers.size === 0 && !isDragging) {
+        scheduleHoverFrame();
+      }
+    });
 
     controls.addEventListener('end', () => {
       clampCameraBounds();
@@ -1625,16 +1669,45 @@
       }
     });
 
-    // Zero-lag O(1) Analytic Sphere + Spatial Grid Hover/Click Listener (Multi-Touch Safe)
+    // Zero-lag O(1) Analytic Sphere + VSync-locked rAF Hover/Click Listener (60/120/144Hz Smooth)
     const activePointers = new Map();
     let downX = 0, downY = 0;
     let downPointerType = 'mouse';
     let isDragging = false;
     let multiTouchGesture = false;
-    let lastHoverTs = 0;
+    let hoverPointerActive = false;
+    let hoverClientX = 0, hoverClientY = 0;
+    let hoverRafId = 0;
+
+    const flushHoverFrame = () => {
+      hoverRafId = 0;
+      if (!hoverPointerActive || activePointers.size > 0 || isDragging) return;
+      const hit = pickTargetAtScreen(hoverClientX, hoverClientY, false);
+      if (hit) {
+        setGlobeCursor('pointer');
+        showTooltipForCountry(hit, hoverClientX, hoverClientY);
+      } else {
+        hideTooltip();
+      }
+    };
+
+    const scheduleHoverFrame = () => {
+      if (!hoverRafId) {
+        hoverRafId = requestAnimationFrame(flushHoverFrame);
+      }
+    };
+
+    const cancelHoverFrame = () => {
+      hoverPointerActive = false;
+      if (hoverRafId) {
+        cancelAnimationFrame(hoverRafId);
+        hoverRafId = 0;
+      }
+    };
 
     elements.globeViz.addEventListener('pointerdown', (e) => {
       activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      cancelHoverFrame();
       if (activePointers.size > 1) {
         multiTouchGesture = true;
         isDragging = true;
@@ -1648,6 +1721,15 @@
       downPointerType = e.pointerType || 'mouse';
     }, { passive: true });
 
+    const onDesktopHoverCoord = (e) => {
+      if (activePointers.size > 0 || (e.pointerType || 'mouse') === 'touch') return;
+      if (!Number.isFinite(e.clientX) || !Number.isFinite(e.clientY)) return;
+      hoverClientX = e.clientX;
+      hoverClientY = e.clientY;
+      hoverPointerActive = true;
+      scheduleHoverFrame();
+    };
+
     elements.globeViz.addEventListener('pointermove', (e) => {
       if (activePointers.size > 0) {
         if (activePointers.has(e.pointerId) && activePointers.size === 1) {
@@ -1656,24 +1738,18 @@
           const dragThreshSq = downPointerType === 'touch' ? 144 : 16;
           if (dx * dx + dy * dy > dragThreshSq) {
             isDragging = true;
+            cancelHoverFrame();
             hideTooltip();
           }
         }
         return;
       }
-      if ((e.pointerType || 'mouse') === 'touch') return;
-      const now = performance.now();
-      if (now - lastHoverTs < 32) return;
-      lastHoverTs = now;
-
-      const hit = pickTargetAtScreen(e.clientX, e.clientY, false);
-      if (hit) {
-        elements.globeViz.style.cursor = 'pointer';
-        showTooltipForCountry(hit, e.clientX, e.clientY);
-      } else {
-        hideTooltip();
-      }
+      onDesktopHoverCoord(e);
     }, { passive: true });
+
+    if ('onpointerrawupdate' in window) {
+      elements.globeViz.addEventListener('pointerrawupdate', onDesktopHoverCoord, { passive: true });
+    }
 
     const handlePointerEnd = (e, isCancel) => {
       const wasTracked = activePointers.delete(e.pointerId);
@@ -1704,6 +1780,7 @@
         isDragging = false;
         multiTouchGesture = false;
       }
+      cancelHoverFrame();
       hideTooltip();
     }, { passive: true });
 

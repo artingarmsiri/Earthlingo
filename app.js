@@ -19,6 +19,7 @@
     activeOriginCorridor: 'all',
     _prevCorridorBeforeCountry: 'all',
     isArcsPanelCollapsed: false,
+    mobileDrawerSnap: 'half',
     globe: null,
     hoveredCountry: null,
     hoveredPolygon: null
@@ -86,6 +87,8 @@
     arcCorridorChips: document.getElementById('arcCorridorChips'),
     arcsInfoBody: document.getElementById('arcsInfoBody'),
     countryDrawer: document.getElementById('countryDrawer'),
+    drawerHeader: document.getElementById('drawerHeader'),
+    drawerSnapBtn: document.getElementById('drawerSnapBtn'),
     drawerBody: document.querySelector('.drawer-body'),
     closeDrawerBtn: document.getElementById('closeDrawerBtn'),
     drawerFlag: document.getElementById('drawerFlag'),
@@ -145,6 +148,107 @@
       }
     }
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  function mixColorHex(hexA, hexB, weightB = 0.25) {
+    const parse = (hex) => {
+      const clean = (hex || '#38bdf8').trim().replace('#', '');
+      if (clean.length === 3) {
+        return [
+          parseInt(clean[0] + clean[0], 16) || 0,
+          parseInt(clean[1] + clean[1], 16) || 0,
+          parseInt(clean[2] + clean[2], 16) || 0
+        ];
+      }
+      const n = parseInt(clean.slice(0, 6), 16);
+      if (Number.isNaN(n)) return [56, 189, 248];
+      return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+    };
+    const [r1, g1, b1] = parse(hexA);
+    const [r2, g2, b2] = parse(hexB);
+    const w = Math.max(0, Math.min(1, weightB));
+    const r = Math.round(r1 + (r2 - r1) * w);
+    const g = Math.round(g1 + (g2 - g1) * w);
+    const b = Math.round(b1 + (b2 - b1) * w);
+    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+  }
+
+  function calcAngularDistRad(lng1, lat1, lng2, lat2) {
+    const toRad = Math.PI / 180;
+    const phi1 = lat1 * toRad;
+    const phi2 = lat2 * toRad;
+    const dPhi = (lat2 - lat1) * toRad;
+    const dLam = (lng2 - lng1) * toRad;
+    const sinHalfPhi = Math.sin(dPhi * 0.5);
+    const sinHalfLam = Math.sin(dLam * 0.5);
+    const a = sinHalfPhi * sinHalfPhi + Math.cos(phi1) * Math.cos(phi2) * sinHalfLam * sinHalfLam;
+    return 2 * Math.atan2(Math.sqrt(a), Math.sqrt(Math.max(0, 1 - a)));
+  }
+
+  function getSheetViewportHeight() {
+    const vv = window.visualViewport;
+    return Math.max(320, Math.round((vv && vv.height) || window.innerHeight || document.documentElement.clientHeight || 800));
+  }
+
+  function measureSheetPeekHeight(vh) {
+    const hdr = elements.drawerHeader;
+    const hdrH = hdr ? Math.ceil(hdr.getBoundingClientRect().height) : 116;
+    return Math.max(96, Math.min(Math.round(vh * 0.29), hdrH + 4));
+  }
+
+  function getSheetMetrics() {
+    const vh = getSheetViewportHeight();
+    const peekH = measureSheetPeekHeight(vh);
+    const halfH = Math.min(vh - 76, Math.max(peekH + 92, Math.round(vh * 0.54)));
+    return { vh, peekH, halfH, fullH: vh };
+  }
+
+  function setMobileDrawerSnap(snap, clearInline = true) {
+    const drawer = elements.countryDrawer;
+    if (!drawer) return;
+    const targetSnap = (snap === 'peek' || snap === 'half' || snap === 'full') ? snap : 'half';
+    state.mobileDrawerSnap = targetSnap;
+
+    if (clearInline) {
+      drawer.classList.remove('is-dragging');
+      drawer.style.height = '';
+      drawer.style.transform = '';
+      drawer.style.borderRadius = '';
+    }
+
+    if (!isBottomSheetLayout()) {
+      drawer.classList.remove('snap-peek', 'snap-half', 'snap-full');
+      document.body.classList.remove('drawer-peek');
+      document.documentElement.style.removeProperty('--drawer-peek-h');
+      return;
+    }
+
+    drawer.classList.toggle('snap-peek', targetSnap === 'peek');
+    drawer.classList.toggle('snap-half', targetSnap === 'half');
+    drawer.classList.toggle('snap-full', targetSnap === 'full');
+
+    if (targetSnap === 'peek' && drawer.classList.contains('open')) {
+      const vh = getSheetViewportHeight();
+      const peekH = measureSheetPeekHeight(vh);
+      document.documentElement.style.setProperty('--drawer-peek-h', `${peekH}px`);
+      document.body.classList.add('drawer-peek');
+    } else {
+      document.body.classList.remove('drawer-peek');
+    }
+
+    if (elements.drawerSnapBtn) {
+      const isFull = targetSnap === 'full';
+      elements.drawerSnapBtn.setAttribute(
+        'aria-label',
+        isFull
+          ? 'Minimize country panel'
+          : (targetSnap === 'peek' ? 'Restore country panel' : 'Expand country panel to full screen')
+      );
+      elements.drawerSnapBtn.setAttribute(
+        'title',
+        isFull ? 'Restore split view' : (targetSnap === 'peek' ? 'Expand details' : 'Full screen')
+      );
+    }
   }
 
   function isMobileViewport() {
@@ -1137,6 +1241,11 @@
       }
     }
     syncLegendResponsiveUI();
+    if (elements.countryDrawer && elements.countryDrawer.classList.contains('open')) {
+      setMobileDrawerSnap(state.mobileDrawerSnap, true);
+    } else if (!isBottomSheetLayout()) {
+      setMobileDrawerSnap('half', true);
+    }
   }
 
   // Initialize Globe.GL with 2-Draw-Call Merged World Rendering
@@ -1175,24 +1284,27 @@
     renderBatch.microstates = getMicrostates();
 
     // Animated Origin & Migration Arcs + Pulsing Urheimat Rings (zero-cost until toggled)
-    const arcCurveRes = isMobileViewport() ? 42 : 60;
+    const arcCurveRes = isMobileViewport() ? 48 : 64;
     state.globe
       .arcColor(d => d.colors || d.color || '#38bdf8')
-      .arcAltitudeAutoScale(d => d.altScale ?? 0.36)
-      .arcStroke(d => d.stroke ?? 0.56)
+      .arcAltitude(d => (d && d.arcAlt != null ? d.arcAlt : null))
+      .arcAltitudeAutoScale(d => (d && d.altScale != null ? d.altScale : 0.42))
+      .arcStartAltitude(d => (d && d.startAlt != null ? d.startAlt : 0.0085))
+      .arcEndAltitude(d => (d && d.endAlt != null ? d.endAlt : 0.0085))
+      .arcStroke(d => (d && d.stroke != null ? d.stroke : 0.72))
       .arcCurveResolution(arcCurveRes)
-      .arcCircularResolution(6)
-      .arcDashLength(d => d.dashLength ?? 0.36)
-      .arcDashGap(d => d.dashGap ?? 0.28)
-      .arcDashInitialGap(d => d.initialGap ?? 0)
-      .arcDashAnimateTime(d => d.animateTime ?? 2200)
+      .arcCircularResolution(8)
+      .arcDashLength(d => (d && d.dashLength != null ? d.dashLength : 0.38))
+      .arcDashGap(d => (d && d.dashGap != null ? d.dashGap : 0.26))
+      .arcDashInitialGap(d => (d && d.initialGap != null ? d.initialGap : 0))
+      .arcDashAnimateTime(d => (d && d.animateTime != null ? d.animateTime : 2100))
       .arcsTransitionDuration(0)
       .ringLat(d => d.lat)
       .ringLng(d => d.lng)
-      .ringAltitude(0.0045)
-      .ringColor(d => t => hexToRgba(d.color || '#f59e0b', Math.max(0, 0.82 * (1 - t))))
+      .ringAltitude(0.0055)
+      .ringColor(d => t => hexToRgba(d.color || '#f59e0b', Math.max(0, 0.9 * (1 - t))))
       .ringMaxRadius(d => d.radius || 5)
-      .ringPropagationSpeed(1.45)
+      .ringPropagationSpeed(1.5)
       .ringRepeatPeriod(1500)
       .ringResolution(36);
 
@@ -1343,7 +1455,7 @@
         if (hit && hit.languages) {
           selectCountry(hit);
         } else if (isTouch && isBottomSheetLayout() && state.selectedCountry) {
-          elements.closeDrawerBtn.click();
+          closeCountryDrawer();
         }
       }
       if (activePointers.size === 0) {
@@ -1386,6 +1498,31 @@
     requestAnimationFrame(waitForPolygonsAndMerge);
   }
 
+  function applyArcMeshProps() {
+    if (!state.globe || !state.showArcs) return;
+    const scene = state.globe.scene();
+    if (!scene) return;
+    scene.traverse((obj) => {
+      if (obj.__globeObjType === 'arc' && obj.__data && obj.__data._arcRole && obj.children && obj.children[0]) {
+        const mesh = obj.children[0];
+        const mat = mesh.material;
+        const role = obj.__data._arcRole;
+        if (!mat) return;
+        const desiredSide = role === 'casing' ? 1 : 0; // BackSide ink outline vs FrontSide core
+        const desiredOrder = role === 'casing' ? 5 : (role === 'rail' ? 6 : 7);
+        if (mat.side !== desiredSide || mat.transparent !== false || mat.depthWrite !== true || mesh.renderOrder !== desiredOrder) {
+          mat.side = desiredSide;
+          mat.transparent = false;
+          mat.depthWrite = true;
+          mat.depthTest = true;
+          mat.needsUpdate = true;
+          mesh.renderOrder = desiredOrder;
+          mesh.frustumCulled = false;
+        }
+      }
+    });
+  }
+
   function addAnimatedRoutePair(arcs, opts) {
     const {
       from,
@@ -1410,36 +1547,66 @@
     if (Math.abs(endLat - startLat) + dLng < 0.25) return;
 
     const w = Math.max(1, wave || 1);
-    const baseAlt = altScale != null
-      ? altScale
-      : Math.max(0.24, (isPrimary ? 0.37 : 0.30) - (w - 1) * 0.035 + (index % 3) * 0.012);
+    const distRad = calcAngularDistRad(startLng, startLat, endLng, endLat);
+    const stagger = (w - 1) * 0.02 + (index % 3) * 0.012;
+    const baseApex = altScale != null
+      ? Math.max(0.115, Math.min(0.56, distRad * 0.45 * altScale + 0.07))
+      : Math.max(0.115, Math.min(0.56, distRad * 0.25 + 0.068 + stagger * 0.55));
 
-    // Subtle continuous guide rail keeping full migration trajectory legible
+    // 1. Dark BackSide ink casing separates arc silhouettes cleanly from land fills and overlaps
     arcs.push({
+      _arcRole: 'casing',
       startLat,
       startLng,
       endLat,
       endLng,
-      colors: [hexToRgba(originColor, isPrimary ? 0.25 : 0.16), hexToRgba(destColor, isPrimary ? 0.34 : 0.24)],
-      stroke: isPrimary ? 0.24 : 0.16,
-      altScale: baseAlt,
+      startAlt: 0.0085,
+      endAlt: 0.0085,
+      colors: ['#02050c', '#02050c'],
+      stroke: isPrimary ? 1.32 : 0.96,
+      arcAlt: baseApex,
       dashLength: 1,
       dashGap: 0,
       initialGap: 0,
       animateTime: 0
     });
 
-    // Animated directional pulse flowing Homeland -> Destination
+    // 2. Crisp continuous inner guide rail keeping full trajectory legible inside dark framing
+    const railOrigin = mixColorHex(originColor, '#0b1222', 0.22);
+    const railDest = mixColorHex(destColor, '#0b1222', 0.16);
     arcs.push({
+      _arcRole: 'rail',
       startLat,
       startLng,
       endLat,
       endLng,
-      colors: [originColor, destColor],
-      stroke: isPrimary ? 0.56 : 0.42,
-      altScale: baseAlt + 0.007,
-      dashLength: isPrimary ? 0.35 : 0.28,
-      dashGap: isPrimary ? 0.30 : 0.36,
+      startAlt: 0.0085,
+      endAlt: 0.0085,
+      colors: [railOrigin, railDest],
+      stroke: isPrimary ? 0.44 : 0.30,
+      arcAlt: baseApex,
+      dashLength: 1,
+      dashGap: 0,
+      initialGap: 0,
+      animateTime: 0
+    });
+
+    // 3. Bolder luminous animated pulse flowing Homeland -> Destination inside dark casing
+    const pulseOrigin = mixColorHex(originColor, '#ffffff', 0.26);
+    const pulseDest = mixColorHex(destColor, '#ffffff', 0.28);
+    arcs.push({
+      _arcRole: 'pulse',
+      startLat,
+      startLng,
+      endLat,
+      endLng,
+      startAlt: 0.0085,
+      endAlt: 0.0085,
+      colors: [pulseOrigin, pulseDest],
+      stroke: isPrimary ? 0.88 : 0.62,
+      arcAlt: baseApex,
+      dashLength: isPrimary ? 0.38 : 0.30,
+      dashGap: isPrimary ? 0.28 : 0.34,
       initialGap: ((w - 1) * 0.28 + (index % 5) * 0.16) % 0.95,
       animateTime: 1850 + (w - 1) * 280 + (index % 4) * 140
     });
@@ -1913,7 +2080,7 @@
         stages: origin && origin.stages,
         scholarshipNote: `Pulses trace chronological migration hops into ${src.name}. Click any family tab above to compare global corridors.`,
         color: (origin && origin.color) || src.color || '#38bdf8',
-        routeCount: Math.round(arcs.length / 2)
+        routeCount: arcs.filter(a => a._arcRole === 'pulse').length
       };
     } else if (state.activeOriginCorridor === 'filter' && state.activeFilterLanguage) {
       const lang = state.activeFilterLanguage;
@@ -1977,7 +2144,7 @@
         mechanism: (seed && seed.mechanism) || 'Historical linguistic convergence & maritime/continental dispersal',
         scholarshipNote: (seed && seed.note) || `Tracing historical spread of ${lang}.`,
         color: filterColor,
-        routeCount: Math.round(arcs.length / 2)
+        routeCount: arcs.filter(a => a._arcRole === 'pulse').length
       };
     } else if (ORIGINS && ORIGINS.corridors) {
       const cid = ORIGINS.corridors[state.activeOriginCorridor] ? state.activeOriginCorridor : 'all';
@@ -2008,12 +2175,16 @@
       panelMode = 'corridor';
       panelPayload = {
         ...corridor,
-        routeCount: (corridor.routes && corridor.routes.length) || Math.round(arcs.length / 2)
+        routeCount: (corridor.routes && corridor.routes.length) || arcs.filter(a => a._arcRole === 'pulse').length
       };
     }
 
     state.globe.arcsData(arcs);
     state.globe.ringsData(rings);
+    requestAnimationFrame(() => {
+      applyArcMeshProps();
+      requestAnimationFrame(applyArcMeshProps);
+    });
     renderArcsInfoPanel(panelMode, panelPayload);
   }
 
@@ -2274,10 +2445,11 @@
     // Fun Fact
     elements.drawerFunFact.textContent = c.funFact || `${c.name} has a captivating linguistic history with rich local spoken traditions!`;
 
-    // Open Drawer
+    // Open Drawer (always starts in balanced half-sheet on mobile portrait)
     elements.countryDrawer.classList.add('open');
     elements.countryDrawer.setAttribute('aria-hidden', 'false');
     document.body.classList.add('drawer-is-open');
+    setMobileDrawerSnap('half', true);
   }
 
   // HTML escape helper
@@ -2543,6 +2715,310 @@
     });
   }
 
+  function closeCountryDrawer() {
+    const drawer = elements.countryDrawer;
+    if (!drawer) return;
+    drawer.classList.remove('open', 'is-dragging', 'snap-peek', 'snap-half', 'snap-full');
+    drawer.style.height = '';
+    drawer.style.transform = '';
+    drawer.style.borderRadius = '';
+    drawer.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('drawer-is-open', 'drawer-peek');
+    document.documentElement.style.removeProperty('--drawer-peek-h');
+    state.mobileDrawerSnap = 'half';
+    state.selectedCountry = null;
+    if (state.activeOriginCorridor === 'country') {
+      state.activeOriginCorridor = state.activeFilterLanguage
+        ? 'filter'
+        : (state._prevCorridorBeforeCountry || 'all');
+    }
+    refreshPolygonVisuals();
+    if (state.globe) {
+      if (state.showArcs) updateArcs();
+      if (state.isRotating) {
+        const controls = state.globe.controls();
+        if (controls) controls.autoRotate = true;
+      }
+    }
+  }
+
+  function setupMobileDrawerGestures() {
+    const drawer = elements.countryDrawer;
+    const header = elements.drawerHeader;
+    const body = elements.drawerBody;
+    if (!drawer || !header) return;
+
+    if (elements.drawerSnapBtn) {
+      elements.drawerSnapBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!isBottomSheetLayout() || !drawer.classList.contains('open')) return;
+        const cur = state.mobileDrawerSnap;
+        const next = cur === 'full' ? 'half' : (cur === 'peek' ? 'half' : 'full');
+        setMobileDrawerSnap(next, true);
+      });
+    }
+
+    const drag = {
+      active: false,
+      mode: null,
+      pointerId: null,
+      startSnap: 'half',
+      startH: 0,
+      startX: 0,
+      startY: 0,
+      lastX: 0,
+      lastY: 0,
+      prevY: 0,
+      lastTs: 0,
+      prevTs: 0,
+      moved: false
+    };
+
+    const startDragState = (mode, pointerId, clientX, clientY) => {
+      const metrics = getSheetMetrics();
+      const measuredH = Math.round(drawer.getBoundingClientRect().height);
+      const startH = Math.max(
+        metrics.peekH,
+        Math.min(
+          metrics.fullH,
+          measuredH || (state.mobileDrawerSnap === 'full' ? metrics.fullH : (state.mobileDrawerSnap === 'peek' ? metrics.peekH : metrics.halfH))
+        )
+      );
+      const now = performance.now();
+      drag.active = true;
+      drag.mode = mode;
+      drag.pointerId = pointerId;
+      drag.startSnap = state.mobileDrawerSnap || 'half';
+      drag.startH = startH;
+      drag.startX = clientX;
+      drag.startY = clientY;
+      drag.lastX = clientX;
+      drag.lastY = clientY;
+      drag.prevY = clientY;
+      drag.lastTs = now;
+      drag.prevTs = now;
+      drag.moved = false;
+    };
+
+    const applyDragFrame = (clientX, clientY) => {
+      if (!drag.active) return;
+      const now = performance.now();
+      if (now - drag.lastTs >= 12) {
+        drag.prevY = drag.lastY;
+        drag.prevTs = drag.lastTs;
+      }
+      drag.lastX = clientX;
+      drag.lastY = clientY;
+      drag.lastTs = now;
+
+      const dy = clientY - drag.startY;
+      if (!drag.moved && Math.hypot(clientX - drag.startX, dy) >= 5) {
+        drag.moved = true;
+        drawer.classList.add('is-dragging');
+        document.body.classList.remove('drawer-peek');
+      }
+      if (!drag.moved) return;
+
+      const metrics = getSheetMetrics();
+      const rawH = drag.startH - dy;
+
+      if (rawH >= metrics.fullH) {
+        drawer.style.height = `${metrics.fullH}px`;
+        drawer.style.transform = 'translate3d(0, 0, 0)';
+        drawer.style.borderRadius = '0px';
+      } else if (rawH >= metrics.peekH) {
+        drawer.style.height = `${Math.round(rawH)}px`;
+        drawer.style.transform = 'translate3d(0, 0, 0)';
+        const r = rawH >= metrics.fullH - 28
+          ? Math.max(0, Math.round(18 * (metrics.fullH - rawH) / 28))
+          : 18;
+        drawer.style.borderRadius = `${r}px ${r}px 0 0`;
+      } else {
+        const extraDown = Math.max(0, metrics.peekH - rawH);
+        drawer.style.height = `${metrics.peekH}px`;
+        drawer.style.transform = `translate3d(0, ${Math.round(extraDown)}px, 0)`;
+        drawer.style.borderRadius = '18px 18px 0 0';
+      }
+    };
+
+    const finishDrag = (isCancel) => {
+      if (!drag.active) return;
+      const wasMoved = drag.moved;
+      const startSnap = drag.startSnap;
+      const startH = drag.startH;
+      const startY = drag.startY;
+      const lastY = drag.lastY;
+      const prevY = drag.prevY;
+      const dt = Math.max(10, drag.lastTs - drag.prevTs);
+      const vy = (lastY - prevY) / dt; // px/ms (>0 downward, <0 upward)
+      drag.active = false;
+      drag.mode = null;
+      drag.pointerId = null;
+
+      if (isCancel) {
+        drawer.classList.remove('is-dragging');
+        setMobileDrawerSnap(startSnap, true);
+        return;
+      }
+
+      if (!wasMoved) {
+        drawer.classList.remove('is-dragging');
+        if (startSnap === 'peek') {
+          setMobileDrawerSnap('half', true);
+        } else {
+          setMobileDrawerSnap(startSnap, true);
+        }
+        return;
+      }
+
+      const metrics = getSheetMetrics();
+      const dy = lastY - startY;
+      const rawH = startH - dy;
+      const dismissDropThreshold = Math.max(40, metrics.peekH * 0.40);
+
+      if (
+        rawH < metrics.peekH - dismissDropThreshold ||
+        (startSnap === 'peek' && vy > 0.45 && dy > 20) ||
+        (vy > 1.25 && rawH < metrics.halfH * 0.72)
+      ) {
+        drawer.classList.remove('is-dragging');
+        void drawer.offsetHeight;
+        closeCountryDrawer();
+        return;
+      }
+
+      let nextSnap;
+      if (vy < -0.55) {
+        if (startSnap === 'peek') {
+          nextSnap = rawH > metrics.halfH + 36 ? 'full' : 'half';
+        } else {
+          nextSnap = 'full';
+        }
+      } else if (vy > 0.55) {
+        if (startSnap === 'full') {
+          nextSnap = rawH < (metrics.peekH + metrics.halfH) * 0.5 ? 'peek' : 'half';
+        } else {
+          nextSnap = 'peek';
+        }
+      } else {
+        const projectedH = Math.max(metrics.peekH, Math.min(metrics.fullH, rawH - vy * 130));
+        const dPeek = Math.abs(projectedH - metrics.peekH);
+        const dHalf = Math.abs(projectedH - metrics.halfH);
+        const dFull = Math.abs(projectedH - metrics.fullH);
+        if (dFull <= dHalf && dFull <= dPeek) nextSnap = 'full';
+        else if (dPeek <= dHalf) nextSnap = 'peek';
+        else nextSnap = 'half';
+      }
+
+      drawer.classList.remove('is-dragging');
+      void drawer.offsetHeight;
+      setMobileDrawerSnap(nextSnap, true);
+    };
+
+    // Primary drag handle: Drawer Header (mouse + touch via PointerEvents)
+    header.addEventListener('pointerdown', (e) => {
+      if (!isBottomSheetLayout() || !drawer.classList.contains('open')) return;
+      if (typeof e.button === 'number' && e.button !== 0) return;
+      if (e.target && e.target.closest('button, a, input, select, textarea')) return;
+      if (drag.active) return;
+      startDragState('pointer', e.pointerId, e.clientX, e.clientY);
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (!drag.active || drag.mode !== 'pointer' || e.pointerId !== drag.pointerId) return;
+      applyDragFrame(e.clientX, e.clientY);
+    }, { passive: true });
+
+    window.addEventListener('pointerup', (e) => {
+      if (!drag.active || drag.mode !== 'pointer' || e.pointerId !== drag.pointerId) return;
+      finishDrag(false);
+    }, { passive: true });
+
+    window.addEventListener('pointercancel', (e) => {
+      if (!drag.active || drag.mode !== 'pointer' || e.pointerId !== drag.pointerId) return;
+      finishDrag(true);
+    }, { passive: true });
+
+    // Overscroll handoff from Drawer Body: pull down from top to minimize/close, or pull up from peek
+    if (body) {
+      let bodyTouch = null;
+
+      body.addEventListener('touchstart', (e) => {
+        if (!isBottomSheetLayout() || !drawer.classList.contains('open')) return;
+        if (e.touches.length !== 1 || drag.active) return;
+        const t = e.touches[0];
+        bodyTouch = {
+          id: t.identifier,
+          startX: t.clientX,
+          startY: t.clientY,
+          engaged: false,
+          rejected: false,
+          canPullDown: body.scrollTop <= 1,
+          isPeek: state.mobileDrawerSnap === 'peek'
+        };
+      }, { passive: true });
+
+      body.addEventListener('touchmove', (e) => {
+        if (!bodyTouch || !isBottomSheetLayout() || !drawer.classList.contains('open')) return;
+        let t = null;
+        for (let i = 0; i < e.touches.length; i++) {
+          if (e.touches[i].identifier === bodyTouch.id) {
+            t = e.touches[i];
+            break;
+          }
+        }
+        if (!t) return;
+
+        if (!bodyTouch.engaged) {
+          if (bodyTouch.rejected) return;
+          const dx = t.clientX - bodyTouch.startX;
+          const dy = t.clientY - bodyTouch.startY;
+          if (Math.abs(dx) + Math.abs(dy) < 6) return;
+          if (Math.abs(dx) > Math.abs(dy) * 1.1) {
+            bodyTouch.rejected = true;
+            return;
+          }
+          const wantsMinimize = dy > 6 && (bodyTouch.canPullDown && body.scrollTop <= 1);
+          const wantsExpandFromPeek = dy < -6 && bodyTouch.isPeek;
+          if (wantsMinimize || wantsExpandFromPeek) {
+            bodyTouch.engaged = true;
+            startDragState('touch', bodyTouch.id, bodyTouch.startX, bodyTouch.startY);
+            if (e.cancelable) e.preventDefault();
+            applyDragFrame(t.clientX, t.clientY);
+          } else {
+            bodyTouch.rejected = true;
+          }
+          return;
+        }
+
+        if (drag.active && drag.mode === 'touch') {
+          if (e.cancelable) e.preventDefault();
+          applyDragFrame(t.clientX, t.clientY);
+        }
+      }, { passive: false });
+
+      const onBodyTouchEnd = (e, isCancel) => {
+        if (!bodyTouch) return;
+        let ended = false;
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          if (e.changedTouches[i].identifier === bodyTouch.id) {
+            ended = true;
+            break;
+          }
+        }
+        if (!ended) return;
+        const wasEngaged = bodyTouch.engaged;
+        bodyTouch = null;
+        if (wasEngaged && drag.active && drag.mode === 'touch') {
+          finishDrag(isCancel);
+        }
+      };
+
+      body.addEventListener('touchend', (e) => onBodyTouchEnd(e, false), { passive: true });
+      body.addEventListener('touchcancel', (e) => onBodyTouchEnd(e, true), { passive: true });
+    }
+  }
+
   // Controls & Toolbar Buttons
   function initControls() {
     // Rotation toggle
@@ -2619,26 +3095,9 @@
       });
     }
 
-    // Close Drawer
-    elements.closeDrawerBtn.addEventListener('click', () => {
-      elements.countryDrawer.classList.remove('open');
-      elements.countryDrawer.setAttribute('aria-hidden', 'true');
-      document.body.classList.remove('drawer-is-open');
-      state.selectedCountry = null;
-      if (state.activeOriginCorridor === 'country') {
-        state.activeOriginCorridor = state.activeFilterLanguage
-          ? 'filter'
-          : (state._prevCorridorBeforeCountry || 'all');
-      }
-      refreshPolygonVisuals();
-      if (state.globe) {
-        if (state.showArcs) updateArcs();
-        if (state.isRotating) {
-          const controls = state.globe.controls();
-          if (controls) controls.autoRotate = true;
-        }
-      }
-    });
+    // Close Drawer & Bottom-Sheet Snap/Pull Gestures
+    elements.closeDrawerBtn.addEventListener('click', closeCountryDrawer);
+    setupMobileDrawerGestures();
 
     // Info Modal
     elements.openInfoModalBtn.addEventListener('click', () => {
@@ -2726,28 +3185,12 @@
       } else if (e.key === 'r' || e.key === 'R') {
         elements.resetViewBtn.click();
       } else if (e.key === 'Escape') {
-        elements.countryDrawer.classList.remove('open');
-        elements.countryDrawer.setAttribute('aria-hidden', 'true');
         elements.infoModal.classList.remove('open');
         elements.infoModal.setAttribute('aria-hidden', 'true');
         elements.listModal.classList.remove('open');
         elements.listModal.setAttribute('aria-hidden', 'true');
-        document.body.classList.remove('drawer-is-open');
-        state.selectedCountry = null;
-        if (state.activeOriginCorridor === 'country') {
-          state.activeOriginCorridor = state.activeFilterLanguage
-            ? 'filter'
-            : (state._prevCorridorBeforeCountry || 'all');
-        }
         hideTooltip();
-        refreshPolygonVisuals();
-        if (state.globe) {
-          if (state.showArcs) updateArcs();
-          if (state.isRotating) {
-            const controls = state.globe.controls();
-            if (controls) controls.autoRotate = true;
-          }
-        }
+        closeCountryDrawer();
       }
     });
   }

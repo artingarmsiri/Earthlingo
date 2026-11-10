@@ -840,6 +840,41 @@ body.drawer-is-open .arcs-info-panel {
   background: linear-gradient(180deg, rgba(30, 41, 59, 0.4), transparent);
 }
 
+.drawer-header-actions {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 3;
+}
+
+.drawer-snap-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: var(--bg-glass-card);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: transform 0.22s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.drawer-snap-btn:hover,
+.drawer-snap-btn:active {
+  color: var(--text-primary);
+  background: rgba(56, 189, 248, 0.2);
+  border-color: rgba(56, 189, 248, 0.45);
+}
+
+.drawer-snap-btn svg {
+  transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 .drawer-close-btn {
   position: absolute;
   top: 20px;
@@ -855,6 +890,10 @@ body.drawer-is-open .arcs-info-panel {
   color: var(--text-secondary);
   cursor: pointer;
   transition: var(--transition-smooth);
+}
+
+.drawer-header-actions .drawer-close-btn {
+  position: static;
 }
 
 .drawer-close-btn:hover {
@@ -881,6 +920,7 @@ body.drawer-is-open .arcs-info-panel {
   font-weight: 800;
   letter-spacing: -0.02em;
   color: #fff;
+  padding-right: 40px;
 }
 
 .drawer-native-name {
@@ -1572,12 +1612,13 @@ body.drawer-is-open .arcs-info-panel {
   /* Shared Languages menu hidden by default on mobile; toggled from bottom bar */
   .floating-bottom-left {
     display: none;
-    bottom: calc(74px + env(safe-area-inset-bottom));
+    bottom: calc(74px + env(safe-area-inset-bottom) + var(--drawer-peek-offset, 0px));
     left: 12px;
     right: 12px;
     max-width: calc(100% - 24px);
     width: auto;
     z-index: 30;
+    transition: bottom 0.24s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .floating-bottom-left.mobile-open {
@@ -1672,8 +1713,12 @@ body.drawer-is-open .arcs-info-panel {
   }
 
   /* Unified Bottom Dock aligned with Top Chrome & Safe Area */
+  body.drawer-peek {
+    --drawer-peek-offset: calc(var(--drawer-peek-h, 128px) + 6px);
+  }
+
   .globe-controls-bar {
-    bottom: calc(14px + env(safe-area-inset-bottom));
+    bottom: calc(14px + env(safe-area-inset-bottom) + var(--drawer-peek-offset, 0px));
     left: 12px;
     right: 12px;
     width: auto;
@@ -1683,6 +1728,7 @@ body.drawer-is-open .arcs-info-panel {
     justify-content: space-between;
     padding: 6px 10px;
     gap: 2px;
+    transition: bottom 0.24s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .globe-tool-btn {
@@ -1705,7 +1751,7 @@ body.drawer-is-open .arcs-info-panel {
     box-shadow: 0 0 0 1.5px rgba(13, 19, 34, 0.95);
   }
 
-  /* Portrait Slide-Up Bottom Sheet Keeps Selected Country Visible Above */
+  /* Portrait Pullable Multi-State Bottom Sheet (peek / half / full + swipe dismiss) */
   .country-drawer {
     top: auto;
     bottom: 0;
@@ -1715,21 +1761,58 @@ body.drawer-is-open .arcs-info-panel {
     max-width: 100%;
     height: 54%;
     height: 54dvh;
-    max-height: calc(100% - 104px);
-    max-height: calc(100dvh - 104px);
+    max-height: 100%;
+    max-height: 100dvh;
     border-left: none;
     border-top: 1px solid var(--border-glass);
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.65);
     transform: translateY(100%);
+    will-change: transform, height;
+    transition:
+      transform 0.26s cubic-bezier(0.22, 1, 0.36, 1),
+      height 0.26s cubic-bezier(0.22, 1, 0.36, 1),
+      border-radius 0.22s ease,
+      visibility 0s linear 0.26s;
   }
 
   .country-drawer.open {
     transform: translateY(0);
+    transition:
+      transform 0.26s cubic-bezier(0.22, 1, 0.36, 1),
+      height 0.26s cubic-bezier(0.22, 1, 0.36, 1),
+      border-radius 0.22s ease,
+      visibility 0s linear 0s;
+  }
+
+  .country-drawer.snap-peek {
+    height: var(--drawer-peek-h, 128px);
+  }
+
+  .country-drawer.snap-half {
+    height: 54%;
+    height: 54dvh;
+  }
+
+  .country-drawer.snap-full {
+    height: 100%;
+    height: 100dvh;
+    border-radius: 0;
+    border-top-color: transparent;
+  }
+
+  .country-drawer.is-dragging {
+    transition: none !important;
   }
 
   .drawer-header {
-    padding: 20px 16px 14px;
+    padding: 22px 16px 14px;
+    touch-action: none;
+    cursor: grab;
+  }
+
+  .country-drawer.is-dragging .drawer-header {
+    cursor: grabbing;
   }
 
   .drawer-header::before {
@@ -1738,10 +1821,48 @@ body.drawer-is-open .arcs-info-panel {
     top: 8px;
     left: 50%;
     transform: translateX(-50%);
-    width: 38px;
-    height: 4px;
+    width: 44px;
+    height: 5px;
     border-radius: var(--radius-full);
-    background: rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.3);
+    transition: background 0.2s ease, width 0.2s ease;
+  }
+
+  .country-drawer.snap-peek .drawer-header::before,
+  .country-drawer.is-dragging .drawer-header::before {
+    width: 52px;
+    background: rgba(56, 189, 248, 0.65);
+  }
+
+  .country-drawer.snap-peek .drawer-header {
+    border-bottom-color: transparent;
+    padding-bottom: max(14px, env(safe-area-inset-bottom));
+  }
+
+  .country-drawer.snap-full .drawer-header {
+    padding-top: max(26px, calc(16px + env(safe-area-inset-top)));
+  }
+
+  .country-drawer.snap-full .drawer-header::before {
+    top: max(8px, calc(4px + env(safe-area-inset-top)));
+  }
+
+  .drawer-header-actions {
+    top: 14px;
+    right: 14px;
+    gap: 6px;
+  }
+
+  .country-drawer.snap-full .drawer-header-actions {
+    top: max(16px, calc(10px + env(safe-area-inset-top)));
+  }
+
+  .drawer-snap-btn {
+    display: flex;
+  }
+
+  .country-drawer.snap-full .drawer-snap-btn svg {
+    transform: rotate(180deg);
   }
 
   .drawer-close-btn {
@@ -1757,7 +1878,7 @@ body.drawer-is-open .arcs-info-panel {
 
   .drawer-country-name {
     font-size: 1.25rem;
-    padding-right: 38px;
+    padding-right: 84px;
   }
 
   .drawer-badges-row {
@@ -1836,7 +1957,10 @@ body.drawer-is-open .arcs-info-panel {
 
 /* Landscape mobile phones with short vertical height */
 @media (max-height: 500px) {
-  .country-drawer {
+  .country-drawer,
+  .country-drawer.snap-peek,
+  .country-drawer.snap-half,
+  .country-drawer.snap-full {
     top: 0;
     bottom: 0;
     left: auto;
@@ -1855,8 +1979,27 @@ body.drawer-is-open .arcs-info-panel {
     transform: translateX(0);
   }
 
+  .drawer-header {
+    padding: 18px 20px 14px;
+    touch-action: auto;
+    cursor: default;
+  }
+
   .drawer-header::before {
     display: none;
+  }
+
+  .drawer-header-actions {
+    top: 14px;
+    right: 14px;
+  }
+
+  .drawer-snap-btn {
+    display: none;
+  }
+
+  .drawer-country-name {
+    padding-right: 40px;
   }
 
   .arcs-info-panel {

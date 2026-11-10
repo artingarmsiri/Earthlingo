@@ -201,6 +201,8 @@
       comparePresets: document.getElementById('comparePresets'),
       compareBody: document.getElementById('compareBody'),
       quizDock: document.getElementById('quizDock'),
+      quizModeBar: document.getElementById('quizModeBar'),
+      quizScopeRow: document.getElementById('quizScopeRow'),
       quizScopeSelect: document.getElementById('quizScopeSelect'),
       quizScoreBadge: document.getElementById('quizScoreBadge'),
       quizStreakBadge: document.getElementById('quizStreakBadge'),

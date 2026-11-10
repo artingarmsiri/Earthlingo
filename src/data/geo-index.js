@@ -182,6 +182,9 @@
       c.__diversityColor = divGrp.color;
     };
 
+    const seenCanonicalObjs = new Set();
+    const canonicalByKey = new Map();
+
     for (let i = 0; i < E.state.countriesList.length; i++) {
       const c = E.state.countriesList[i];
       const key = getCountryKey(c);
@@ -209,21 +212,43 @@
         });
       });
       c.__spokenTokens = cTokens;
+      seenCanonicalObjs.add(c);
+      if (key) canonicalByKey.set(key, c);
     }
 
-    // Mirror metadata onto all alias keys in db (ISO3 and name)
+    // Mirror precomputed metadata onto any non-shared alias entries in db
     for (const k in db) {
       const c = db[k];
-      if (!c) continue;
-      upsertCountryMeta(c);
-      if (!c.__spokenTokens && Array.isArray(c.languages)) {
-        const seenT = [];
-        c.languages.forEach(lang => {
-          const toks = extractSpokenLanguageTokens(lang);
-          lang.__tokens = toks;
-          toks.forEach(t => { if (!seenT.includes(t)) seenT.push(t); });
-        });
-        c.__spokenTokens = seenT;
+      if (!c || seenCanonicalObjs.has(c)) continue;
+      seenCanonicalObjs.add(c);
+      const canon = canonicalByKey.get(getCountryKey(c));
+      if (canon) {
+        c.__familyGroup = canon.__familyGroup;
+        c.__familyColor = canon.__familyColor;
+        c.__scriptGroup = canon.__scriptGroup;
+        c.__scriptColor = canon.__scriptColor;
+        c.__diversityTier = canon.__diversityTier;
+        c.__diversityColor = canon.__diversityColor;
+        c.__spokenTokens = canon.__spokenTokens;
+        if (Array.isArray(c.languages) && Array.isArray(canon.languages)) {
+          for (let j = 0; j < c.languages.length; j++) {
+            const srcLang = canon.languages[j];
+            if (srcLang && c.languages[j] && c.languages[j].name === srcLang.name) {
+              c.languages[j].__tokens = srcLang.__tokens;
+            }
+          }
+        }
+      } else {
+        upsertCountryMeta(c);
+        if (!c.__spokenTokens && Array.isArray(c.languages)) {
+          const seenT = [];
+          c.languages.forEach(lang => {
+            const toks = extractSpokenLanguageTokens(lang);
+            lang.__tokens = toks;
+            toks.forEach(t => { if (!seenT.includes(t)) seenT.push(t); });
+          });
+          c.__spokenTokens = seenT;
+        }
       }
     }
 
@@ -399,14 +424,20 @@
         if (!outer || outer.length < 3) continue;
         let area = 0;
         let latSum = 0;
+        let curX = outer[0][0];
+        let curY = outer[0][1];
         for (let k = 0; k < outer.length; k++) {
           const cur = outer[k];
           const nxt = outer[(k + 1) % outer.length];
           let dx = nxt[0] - cur[0];
           if (dx > 180) dx -= 360;
           if (dx < -180) dx += 360;
-          area += cur[0] * (nxt[1] - cur[1]) - cur[1] * dx;
+          const nxtX = curX + dx;
+          const nxtY = nxt[1];
+          area += curX * nxtY - nxtX * curY;
           latSum += cur[1];
+          curX = nxtX;
+          curY = nxtY;
         }
         const avgLat = latSum / outer.length;
         const cosLat = Math.max(0.18, Math.cos((avgLat * Math.PI) / 180));

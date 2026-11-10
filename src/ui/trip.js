@@ -5,6 +5,10 @@
   const E = (global.Earthlingo = global.Earthlingo || {});
   const STORAGE_KEY = 'earthlingo_trip_v1';
   const MAX_STOPS = 14;
+  let tripEventsBound = false;
+  let cachedCountryOptionsHtml = '';
+  let cachedCountryOptionsCount = -1;
+  let tripResetArmed = false;
 
   const PRESETS = [
     { id: 'med', label: 'Spain → Morocco → Italy', isos: ['ESP', 'MAR', 'ITA'] },
@@ -203,21 +207,23 @@
     return lines.join('\n');
   }
 
-  function closeOtherOverlays() {
-    if (E.compare && E.state.isCompareOpen) E.compare.closeCompareModal({ skipRouter: true, skipFocusRestore: true });
-    if (E.passport && typeof E.passport.closePassportModal === 'function') E.passport.closePassportModal({ skipFocusRestore: true });
-    if (E.scriptInspector && typeof E.scriptInspector.closeScriptModal === 'function') E.scriptInspector.closeScriptModal({ skipFocusRestore: true });
-    if (E.elements.listModal && E.elements.listModal.classList.contains('open')) {
-      E.utils.closeModal(E.elements.listModal, { skipFocusRestore: true });
+  function getCountryOptionsHtml() {
+    const list = E.state.countriesList || [];
+    if (cachedCountryOptionsCount === list.length && cachedCountryOptionsHtml) {
+      return cachedCountryOptionsHtml;
     }
-    if (E.elements.infoModal && E.elements.infoModal.classList.contains('open')) {
-      E.utils.closeModal(E.elements.infoModal, { skipFocusRestore: true });
-    }
+    const { escapeHtml } = E.utils;
+    cachedCountryOptionsCount = list.length;
+    cachedCountryOptionsHtml = list.map(c =>
+      `<option value="${escapeHtml(c.iso3)}">${c.flag || ''} ${escapeHtml(c.name)} (${escapeHtml(c.canonicalLanguage || c.primaryLanguage || '')})</option>`
+    ).join('');
+    return cachedCountryOptionsHtml;
   }
 
   function renderTripModal(opts = {}) {
     const body = E.elements.tripModalBody;
     if (!body) return;
+    tripResetArmed = false;
     const { escapeHtml } = E.utils;
     const db = E.state.languagesDb || {};
     const list = E.state.tripBookmarks || [];
@@ -227,9 +233,10 @@
       <button type="button" class="compare-preset-btn" data-trip-preset="${escapeHtml(pr.isos.join(','))}">${escapeHtml(pr.label)}</button>
     `).join('');
 
-    const allOptions = (E.state.countriesList || []).map(c => `
-      <option value="${escapeHtml(c.iso3)}">${c.flag || ''} ${escapeHtml(c.name)} (${escapeHtml(c.canonicalLanguage || c.primaryLanguage || '')})</option>
-    `).join('');
+    const allOptions = getCountryOptionsHtml();
+    const resolveScr = (E.labelFormatter && typeof E.labelFormatter.resolveLanguageScriptLabel === 'function')
+      ? E.labelFormatter.resolveLanguageScriptLabel
+      : (l) => (l && l.script) || 'Latin';
 
     const cardsHtml = stops.length > 0
       ? stops.map((c, idx) => {
@@ -251,7 +258,7 @@
             `;
           }).join('');
 
-          const langsLine = (c.languages || []).slice(0, 2).map(l => `${escapeHtml(l.name)} (${escapeHtml(l.script)})`).join(' • ');
+          const langsLine = (c.languages || []).slice(0, 2).map(l => `${escapeHtml(l.name)} (${escapeHtml(resolveScr(l, c))})`).join(' • ');
           const tip = c.accents && c.accents[0] ? `${escapeHtml(c.accents[0].name)}: ${escapeHtml(c.accents[0].description)}` : escapeHtml(c.funFact || '');
 
           return `
@@ -308,149 +315,22 @@
         </div>
       </div>
     `;
+  }
 
-    const selEl = document.getElementById('tripAddSelect');
-    if (selEl) {
-      selEl.addEventListener('change', () => {
-        if (selEl.value) {
-          addBookmark(selEl.value);
-          renderTripModal();
-        }
-      });
-    }
-
-    body.querySelectorAll('[data-trip-preset]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const isos = btn.getAttribute('data-trip-preset').split(',');
-        importBookmarks(isos);
-        renderTripModal();
-      });
-    });
-
-    body.querySelectorAll('[data-jump-iso]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const c = db[btn.getAttribute('data-jump-iso')];
-        if (c && E.drawer) {
-          closeTripModal({ skipFocusRestore: true });
-          E.drawer.selectCountry(c, true);
-        }
-      });
-    });
-
-    body.querySelectorAll('[data-move]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        moveBookmark(Number(btn.getAttribute('data-move')), Number(btn.getAttribute('data-dir')));
-      });
-    });
-
-    body.querySelectorAll('[data-remove-iso]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        removeBookmark(btn.getAttribute('data-remove-iso'));
-        renderTripModal();
-      });
-    });
-
-    body.querySelectorAll('.trip-speak-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const c = stops[Number(btn.getAttribute('data-stop-idx'))];
-        const ph = c && c.phrases && c.phrases[Number(btn.getAttribute('data-ph-idx'))];
-        if (ph && E.drawer && typeof E.drawer.playSpeechSynthesis === 'function') {
-          E.drawer.playSpeechSynthesis(ph.text, ph.bcp47 || 'en-US', btn);
-        }
-      });
-    });
-
-    const copyBtn = document.getElementById('tripCopyBtn');
-    if (copyBtn) {
-      copyBtn.addEventListener('click', () => {
-        const txt = buildCheatSheetText();
-        const isFile = window.location.protocol === 'file:';
-        if (!isFile && navigator.clipboard && window.isSecureContext) {
-          navigator.clipboard.writeText(txt).catch(() => {
-            if (E.router) E.router.copyTextFallback(txt);
-          });
-        } else if (E.router) {
-          E.router.copyTextFallback(txt);
-        }
-        copyBtn.textContent = '✓ Copied!';
-        setTimeout(() => { copyBtn.textContent = 'Copy Cheat-Sheet'; }, 1800);
-      });
-    }
-
-    const printBtn = document.getElementById('tripPrintBtn');
-    if (printBtn) {
-      printBtn.addEventListener('click', () => {
-        if (typeof window.print === 'function') window.print();
-      });
-    }
-
-    const exportBtn = document.getElementById('tripExportBtn');
-    const importBtn = document.getElementById('tripImportBtn');
-    const importInput = document.getElementById('tripImportInput');
+  function showTripStatus(msg, isErr) {
     const statusEl = document.getElementById('tripStatusMsg');
-    const resetBtn = document.getElementById('tripResetBtn');
-
-    const showTripStatus = (msg, isErr) => {
-      if (!statusEl) return;
-      statusEl.textContent = msg;
-      statusEl.classList.toggle('is-error', Boolean(isErr));
-      statusEl.classList.toggle('is-success', !isErr && Boolean(msg));
-    };
-
-    if (exportBtn) {
-      exportBtn.addEventListener('click', () => {
-        const payload = exportTripData();
-        const dateTag = new Date().toISOString().slice(0, 10);
-        E.utils.downloadJsonFile(`earthlingo-trip-${dateTag}.json`, payload);
-        showTripStatus(`✓ Exported ${payload.bookmarks.length} trip stops`, false);
-      });
-    }
-
-    if (importBtn && importInput) {
-      importBtn.addEventListener('click', () => {
-        importInput.value = '';
-        importInput.click();
-      });
-      importInput.addEventListener('change', (e) => {
-        const file = e.target && e.target.files && e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = () => {
-          const res = importTripData(String(reader.result || ''));
-          if (res.ok) {
-            renderTripModal({ statusText: `✓ Imported ${res.count} trip stops` });
-            const reBtn = document.getElementById('tripImportBtn');
-            if (reBtn) reBtn.focus();
-          } else {
-            showTripStatus(`✕ ${res.error}`, true);
-          }
-        };
-        reader.onerror = () => showTripStatus('✕ Unable to read selected file.', true);
-        reader.readAsText(file);
-      });
-    }
-
-    if (resetBtn) {
-      let armed = false;
-      resetBtn.addEventListener('click', () => {
-        if (!armed) {
-          armed = true;
-          resetBtn.textContent = 'Click again to clear trip';
-          resetBtn.classList.add('armed');
-          return;
-        }
-        clearBookmarks();
-        renderTripModal({ statusText: '✓ Trip stops cleared' });
-        const reClose = E.elements.closeTripModalBtn;
-        if (reClose) reClose.focus();
-      });
-    }
+    if (!statusEl) return;
+    statusEl.textContent = msg;
+    statusEl.classList.toggle('is-error', Boolean(isErr));
+    statusEl.classList.toggle('is-success', !isErr && Boolean(msg));
   }
 
   function openTripModal(opts = {}) {
     const modal = E.elements.tripModal;
     if (!modal) return;
-    closeOtherOverlays();
+    if (E.utils && typeof E.utils.closeAllModals === 'function') {
+      E.utils.closeAllModals({ except: modal, skipRouter: true, skipFocusRestore: true });
+    }
     E.state.tripModalOpen = true;
     renderTripModal();
     E.utils.openModal(modal, { initialFocus: E.elements.closeTripModalBtn });
@@ -468,6 +348,9 @@
   function initTrip() {
     loadBookmarks();
     syncTripUI();
+    if (tripEventsBound) return;
+    tripEventsBound = true;
+
     const el = E.elements;
     if (el.openTripBtn) el.openTripBtn.addEventListener('click', () => openTripModal());
     if (el.closeTripModalBtn) el.closeTripModalBtn.addEventListener('click', () => closeTripModal());
@@ -484,6 +367,129 @@
     if (el.tripModal) {
       el.tripModal.addEventListener('click', (e) => {
         if (e.target === el.tripModal) closeTripModal();
+      });
+    }
+    if (el.tripModalBody) {
+      el.tripModalBody.addEventListener('change', (e) => {
+        const tgt = e.target;
+        if (!tgt) return;
+        if (tgt.id === 'tripAddSelect' && tgt.value) {
+          addBookmark(tgt.value);
+          renderTripModal();
+        } else if (tgt.id === 'tripImportInput') {
+          const file = tgt.files && tgt.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = () => {
+            const res = importTripData(String(reader.result || ''));
+            if (res.ok) {
+              renderTripModal({ statusText: `✓ Imported ${res.count} trip stops` });
+              const reBtn = document.getElementById('tripImportBtn');
+              if (reBtn) reBtn.focus();
+            } else {
+              showTripStatus(`✕ ${res.error}`, true);
+            }
+          };
+          reader.onerror = () => showTripStatus('✕ Unable to read selected file.', true);
+          reader.readAsText(file);
+        }
+      });
+
+      el.tripModalBody.addEventListener('click', (e) => {
+        const tgt = e.target;
+        if (!tgt) return;
+        const db = E.state.languagesDb || {};
+
+        const presetBtn = tgt.closest('[data-trip-preset]');
+        if (presetBtn) {
+          const isos = presetBtn.getAttribute('data-trip-preset').split(',');
+          importBookmarks(isos);
+          renderTripModal();
+          return;
+        }
+
+        const jumpBtn = tgt.closest('[data-jump-iso]');
+        if (jumpBtn) {
+          const c = db[jumpBtn.getAttribute('data-jump-iso')];
+          if (c && E.drawer) {
+            closeTripModal({ skipFocusRestore: true });
+            E.drawer.selectCountry(c, true);
+          }
+          return;
+        }
+
+        const moveBtn = tgt.closest('[data-move]');
+        if (moveBtn) {
+          moveBookmark(Number(moveBtn.getAttribute('data-move')), Number(moveBtn.getAttribute('data-dir')));
+          return;
+        }
+
+        const remBtn = tgt.closest('[data-remove-iso]');
+        if (remBtn) {
+          removeBookmark(remBtn.getAttribute('data-remove-iso'));
+          renderTripModal();
+          return;
+        }
+
+        const speakBtn = tgt.closest('.trip-speak-btn');
+        if (speakBtn) {
+          const stops = (E.state.tripBookmarks || []).map(iso => db[iso]).filter(Boolean);
+          const c = stops[Number(speakBtn.getAttribute('data-stop-idx'))];
+          const ph = c && c.phrases && c.phrases[Number(speakBtn.getAttribute('data-ph-idx'))];
+          if (ph && E.drawer && typeof E.drawer.playSpeechSynthesis === 'function') {
+            E.drawer.playSpeechSynthesis(ph.text, ph.bcp47 || 'en-US', speakBtn);
+          }
+          return;
+        }
+
+        const copyBtn = tgt.closest('#tripCopyBtn');
+        if (copyBtn) {
+          const txt = buildCheatSheetText();
+          E.utils.copyTextToClipboard(txt);
+          copyBtn.textContent = '✓ Copied!';
+          setTimeout(() => {
+            if (copyBtn.isConnected) copyBtn.textContent = 'Copy Cheat-Sheet';
+          }, 1800);
+          return;
+        }
+
+        const printBtn = tgt.closest('#tripPrintBtn');
+        if (printBtn) {
+          if (typeof window.print === 'function') window.print();
+          return;
+        }
+
+        const exportBtn = tgt.closest('#tripExportBtn');
+        if (exportBtn) {
+          const payload = exportTripData();
+          const dateTag = new Date().toISOString().slice(0, 10);
+          E.utils.downloadJsonFile(`earthlingo-trip-${dateTag}.json`, payload);
+          showTripStatus(`✓ Exported ${payload.bookmarks.length} trip stops`, false);
+          return;
+        }
+
+        const importBtn = tgt.closest('#tripImportBtn');
+        if (importBtn) {
+          const importInput = document.getElementById('tripImportInput');
+          if (importInput) {
+            importInput.value = '';
+            importInput.click();
+          }
+          return;
+        }
+
+        const resetBtn = tgt.closest('#tripResetBtn');
+        if (resetBtn) {
+          if (!tripResetArmed) {
+            tripResetArmed = true;
+            resetBtn.textContent = 'Click again to clear trip';
+            resetBtn.classList.add('armed');
+            return;
+          }
+          clearBookmarks();
+          renderTripModal({ statusText: '✓ Trip stops cleared' });
+          if (E.elements.closeTripModalBtn) E.elements.closeTripModalBtn.focus();
+        }
       });
     }
   }

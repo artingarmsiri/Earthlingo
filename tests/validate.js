@@ -121,6 +121,25 @@ test('index.html & sw.js reference valid existing assets and og-preview.png', ()
   for (const rel of swAssets) {
     assert(fs.existsSync(path.join(ROOT, rel)), `Missing file listed in sw.js CORE_ASSETS: ./${rel}`);
   }
+
+  // Verify every src/**/*.js module is loaded by index.html and cached by sw.js CORE_ASSETS
+  const srcFiles = walkJsFiles('src').map(f => f.replace(/\\/g, '/'));
+  const htmlSet = new Set(assetRefs.map(f => f.replace(/\\/g, '/')));
+  const swSet = new Set(swAssets.map(f => f.replace(/\\/g, '/')));
+  for (const rel of srcFiles) {
+    assert(htmlSet.has(rel), `index.html missing <script> for ${rel}`);
+    assert(swSet.has(rel), `sw.js CORE_ASSETS missing ${rel}`);
+  }
+
+  // Verify split UI submodules load before controls.js & scene.js
+  const scriptOrder = assetRefs.map(f => f.replace(/\\/g, '/'));
+  const controlsIdx = scriptOrder.indexOf('src/ui/controls.js');
+  const sceneIdx = scriptOrder.indexOf('src/globe/scene.js');
+  assert(controlsIdx !== -1 && sceneIdx !== -1 && controlsIdx < sceneIdx, 'controls.js must load before scene.js');
+  for (const sub of ['src/ui/legend.js', 'src/ui/timeline.js', 'src/ui/search.js', 'src/ui/list-modal.js']) {
+    const idx = scriptOrder.indexOf(sub);
+    assert(idx !== -1 && idx < controlsIdx, `${sub} must load before src/ui/controls.js`);
+  }
 });
 
 // 4. Linguistic Database Invariants (languages.json & world_countries.geojson)
@@ -181,6 +200,7 @@ test('242 unique ISO3s exist with >=2 languages, 0 script placeholders, 0 plain 
 // 5. Offline VM Execution & Unit Tests across Core Modules & UI Logic
 function createSandboxWindow() {
   const storage = new Map();
+  const mockElements = new Map();
   const noop = () => {};
   const createMockEl = (tag = 'DIV') => ({
     tagName: tag,
@@ -192,12 +212,19 @@ function createSandboxWindow() {
     addEventListener: noop,
     querySelector: () => null,
     querySelectorAll: () => [],
+    closest: () => null,
     appendChild: noop,
     focus: noop,
+    blur: noop,
     isConnected: true,
     innerHTML: '',
     textContent: ''
   });
+  const ensureMockEl = (id) => {
+    if (!id) return null;
+    if (!mockElements.has(id)) mockElements.set(id, createMockEl('DIV'));
+    return mockElements.get(id);
+  };
 
   const sandbox = {
     console,
@@ -216,7 +243,7 @@ function createSandboxWindow() {
     innerWidth: 1440,
     innerHeight: 900,
     devicePixelRatio: 1,
-    location: { protocol: 'https:', hostname: 'artingarmsiri.github.io', pathname: '/Earthlingo/', search: '', hash: '' },
+    location: { protocol: 'https:', hostname: 'artingarmsiri.github.io', pathname: '/Earthlingo/', search: '', hash: '', href: 'https://artingarmsiri.github.io/Earthlingo/' },
     history: { replaceState: (_s, _t, u) => { sandbox.location.hash = String(u).includes('#') ? String(u).slice(String(u).indexOf('#')) : ''; } },
     localStorage: {
       getItem: (k) => (storage.has(k) ? storage.get(k) : null),
@@ -225,9 +252,11 @@ function createSandboxWindow() {
     },
     document: {
       activeElement: null,
+      body: createMockEl('BODY'),
+      documentElement: createMockEl('HTML'),
       createElement: (tag) => createMockEl(String(tag).toUpperCase()),
       createDocumentFragment: () => ({ appendChild: noop }),
-      getElementById: () => null,
+      getElementById: (id) => ensureMockEl(id),
       querySelector: () => null,
       querySelectorAll: () => [],
       addEventListener: noop
@@ -269,8 +298,9 @@ test('Offline JS bundles (data/*.js) execute in VM and match JSON data', () => {
   assert(Array.isArray(sb.WORLD_HISTORICAL_ERAS.ENDANGERED_HOTSPOTS) && sb.WORLD_HISTORICAL_ERAS.ENDANGERED_HOTSPOTS.length === 35, 'Expected 35 endangered language hotspots');
 });
 
-test('Core modules (config, utils, geo-index, label-formatter, compare, passport, trip, router) pass logic checks', () => {
+test('Core modules (config, utils, geo-index, label-formatter, legend, quiz, compare, passport, trip, router) pass logic checks', () => {
   const sb = createSandboxWindow();
+  const noop = () => {};
   for (const rel of [
     'data/world_countries.js',
     'data/languages.js',
@@ -286,12 +316,29 @@ test('Core modules (config, utils, geo-index, label-formatter, compare, passport
     'src/core/router.js',
     'src/ui/passport.js',
     'src/ui/trip.js',
-    'src/ui/compare.js'
+    'src/ui/compare.js',
+    'src/ui/quiz.js',
+    'src/ui/legend.js',
+    'src/ui/timeline.js',
+    'src/ui/search.js',
+    'src/ui/list-modal.js',
+    'src/ui/controls.js'
   ]) {
     loadIntoSandbox(sb, rel);
   }
 
   const E = sb.Earthlingo;
+  E.polygons = { refreshPolygonVisuals: noop };
+  E.overlays = {
+    markOverlaysDirty: noop,
+    refreshOverlayHudRects: noop,
+    setMapOverlayMode: (m) => { E.state.mapOverlayMode = m; },
+    getSyncedColorModeForOverlay: (m) => (m === 'families' ? 'family' : (m === 'scripts' ? 'script' : 'language'))
+  };
+  E.arcs = { updateArcs: noop };
+  E.tooltip = { hideTooltip: noop };
+  E.drawer = { syncDrawerSpotlightCards: noop, closeCountryDrawer: noop };
+
   E.state.geoData = sb.WORLD_GEOJSON;
   E.state.languagesDb = sb.WORLD_LANGUAGES;
   E.geo.buildSpatialIndex();
@@ -305,6 +352,52 @@ test('Core modules (config, utils, geo-index, label-formatter, compare, passport
     const meta = E.labelFormatter.resolveCountryScriptMeta(c);
     assert(meta && meta.shortName && !/official national script/i.test(meta.fullDetail), `Placeholder script leaked for ${c.iso3}`);
   }
+
+  // Verify Quiz Script Detective label resolver returns clean non-empty strings & never throws in Script Inspector
+  for (const c of E.state.countriesList) {
+    const label = E.quiz.resolveTargetScriptLabel(c);
+    assert(typeof label === 'string' && label.length > 0 && !label.includes('[object Object]'), `Invalid quiz script label for ${c.iso3}: ${label}`);
+    const info = sb.WORLD_SCRIPTS_INFO.resolveScriptInfo(label, c);
+    assert(info && typeof info.name === 'string' && info.name.length > 0 && Array.isArray(info.tokens), `WORLD_SCRIPTS_INFO failed for ${c.iso3} label="${label}"`);
+  }
+
+  // Verify antimeridian polygon ring wrapping yields ~4 sq deg (not ~716 sq deg)
+  const originalGeo = E.state.geoData;
+  const originalDb = E.state.languagesDb;
+  E.state.languagesDb = { FJI: { name: 'Fiji', iso3: 'FJI' } };
+  E.state.geoData = {
+    features: [
+      {
+        type: 'Feature',
+        properties: { iso_a3: 'FJI', name: 'Fiji' },
+        geometry: {
+          type: 'Polygon',
+          coordinates: [[[179, 0], [-179, 0], [-179, 2], [179, 2], [179, 0]]]
+        }
+      }
+    ]
+  };
+  const weights = E.geo.computeCountryAreaWeights();
+  const fjiArea = weights.get('FJI');
+  assert(Number.isFinite(fjiArea) && fjiArea > 1 && fjiArea < 20, `Expected wrapped antimeridian area ~4, got ${fjiArea}`);
+  E.state.geoData = originalGeo;
+  E.state.languagesDb = originalDb;
+
+  // Verify WORLD_ORIGINS.resolveLanguageOrigin & immutable E.utils.shuffleArray
+  assert.strictEqual(typeof sb.WORLD_ORIGINS.resolveLanguageOrigin, 'function', 'WORLD_ORIGINS.resolveLanguageOrigin must exist');
+  const espOrigin = sb.WORLD_ORIGINS.resolveLanguageOrigin('Spanish');
+  assert(
+    espOrigin &&
+    Array.isArray(espOrigin.chain) &&
+    espOrigin.chain.length >= 2 &&
+    /spanish/i.test(String(espOrigin.title || '')) &&
+    /iberian/i.test(String(espOrigin.homeland || '')),
+    'Spanish origin seed must resolve cleanly'
+  );
+  const origArr = [1, 2, 3, 4, 5];
+  const shuffled = E.utils.shuffleArray(origArr);
+  assert.deepStrictEqual(origArr, [1, 2, 3, 4, 5], 'shuffleArray must not mutate the input array');
+  assert.deepStrictEqual([...shuffled].sort((a, b) => a - b), origArr, 'shuffleArray must return an exact permutation');
 
   // Verify compare logic
   const cmp = E.compare.computeLanguageComparison(E.state.languagesDb.ESP, E.state.languagesDb.MEX);
@@ -343,6 +436,20 @@ test('Core modules (config, utils, geo-index, label-formatter, compare, passport
   assert(reimportTrip.ok && reimportTrip.count === 3, 'Valid trip JSON import must restore 3 stops');
   assert.strictEqual(E.trip.importTripData(JSON.stringify(exportedPassport)).ok, false, 'Passport export must be rejected by trip importer');
   assert.strictEqual(E.trip.importTripData(['INVALID_XYZ']).ok, false, 'Invalid ISOs must be rejected by trip importer');
+
+  // Verify Diversity Color-By legend rendering & hash filter exclusivity
+  E.controls.setColorByMode('diversity');
+  E.controls.renderLegendChips();
+  const chipsHtml = String(E.elements.legendChips && E.elements.legendChips.innerHTML || '');
+  assert(chipsHtml.includes('Hyper-Diverse'), 'Diversity legend must render Hyper-Diverse chip');
+  assert(!chipsHtml.includes('undefined'), 'Diversity legend must not contain "undefined" tooltip or label');
+
+  E.router.applyHashState('#div=Hyper-Diverse');
+  assert.strictEqual(E.state.activeFilterDiversityTier, 'Hyper-Diverse');
+  E.router.applyHashState('#fam=Austronesian');
+  assert.strictEqual(E.state.activeFilterFamily, 'Austronesian', 'Hash switch to #fam= must set activeFilterFamily');
+  assert.strictEqual(E.state.activeFilterDiversityTier, null, 'Hash switch to #fam= must clear previous activeFilterDiversityTier');
+  E.controls.clearLanguageFilter({ skipRouter: true });
 
   // Verify utils & hash builder
   assert.strictEqual(E.utils.escapeHtml('<script>"test"</script>'), '&lt;script&gt;&quot;test&quot;&lt;/script&gt;');

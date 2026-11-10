@@ -565,6 +565,7 @@
     rb.microByKey.clear();
 
     const r1 = 0.30, r2 = 0.39, r3 = 0.49;
+    const basis = {};
     let mV = 0, mI = 0;
 
     for (let i = 0; i < microstates.length; i++) {
@@ -574,12 +575,9 @@
       const pLen = Math.hypot(px, py, pz) || 100.36;
       const nx = px / pLen, ny = py / pLen, nz = pz / pLen;
 
-      let tx = nz, ty = 0, tz = -nx;
-      const tLen = Math.hypot(tx, tz) || 1;
-      tx /= tLen; tz /= tLen;
-      const bx = ny * tz - nz * ty;
-      const by = nz * tx - nx * tz;
-      const bz = nx * ty - ny * tx;
+      E.utils.computeSurfaceTangentBasis(px, py, pz, basis);
+      const tx = basis.eastX, ty = basis.eastY, tz = basis.eastZ;
+      const bx = basis.northX, by = basis.northY, bz = basis.northZ;
 
       const vStart = mV;
       microPos[mV * 3] = px; microPos[mV * 3 + 1] = py; microPos[mV * 3 + 2] = pz;
@@ -755,6 +753,26 @@
     refreshPolygonVisuals();
   }
 
+  function resolveItemModeRgb(item, colorBy, isHistorical, eraId, getEraRgb) {
+    if (isHistorical) {
+      const eraInfo = global.WORLD_HISTORICAL_ERAS.getCountryEraState(item.country, eraId);
+      return eraInfo && eraInfo.color ? getEraRgb(eraInfo.color) : item.rgbLanguage;
+    }
+    if (colorBy === 'family') return item.rgbFamily;
+    if (colorBy === 'script') return item.rgbScript;
+    if (colorBy === 'diversity') return item.rgbDiversity;
+    return item.rgbLanguage;
+  }
+
+  function matchesActiveFilter(item, filterState) {
+    if (filterState.hasSpoken) return filterState.activeSpokenSet.has(item.key);
+    if (filterState.activeLang) return item.lang === filterState.activeLang;
+    if (filterState.activeFam) return item.familyGroup === filterState.activeFam || item.family === filterState.activeFam;
+    if (filterState.activeScr) return item.scriptGroup === filterState.activeScr;
+    if (filterState.activeDiv) return item.diversityTier === filterState.activeDiv;
+    return true;
+  }
+
   function refreshPolygonVisuals() {
     const rb = E.renderBatch;
     if (!rb.merged) return;
@@ -772,7 +790,7 @@
     const dimRimB = srgbToLinear(59 / 255);
 
     const eraId = E.state.activeTimeEra || 'today';
-    const isHistorical = eraId !== 'today' && global.WORLD_HISTORICAL_ERAS;
+    const isHistorical = Boolean(eraId !== 'today' && global.WORLD_HISTORICAL_ERAS);
     const eraRgbCache = isHistorical ? new Map() : null;
     const getEraRgb = (hex) => {
       let arr = eraRgbCache.get(hex);
@@ -785,45 +803,28 @@
 
     const colorBy = E.state.colorByMode || 'language';
     const activeSpokenSet = E.state.activeFilterSpokenCountries;
-    const activeLang = E.state.activeFilterLanguage;
-    const activeFam = E.state.activeFilterFamily;
-    const activeScr = E.state.activeFilterScript;
-    const activeDiv = E.state.activeFilterDiversityTier;
-    const hasSpoken = Boolean(activeSpokenSet && activeSpokenSet.size > 0);
+    const filterState = {
+      hasSpoken: Boolean(activeSpokenSet && activeSpokenSet.size > 0),
+      activeSpokenSet,
+      activeLang: E.state.activeFilterLanguage,
+      activeFam: E.state.activeFilterFamily,
+      activeScr: E.state.activeFilterScript,
+      activeDiv: E.state.activeFilterDiversityTier
+    };
+
     const colors = rb.capColors;
     const slices = rb.countrySlices;
 
     for (let i = 0; i < slices.length; i++) {
       const s = slices[i];
-      let modeRgb;
-      if (isHistorical) {
-        const eraInfo = global.WORLD_HISTORICAL_ERAS.getCountryEraState(s.country, eraId);
-        modeRgb = eraInfo && eraInfo.color ? getEraRgb(eraInfo.color) : s.rgbLanguage;
-      } else if (colorBy === 'family') {
-        modeRgb = s.rgbFamily;
-      } else if (colorBy === 'script') {
-        modeRgb = s.rgbScript;
-      } else if (colorBy === 'diversity') {
-        modeRgb = s.rgbDiversity;
-      } else {
-        modeRgb = s.rgbLanguage;
+      const match = matchesActiveFilter(s, filterState);
+      let r = dimR, g = dimG, b = dimB;
+      if (match) {
+        const modeRgb = resolveItemModeRgb(s, colorBy, isHistorical, eraId, getEraRgb);
+        r = modeRgb[0];
+        g = modeRgb[1];
+        b = modeRgb[2];
       }
-      let match = true;
-      if (hasSpoken) {
-        match = activeSpokenSet.has(s.key);
-      } else if (activeLang) {
-        match = (s.lang === activeLang);
-      } else if (activeFam) {
-        match = (s.familyGroup === activeFam || s.family === activeFam);
-      } else if (activeScr) {
-        match = (s.scriptGroup === activeScr);
-      } else if (activeDiv) {
-        match = (s.diversityTier === activeDiv);
-      }
-
-      const r = match ? modeRgb[0] : dimR;
-      const g = match ? modeRgb[1] : dimG;
-      const b = match ? modeRgb[2] : dimB;
 
       const end = (s.vStart + s.vCount) * 3;
       for (let k = s.vStart * 3; k < end; k += 3) {
@@ -839,54 +840,47 @@
       const mList = rb.microEntries;
       for (let i = 0; i < mList.length; i++) {
         const m = mList[i];
-        let modeRgb;
-        let modeRim;
-        if (isHistorical) {
-          const eraInfo = global.WORLD_HISTORICAL_ERAS.getCountryEraState(m.country, eraId);
-          modeRgb = eraInfo && eraInfo.color ? getEraRgb(eraInfo.color) : m.rgbLanguage;
-          modeRim = [modeRgb[0] * 0.55 + 0.45, modeRgb[1] * 0.55 + 0.45, modeRgb[2] * 0.55 + 0.45];
-        } else if (colorBy === 'family') {
-          modeRgb = m.rgbFamily;
-          modeRim = m.rimRgbFamily;
-        } else if (colorBy === 'script') {
-          modeRgb = m.rgbScript;
-          modeRim = m.rimRgbScript;
-        } else if (colorBy === 'diversity') {
-          modeRgb = m.rgbDiversity;
-          modeRim = m.rimRgbDiversity;
-        } else {
-          modeRgb = m.rgbLanguage;
-          modeRim = m.rimRgbLanguage;
+        const match = matchesActiveFilter(m, filterState);
+        let dotR = dimR, dotG = dimG, dotB = dimB;
+        let colR = dimR, colG = dimG, colB = dimB;
+        let rimR = dimRimR, rimG = dimRimG, rimB = dimRimB;
+
+        if (match) {
+          const modeRgb = resolveItemModeRgb(m, colorBy, isHistorical, eraId, getEraRgb);
+          dotR = modeRgb[0]; dotG = modeRgb[1]; dotB = modeRgb[2];
+          colR = collarR; colG = collarG; colB = collarB;
+          if (isHistorical) {
+            rimR = dotR * 0.55 + 0.45;
+            rimG = dotG * 0.55 + 0.45;
+            rimB = dotB * 0.55 + 0.45;
+          } else {
+            const modeRim = colorBy === 'family'
+              ? m.rimRgbFamily
+              : (colorBy === 'script'
+                ? m.rimRgbScript
+                : (colorBy === 'diversity' ? m.rimRgbDiversity : m.rimRgbLanguage));
+            rimR = modeRim[0]; rimG = modeRim[1]; rimB = modeRim[2];
+          }
         }
-        let match = true;
-        if (hasSpoken) match = activeSpokenSet.has(m.key);
-        else if (activeLang) match = (m.lang === activeLang);
-        else if (activeFam) match = (m.familyGroup === activeFam || m.family === activeFam);
-        else if (activeScr) match = (m.scriptGroup === activeScr);
-        else if (activeDiv) match = (m.diversityTier === activeDiv);
 
-        const dot = match ? modeRgb : [dimR, dimG, dimB];
-        const col = match ? [collarR, collarG, collarB] : [dimR, dimG, dimB];
-        const rim = match ? modeRim : [dimRimR, dimRimG, dimRimB];
         const segs = m.segs;
-
         const cOff = m.vStart * 3;
-        mCols[cOff] = dot[0]; mCols[cOff + 1] = dot[1]; mCols[cOff + 2] = dot[2];
+        mCols[cOff] = dotR; mCols[cOff + 1] = dotG; mCols[cOff + 2] = dotB;
 
         const dStart = (m.vStart + 1) * 3;
         const dEnd = dStart + segs * 3;
         for (let k = dStart; k < dEnd; k += 3) {
-          mCols[k] = dot[0]; mCols[k + 1] = dot[1]; mCols[k + 2] = dot[2];
+          mCols[k] = dotR; mCols[k + 1] = dotG; mCols[k + 2] = dotB;
         }
 
         const kEnd = dStart + segs * 3 * 3;
         for (let k = dEnd; k < kEnd; k += 3) {
-          mCols[k] = col[0]; mCols[k + 1] = col[1]; mCols[k + 2] = col[2];
+          mCols[k] = colR; mCols[k + 1] = colG; mCols[k + 2] = colB;
         }
 
         const rEnd = dStart + segs * 5 * 3;
         for (let k = kEnd; k < rEnd; k += 3) {
-          mCols[k] = rim[0]; mCols[k + 1] = rim[1]; mCols[k + 2] = rim[2];
+          mCols[k] = rimR; mCols[k + 1] = rimG; mCols[k + 2] = rimB;
         }
       }
       rb.microMesh.geometry.attributes.color.needsUpdate = true;

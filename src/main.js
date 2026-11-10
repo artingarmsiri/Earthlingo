@@ -33,6 +33,8 @@
       E.utils.updateLoadingText('Initializing 3D WebGL Globe...');
       E.geo.buildSpatialIndex();
       E.scene.initGlobe();
+      if (E.drawer && typeof E.drawer.initDrawer === 'function') E.drawer.initDrawer();
+      if (E.arcs && typeof E.arcs.initArcs === 'function') E.arcs.initArcs();
       E.controls.initLegend();
       E.overlays.initMapOverlays();
       E.controls.initSearch();

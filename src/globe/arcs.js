@@ -122,192 +122,11 @@
 
   function getLanguageOriginSeed(langName) {
     const ORIGINS = global.WORLD_ORIGINS;
-    const HUBS = ORIGINS ? ORIGINS.HUBS : null;
-    if (!HUBS || !langName) return null;
-    const k = langName.toLowerCase();
-    const map = {
-      spanish: {
-        hub: HUBS.IBERIA,
-        chain: [HUBS.PIE_STEPPE, HUBS.ITALY_ROME, HUBS.IBERIA],
-        title: 'Spanish (Castilian) Lineage & Atlantic Spread',
-        homeland: 'Pontic–Caspian Steppe → Rome → Iberian Peninsula',
-        era: 'c. 4000 BCE (PIE) → 2nd c. BCE (Latin) → 1492+ CE',
-        mechanism: 'Vulgar Latin in Roman Hispania followed by post-1492 maritime expansion across the Americas & Equatorial Guinea',
-        note: 'Castilian Spanish preserves spoken Iberian Latin grammar alongside Basque, Celtic, and >4,000 Arabic loanwords before spreading across 20+ nations.'
-      },
-      english: {
-        hub: HUBS.BRITAIN,
-        chain: [HUBS.PIE_STEPPE, HUBS.CENTRAL_EUR_GER, HUBS.BRITAIN],
-        title: 'English Lineage & Maritime Global Dispersal',
-        homeland: 'Pontic Steppe → North Sea Coast → Great Britain',
-        era: 'c. 4000 BCE (PIE) → 5th c. CE (Anglo-Saxon) → 1607+ CE',
-        mechanism: 'Ingvaeonic West Germanic arrival in Britain, infused with Old Norse & Norman-French lexicon, then British maritime spread',
-        note: 'Although over half of modern English vocabulary was borrowed from French and Latin, its core grammar and basic vocabulary remain West Germanic.'
-      },
-      french: {
-        hub: HUBS.FRANCE,
-        chain: [HUBS.PIE_STEPPE, HUBS.ITALY_ROME, HUBS.FRANCE],
-        title: 'French Lineage & Global Francophonie Diffusion',
-        homeland: 'Pontic Steppe → Rome → Gaul (Northern France)',
-        era: 'c. 4000 BCE (PIE) → 1st c. BCE (Gaulish Latin) → 17th–20th c. CE',
-        mechanism: 'Roman Vulgar Latin adapted in Celtic Gaul (with Frankish Germanic phonology) → Atlantic, Quebec & African administrative spread',
-        note: 'Across much of Francophone Africa, French serves as an administrative superstrate alongside older indigenous Niger-Congo or Afroasiatic families.'
-      },
-      arabic: {
-        hub: HUBS.HEJAZ_ARABIA,
-        chain: [HUBS.LEVANT_CORE, HUBS.HEJAZ_ARABIA],
-        title: 'Arabic (Central Semitic) Origin & Diffusion',
-        homeland: 'Levant Semitic Hearth → Arabian Peninsula → MENA',
-        era: 'c. 3800 BCE (Proto-Semitic) → 7th–11th c. CE (Arabic Expansion)',
-        mechanism: 'Central Semitic emergence in N. Arabia/Syria → 7th–11th c. CE Arab-Islamic & Banu Hilal expansions across Fertile Crescent & North Africa',
-        note: 'Regional Arabic varieties preserve Coptic (Egypt), Aramaic (Levant/Iraq), Amazigh (Maghreb), and South Arabian substratal layers.'
-      },
-      portuguese: {
-        hub: HUBS.PORTUGAL,
-        chain: [HUBS.PIE_STEPPE, HUBS.ITALY_ROME, HUBS.PORTUGAL],
-        title: 'Portuguese Lineage & Oceanic Voyaging Arcs',
-        homeland: 'Pontic Steppe → Rome → Galicia–Northern Portugal',
-        era: 'c. 4000 BCE (PIE) → 9th c. CE (Galician-Portuguese) → 15th–16th c. CE',
-        mechanism: 'Northwestern Iberian Romance propelled across South Atlantic & Indian Ocean maritime routes (Brazil, PALOP Africa, Timor-Leste)',
-        note: 'Portuguese-lexifier creoles (Kabuverdianu, Forro) represent some of the oldest surviving Atlantic contact languages.'
-      },
-      russian: {
-        hub: HUBS.MOSCOW_RUS,
-        chain: [HUBS.PIE_STEPPE, HUBS.PRIPYAT_SLAV, HUBS.MOSCOW_RUS],
-        title: 'Russian (East Slavic) Steppe-to-Eurasia Spread',
-        homeland: 'Pontic Steppe → Pripyat–Dnieper Basin → Upper Volga',
-        era: 'c. 4000 BCE (PIE) → 6th–9th c. CE (East Slavic) → 16th–20th c. CE',
-        mechanism: 'Medieval Kyivan Rus\' & Muscovy expansion eastward across Uralic, Turkic, and Siberian language territories',
-        note: 'East Slavic functions across northern Eurasia alongside indigenous Uralic, Caucasian, and Turkic families.'
-      },
-      german: {
-        hub: HUBS.CENTRAL_EUR_GER,
-        chain: [HUBS.PIE_STEPPE, HUBS.CENTRAL_EUR_GER],
-        title: 'German (West Germanic) Continental Roots',
-        homeland: 'Pontic Steppe → Elbe–Rhine Germanic Basin',
-        era: 'c. 4000 BCE (PIE) → c. 500 BCE (Proto-Germanic) → 6th–16th c. CE',
-        mechanism: 'High German consonant shift across Alps/Rhine and medieval Central European settlement',
-        note: 'Spans Standard High German alongside Low German, Austro-Bavarian, and Alemannic Swiss varieties.'
-      },
-      dutch: {
-        hub: HUBS.CENTRAL_EUR_GER,
-        chain: [HUBS.PIE_STEPPE, HUBS.CENTRAL_EUR_GER],
-        title: 'Dutch (Low Franconian Germanic) Maritime Arcs',
-        homeland: 'Pontic Steppe → Lower Rhine–Meuse–Scheldt Delta',
-        era: 'c. 4000 BCE (PIE) → Medieval Low Franconian → 17th c. CE Maritime',
-        mechanism: 'Low Franconian Germanic carried along 17th-c. Dutch maritime routes to Suriname, Caribbean ABC islands, & Southern Africa (Afrikaans)',
-        note: 'Afrikaans diverged in Southern Africa from 17th-century Dutch through Khoisan, Bantu, and Malay contact.'
-      },
-      italian: {
-        hub: HUBS.ITALY_ROME,
-        chain: [HUBS.PIE_STEPPE, HUBS.ITALY_ROME],
-        title: 'Italian (Italo-Romance) Continental Lineage',
-        homeland: 'Pontic Steppe → Central Italian Peninsula (Latium / Tuscany)',
-        era: 'c. 4000 BCE (PIE) → c. 1200 BCE (Italic) → 14th c. CE (Tuscan)',
-        mechanism: 'Continuous in-situ evolution from Roman Vulgar Latin with Florentine literary standardization',
-        note: 'Shared across Italy, San Marino, Vatican City, and southern Switzerland alongside Gallo-Italic & Neapolitan regional languages.'
-      },
-      swedish: {
-        hub: HUBS.SCANDINAVIA,
-        chain: [HUBS.PIE_STEPPE, HUBS.CENTRAL_EUR_GER, HUBS.SCANDINAVIA],
-        title: 'Swedish (East Norse North Germanic) Roots',
-        homeland: 'Pontic Steppe → North European Plain → Southern Scandinavia',
-        era: 'c. 4000 BCE (PIE) → c. 800 CE (Old East Norse)',
-        mechanism: 'Nordic Bronze Age continuity & medieval Baltic settlement in Åland & coastal Finland',
-        note: 'Closely related to Danish and Norwegian within the North Germanic continuum descending from Old Norse.'
-      },
-      turkish: {
-        hub: HUBS.ANATOLIA_TURK,
-        chain: [HUBS.ALTAI_ORKHON, HUBS.TIANSHAN_CA, HUBS.AZERBAIJAN_OGHUZ, HUBS.ANATOLIA_TURK],
-        title: 'Turkish (Oghuz Turkic) Eurasian Corridor',
-        homeland: 'Eastern Eurasian Steppe (Altai–Orkhon) → Central Asia → Anatolia',
-        era: 'c. 500 BCE (Proto-Turkic) → 11th c. CE (Seljuk Entry)',
-        mechanism: 'Nomadic Oghuz Seljuk movement from Transoxiana across Iran into Anatolia & Cyprus',
-        note: 'Turkic is an independent primary family unrelated genetically to Arabic or Persian, and not part of a proven "Altaic" macro-family.'
-      },
-      mandarin: {
-        hub: HUBS.NORTH_CHINA,
-        chain: [HUBS.YELLOW_RIVER, HUBS.NORTH_CHINA],
-        title: 'Mandarin (Sino-Tibetan Sinitic) Dispersal',
-        homeland: 'Middle–Upper Yellow River Basin → North China Plain → South & Overseas',
-        era: 'c. 4500 BCE (Sino-Tibetan) → 1st Mil. BCE–Present',
-        mechanism: 'Yellow River millet agriculture & Qin–Han state spread; northern Koine standardization & maritime diaspora',
-        note: 'Sino-Tibetan unites Sinitic (Mandarin, Yue, Min, Wu) with ~400 Tibeto-Burman languages across the Himalayas & Myanmar.'
-      },
-      hindi: {
-        hub: HUBS.PUNJAB_INDIA,
-        chain: [HUBS.PIE_STEPPE, HUBS.CA_STEPPE, HUBS.PUNJAB_INDIA],
-        title: 'Hindi-Urdu (Indo-Aryan) & South Asian Convergence',
-        homeland: 'Pontic Steppe → Central Asia → Punjab & Gangetic Plain',
-        era: 'c. 4000 BCE (PIE) → c. 1500 BCE (Vedic Sanskrit) → Modern',
-        mechanism: 'Indo-Aryan arrival converging structurally with indigenous Dravidian and Munda families across India',
-        note: 'Hindi and Urdu share Khariboli spoken grammar while drawing learned registers from Sanskrit vs Perso-Arabic.'
-      },
-      swahili: {
-        hub: HUBS.SWAHILI_COAST,
-        chain: [HUBS.CAMEROON_BANTU, HUBS.GREAT_LAKES, HUBS.SWAHILI_COAST],
-        title: 'Swahili (Sabaki Bantu) Indian Ocean Lingua Franca',
-        homeland: 'Cameroon–Nigeria Borderlands → Great Lakes → East African Coast',
-        era: 'c. 3000 BCE (Bantu) → 8th–10th c. CE (Coastal Swahili)',
-        mechanism: 'Eastern Bantu migration meeting Indian Ocean monsoon maritime trade (Arabic/Persian contact)',
-        note: 'Retains full Bantu noun-class syntax while incorporating rich maritime Arabic/Persian trade lexicon.'
-      },
-      persian: {
-        hub: HUBS.IRAN_PLATEAU,
-        chain: [HUBS.PIE_STEPPE, HUBS.CA_STEPPE, HUBS.IRAN_PLATEAU],
-        title: 'Persian (Iranian Indo-European) Migration & Silk Road',
-        homeland: 'Pontic Steppe → Central Asian Steppe → Iranian Plateau',
-        era: 'c. 4000 BCE (PIE) → c. 1000–550 BCE (Old Persian)',
-        mechanism: 'Indo-Iranian Sintashta/Andronovo movement south into the Iranian Plateau, Persia, Khorasan & Central Asia',
-        note: 'Modern Persian (Iran), Dari (Afghanistan), and Tajik (Tajikistan) remain mutually intelligible varieties of one Western Iranian continuum.'
-      },
-      japanese: {
-        hub: HUBS.TOKYO_JPN,
-        chain: [HUBS.MANCHURIA_KOR, HUBS.KOREA_PEN, HUBS.KYUSHU_JPN],
-        title: 'Japonic Independent Family: Yayoi Maritime Entry',
-        homeland: 'Korean Peninsula / Kyushu Corridor (Independent Japonic Family)',
-        era: 'c. 1000–300 BCE (Yayoi Agricultural Entry)',
-        mechanism: 'Wet-rice Yayoi arrival across Korea Strait interacting with older Jōmon populations; no genetic link to Sinitic',
-        note: 'Japanese & Ryukyuan form an independent primary family despite historic borrowing of Chinese characters and learned vocabulary.'
-      },
-      korean: {
-        hub: HUBS.KOREA_PEN,
-        chain: [HUBS.MANCHURIA_KOR, HUBS.KOREA_PEN],
-        title: 'Koreanic Independent Family: Manchuria–Peninsula Hearth',
-        homeland: 'Southern Manchuria (Liaodong) & Korean Peninsula',
-        era: 'c. 1500–300 BCE (Bronze-Age Samhan)',
-        mechanism: 'Independent primary Koreanic family consolidated under Silla unification (~668 CE)',
-        note: 'Koreanic is unrelated genetically to Chinese or Japanese; grammatical parallels across NE Asia stem from millennia of areal contact.'
-      },
-      greek: {
-        hub: HUBS.BALKANS,
-        chain: [HUBS.PIE_STEPPE, HUBS.BALKANS],
-        title: 'Greek (Hellenic Indo-European): 3,400+ Year Record',
-        homeland: 'Pontic–Caspian Steppe → Northern Balkans → Aegean Basin',
-        era: 'c. 4000 BCE (PIE) → c. 2200–1450 BCE (Linear B Mycenaean)',
-        mechanism: 'Early Bronze-Age Indo-European arrival in the Aegean, maritime settlements across Cyprus & Mediterranean',
-        note: 'Hellenic preserves an autonomous Indo-European branch continuously attested in writing since ~1450 BCE.'
-      },
-      vietnamese: {
-        hub: HUBS.RED_RIVER_VNM,
-        chain: [HUBS.RED_RIVER_VNM],
-        title: 'Vietnamese (Austroasiatic): Red River Valley Roots',
-        homeland: 'Red River Delta & Annamite Cordillera (Proto-Vietic / Austroasiatic)',
-        era: 'c. 2500–1500 BCE (Austroasiatic) → 1st Mil. CE',
-        mechanism: 'Indigenous Austroasiatic riverine rice civilization with deep Sino-Vietnamese literary contact',
-        note: 'Crucially, Vietnamese is Austroasiatic—closer genetically to Khmer than to Chinese—despite areal tones and Han-Viet vocabulary.'
-      },
-      thai: {
-        hub: HUBS.CHAO_PHRAYA,
-        chain: [HUBS.GUANGXI_KRA, [102.6, 18.0], HUBS.CHAO_PHRAYA],
-        title: 'Thai (Kra-Dai / Tai-Kadai) Southern China Migration',
-        homeland: 'Lingnan (Guangxi–Guizhou) → Laos → Chao Phraya Basin',
-        era: 'c. 1st Mil. BCE (Lingnan) → 10th–13th c. CE (Sukhothai / Chao Phraya)',
-        mechanism: 'Southwestern Tai riverine migration out of southern China into Mainland SE Asia over earlier Mon-Khmer lands',
-        note: 'Thai belongs to Kra-Dai (unrelated genetically to Sinitic or Austroasiatic Khmer/Vietnamese despite shared typological traits).'
-      }
-    };
-    return map[k] || null;
+    if (!ORIGINS || !langName) return null;
+    if (typeof ORIGINS.resolveLanguageOrigin === 'function') {
+      return ORIGINS.resolveLanguageOrigin(langName);
+    }
+    return null;
   }
 
   function flyToCorridorCamera(cam) {
@@ -425,6 +244,21 @@
     }
   }
 
+  function buildWordRouteRings(route, selectedStopId) {
+    const rings = [];
+    if (route && route.stops && route.stops.length > 0) {
+      const originStop = route.stops[0];
+      rings.push({ lat: originStop.lat, lng: originStop.lng, color: route.color || '#f59e0b', radius: 6.2 });
+      if (selectedStopId) {
+        const selStop = route.stops.find(s => s.id === selectedStopId);
+        if (selStop && selStop !== originStop) {
+          rings.push({ lat: selStop.lat, lng: selStop.lng, color: '#ffffff', radius: 5.2 });
+        }
+      }
+    }
+    return rings;
+  }
+
   function selectWordStop(stopId) {
     const ETYM = global.WORLD_ETYMOLOGY || {};
     const route = ETYM[E.state.activeWordRoute || 'tea'];
@@ -438,6 +272,14 @@
       if (controls) controls.autoRotate = false;
       const alt = Math.max(E.utils.getSelectAltitude(), 1.85);
       globe.pointOfView({ lat: stop.lat, lng: stop.lng, altitude: alt }, 520);
+      globe.ringsData(buildWordRouteRings(route, stop.id));
+    }
+    if (E.elements.arcsInfoBody) {
+      E.elements.arcsInfoBody.querySelectorAll('.word-stop-btn').forEach(btn => {
+        const active = btn.getAttribute('data-stop-id') === stop.id;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
     }
     if (E.pins) {
       E.pins.openPinInspector({
@@ -448,7 +290,6 @@
         routeLabel: route.label
       });
     }
-    updateArcs();
   }
 
   function syncDrawerOriginButton() {
@@ -523,26 +364,6 @@
           <span>${escapeHtml(ch.label)}</span>
         </button>
       `).join('');
-
-      el.arcCorridorChips.querySelectorAll('.arc-corridor-chip').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const cid = btn.getAttribute('data-corridor');
-          if (!cid) return;
-          E.state.activeOriginCorridor = cid;
-          E.state.isArcsPanelCollapsed = false;
-          updateArcs();
-          const cor = corridors[cid];
-          if (cor && cor.camera) {
-            flyToCorridorCamera(cor.camera);
-          } else if (cid === 'country' && E.state.selectedCountry && ORIGINS) {
-            frameCountryOriginCamera(E.state.selectedCountry, ORIGINS.resolveCountryOrigin(E.state.selectedCountry));
-          }
-          syncDrawerOriginButton();
-          if (E.router && typeof E.router.syncUrlHash === 'function') {
-            E.router.syncUrlHash();
-          }
-        });
-      });
     }
 
     if (el.wordRouteChips && isWordsTab && global.WORLD_ETYMOLOGY) {
@@ -558,13 +379,6 @@
           </button>
         `;
       }).join('');
-
-      el.wordRouteChips.querySelectorAll('.arc-corridor-chip').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const wid = btn.getAttribute('data-word-route');
-          if (wid) setWordRoute(wid);
-        });
-      });
     }
 
     const accentColor = (payload && payload.color) || '#f59e0b';
@@ -598,7 +412,7 @@
       const stopsHtml = (payload.stops || []).map(st => {
         const isAct = E.state.activeWordStopId === st.id;
         return `
-          <button type="button" class="word-stop-btn ${isAct ? 'active' : ''}" data-stop-id="${escapeHtml(st.id)}">
+          <button type="button" class="word-stop-btn ${isAct ? 'active' : ''}" data-stop-id="${escapeHtml(st.id)}" aria-pressed="${isAct ? 'true' : 'false'}">
             <span class="word-stop-word">${escapeHtml(st.word)}</span>
             <span class="word-stop-meta">${escapeHtml(st.country)} • ${escapeHtml(st.era)}</span>
           </button>
@@ -627,11 +441,6 @@
         </div>
       `;
 
-      el.arcsInfoBody.querySelectorAll('.word-stop-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          selectWordStop(btn.getAttribute('data-stop-id'));
-        });
-      });
       E.overlays.refreshOverlayHudRects();
       return;
     }
@@ -719,16 +528,8 @@
         });
       });
 
-      if (wr.stops && wr.stops.length > 0) {
-        const originStop = wr.stops[0];
-        rings.push({ lat: originStop.lat, lng: originStop.lng, color: wr.color || '#f59e0b', radius: 6.2 });
-        if (E.state.activeWordStopId) {
-          const selStop = wr.stops.find(s => s.id === E.state.activeWordStopId);
-          if (selStop && selStop !== originStop) {
-            rings.push({ lat: selStop.lat, lng: selStop.lng, color: '#ffffff', radius: 5.2 });
-          }
-        }
-      }
+      const wordRings = buildWordRouteRings(wr, E.state.activeWordStopId);
+      for (let i = 0; i < wordRings.length; i++) rings.push(wordRings[i]);
 
       panelMode = 'word';
       panelPayload = {
@@ -935,6 +736,55 @@
     if (E.pins) E.pins.refreshPins();
   }
 
+  let arcsEventsBound = false;
+
+  function initArcs() {
+    if (arcsEventsBound) return;
+    arcsEventsBound = true;
+    const el = E.elements;
+
+    if (el.arcCorridorChips) {
+      el.arcCorridorChips.addEventListener('click', (e) => {
+        const btn = e.target && e.target.closest('.arc-corridor-chip[data-corridor]');
+        if (!btn) return;
+        const cid = btn.getAttribute('data-corridor');
+        if (!cid) return;
+        E.state.activeOriginCorridor = cid;
+        E.state.isArcsPanelCollapsed = false;
+        updateArcs();
+        const ORIGINS = global.WORLD_ORIGINS;
+        const corridors = (ORIGINS && ORIGINS.corridors) || {};
+        const cor = corridors[cid];
+        if (cor && cor.camera) {
+          flyToCorridorCamera(cor.camera);
+        } else if (cid === 'country' && E.state.selectedCountry && ORIGINS) {
+          frameCountryOriginCamera(E.state.selectedCountry, ORIGINS.resolveCountryOrigin(E.state.selectedCountry));
+        }
+        syncDrawerOriginButton();
+        if (E.router && typeof E.router.syncUrlHash === 'function') {
+          E.router.syncUrlHash();
+        }
+      });
+    }
+
+    if (el.wordRouteChips) {
+      el.wordRouteChips.addEventListener('click', (e) => {
+        const btn = e.target && e.target.closest('.arc-corridor-chip[data-word-route]');
+        if (!btn) return;
+        const wid = btn.getAttribute('data-word-route');
+        if (wid) setWordRoute(wid);
+      });
+    }
+
+    if (el.arcsInfoBody) {
+      el.arcsInfoBody.addEventListener('click', (e) => {
+        const btn = e.target && e.target.closest('.word-stop-btn[data-stop-id]');
+        if (!btn) return;
+        selectWordStop(btn.getAttribute('data-stop-id'));
+      });
+    }
+  }
+
   E.arcs = {
     applyArcMeshProps,
     addAnimatedRoutePair,
@@ -946,7 +796,8 @@
     selectWordStop,
     syncDrawerOriginButton,
     renderArcsInfoPanel,
-    updateArcs
+    updateArcs,
+    initArcs
   };
 })(window);
 

@@ -17,6 +17,7 @@
     acceptedKeys: new Set(),
     roundStatus: 'idle', // 'idle' | 'playing' | 'won' | 'revealed' | 'daily_done'
     wrongGuesses: 0,
+    lastFeedback: null,
     showPhonetic: true,
     showRegionHint: false,
     prevOverlayMode: 'countries',
@@ -27,6 +28,8 @@
     dailyIndex: 0,
     dailyRounds: []
   };
+
+  let quizEventsBound = false;
 
   function getTodayDateKey() {
     const d = new Date();
@@ -169,10 +172,10 @@
     const targetKey = E.geo.getCountryKey(target);
     const sameContinent = pool.filter(c => E.geo.getCountryKey(c) !== targetKey && c.continent === target.continent);
     const otherPool = pool.filter(c => E.geo.getCountryKey(c) !== targetKey && c.continent !== target.continent);
-    const shuffledSame = sameContinent.slice().sort(() => Math.random() - 0.5);
-    const shuffledOther = otherPool.slice().sort(() => Math.random() - 0.5);
+    const shuffledSame = E.utils.shuffleArray(sameContinent);
+    const shuffledOther = E.utils.shuffleArray(otherPool);
     const distractors = shuffledSame.concat(shuffledOther).slice(0, 3);
-    const options = [target].concat(distractors).sort(() => Math.random() - 0.5);
+    const options = E.utils.shuffleArray([target].concat(distractors));
 
     return {
       accentName: sanitizeCountrySpoiler(accent.name, target),
@@ -295,6 +298,7 @@
     const hitKey = E.geo.getCountryKey(matchedCountry);
     quizState.target = matchedCountry;
     quizState.roundStatus = 'won';
+    quizState.lastFeedback = null;
     quizState.score += Math.max(10, 30 - quizState.wrongGuesses * 5);
     quizState.streak += 1;
     quizState.bestStreak = Math.max(quizState.bestStreak, quizState.streak);
@@ -314,6 +318,7 @@
   function finishQuizRoundReveal() {
     if (!quizState.target) return;
     quizState.roundStatus = 'revealed';
+    quizState.lastFeedback = null;
     quizState.streak = 0;
     quizState.roundsPlayed++;
     recordRoundCompletion(false);
@@ -330,6 +335,7 @@
   }
 
   function pickNextRound(autoSpeak = false) {
+    quizState.lastFeedback = null;
     if (quizState.mode === 'daily') {
       ensureDailyRoster();
       const saved = E.passport && typeof E.passport.getDailyResult === 'function'
@@ -413,6 +419,7 @@
     if (quizState.mode === mode && E.state.isQuizActive && quizState.target) return;
     quizState.mode = mode;
     quizState.roundStatus = 'idle';
+    quizState.lastFeedback = null;
     if (mode === 'daily') {
       quizState.dailyIndex = 0;
       quizState.dailyRounds = [];
@@ -424,8 +431,7 @@
     }
   }
 
-  function renderDailySummaryCard(el) {
-    const { escapeHtml } = E.utils;
+  function getDailySummaryStats() {
     const saved = E.passport && typeof E.passport.getDailyResult === 'function'
       ? E.passport.getDailyResult(quizState.dailyDateKey)
       : null;
@@ -433,6 +439,21 @@
     const wins = saved ? saved.wins : rounds.filter(r => r && r.won).length;
     const total = quizState.dailyTargets.length || 5;
     const grid = (saved && saved.grid) || buildDailyEmojiGrid(rounds);
+    return { rounds, wins, total, grid };
+  }
+
+  function resolveTargetScriptLabel(target) {
+    if (!target) return 'Latin';
+    const scriptGrp = target.__scriptGroup || E.geo.resolveCountryScriptGroup(target).name;
+    const scriptMeta = (E.labelFormatter && typeof E.labelFormatter.resolveCountryScriptMeta === 'function')
+      ? E.labelFormatter.resolveCountryScriptMeta(target)
+      : null;
+    return (scriptMeta && (scriptMeta.fullDetail || scriptMeta.shortName)) || scriptGrp || 'Latin';
+  }
+
+  function renderDailySummaryCard(el) {
+    const { escapeHtml } = E.utils;
+    const { rounds, wins, total, grid } = getDailySummaryStats();
     const db = E.state.languagesDb || {};
 
     const breakdownHtml = (quizState.dailyTargets || []).map((c, idx) => {
@@ -470,31 +491,6 @@
           <button type="button" id="quizPlayFreeBtn" class="quiz-btn-secondary">Play Endless Mode →</button>
         </div>
       `;
-
-      const copyBtn = document.getElementById('quizCopyDailyBtn');
-      if (copyBtn) {
-        copyBtn.addEventListener('click', () => {
-          const shareUrl = window.location.protocol === 'file:'
-            ? 'https://earthlingo.app'
-            : window.location.href.split('#')[0];
-          const text = `Earthlingo Daily #${quizState.dailyDateKey} ${wins}/${total}\n${grid}\n${shareUrl}`;
-          const isFile = window.location.protocol === 'file:';
-          if (!isFile && navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(text).catch(() => {
-              if (E.router) E.router.copyTextFallback(text);
-            });
-          } else if (E.router) {
-            E.router.copyTextFallback(text);
-          }
-          copyBtn.textContent = '✓ Copied Grid!';
-          setTimeout(() => { copyBtn.textContent = 'Copy Shareable Result'; }, 2000);
-        });
-      }
-
-      const playFree = document.getElementById('quizPlayFreeBtn');
-      if (playFree) {
-        playFree.addEventListener('click', () => setQuizMode('globe'));
-      }
     }
   }
 
@@ -502,6 +498,9 @@
     const el = E.elements;
     const { escapeHtml } = E.utils;
     if (!el.quizDock) return;
+
+    const effectiveFeedback = feedbackOverride !== null ? feedbackOverride : quizState.lastFeedback;
+    quizState.lastFeedback = effectiveFeedback;
 
     el.quizDock.classList.toggle('open', E.state.isQuizActive);
     el.quizDock.setAttribute('aria-hidden', E.state.isQuizActive ? 'false' : 'true');
@@ -545,9 +544,7 @@
     const target = quizState.target;
     const clue = quizState.clue;
     const scriptGrp = target.__scriptGroup || E.geo.resolveCountryScriptGroup(target).name;
-    const resolvedScript = (E.labelFormatter && typeof E.labelFormatter.resolveCountryScriptMeta === 'function')
-      ? E.labelFormatter.resolveCountryScriptMeta(target)
-      : scriptGrp;
+    const resolvedScript = resolveTargetScriptLabel(target);
 
     // 1. Render Clue Box by Mode
     if (el.quizClueBox) {
@@ -601,14 +598,6 @@
           </div>
           ${hintLineHtml}
         `;
-
-        const speakBtn = document.getElementById('quizSpeakBtn');
-        if (speakBtn) {
-          speakBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            speakCurrentClue(speakBtn);
-          });
-        }
       }
     }
 
@@ -632,39 +621,15 @@
               </div>
             </div>
             <div class="quiz-action-btns">
-              ${quizState.mode === 'script' ? `<button type="button" id="quizMeetScriptBtn" class="quiz-btn-secondary" title="Open interactive script breakdown">Script ⓘ</button>` : ''}
+              ${quizState.mode === 'script' ? `<button type="button" id="quizMeetScriptBtn" class="quiz-btn-secondary" data-script="${escapeHtml(resolvedScript)}" title="Open interactive script breakdown">Script ⓘ</button>` : ''}
               <button type="button" id="quizViewProfileBtn" class="quiz-btn-secondary">Profile</button>
               <button type="button" id="quizNextBtn" class="quiz-btn-primary">${escapeHtml(nextLabel)}</button>
             </div>
           </div>
         `;
-
-        const scrBtn = document.getElementById('quizMeetScriptBtn');
-        if (scrBtn && E.scriptInspector) {
-          scrBtn.addEventListener('click', () => E.scriptInspector.openScript(resolvedScript, target));
-        }
-        const profBtn = document.getElementById('quizViewProfileBtn');
-        if (profBtn) {
-          profBtn.addEventListener('click', () => {
-            const c = quizState.target;
-            stopQuiz({ restoreOverlay: true, skipRouter: true });
-            if (c) E.drawer.selectCountry(c, true);
-          });
-        }
-        const nextBtn = document.getElementById('quizNextBtn');
-        if (nextBtn) {
-          nextBtn.addEventListener('click', () => {
-            if (isDailyLast) {
-              quizState.roundStatus = 'daily_done';
-              renderQuizDock();
-            } else {
-              pickNextRound(quizState.mode === 'globe' || quizState.mode === 'daily');
-            }
-          });
-        }
       } else {
-        const fbHtml = feedbackOverride
-          ? `<div class="quiz-guess-msg ${feedbackOverride.tone}">${escapeHtml(feedbackOverride.text)}</div>`
+        const fbHtml = effectiveFeedback
+          ? `<div class="quiz-guess-msg ${effectiveFeedback.tone}">${escapeHtml(effectiveFeedback.text)}</div>`
           : `<div class="quiz-guess-msg is-prompt">${quizState.mode === 'dialect' ? 'Pick the matching nation below (or click the 3D globe):' : 'Click the matching country on the 3D globe!'}</div>`;
 
         const dialectOptionsHtml = (quizState.mode === 'dialect' && quizState.dialectChallenge)
@@ -690,40 +655,6 @@
             ${quizState.mode !== 'daily' ? `<button type="button" id="quizSkipBtn" class="quiz-mini-btn">Skip</button>` : ''}
           </div>
         `;
-
-        el.quizFeedbackBox.querySelectorAll('.quiz-dialect-opt').forEach(optBtn => {
-          optBtn.addEventListener('click', () => {
-            const iso = optBtn.getAttribute('data-opt-iso');
-            const picked = (E.state.languagesDb && E.state.languagesDb[iso]) || { iso3: iso, name: iso };
-            handleGlobePick(picked);
-          });
-        });
-
-        const phBtn = document.getElementById('quizPhoneticToggleBtn');
-        const hBtn = document.getElementById('quizHintBtn');
-        const rBtn = document.getElementById('quizRevealBtn');
-        const sBtn = document.getElementById('quizSkipBtn');
-        if (phBtn) {
-          phBtn.addEventListener('click', () => {
-            quizState.showPhonetic = !quizState.showPhonetic;
-            renderQuizDock(feedbackOverride);
-          });
-        }
-        if (hBtn) {
-          hBtn.addEventListener('click', () => {
-            quizState.showRegionHint = true;
-            renderQuizDock(feedbackOverride);
-          });
-        }
-        if (rBtn) {
-          rBtn.addEventListener('click', finishQuizRoundReveal);
-        }
-        if (sBtn) {
-          sBtn.addEventListener('click', () => {
-            quizState.streak = 0;
-            pickNextRound(quizState.mode === 'globe');
-          });
-        }
       }
     }
 
@@ -757,7 +688,8 @@
     const text = hint
       ? `${hitCountry.name} — ${badge} (~${hint.distKm.toLocaleString()} km ${hint.bearing})`
       : `${hitCountry.name} — Not quite, try another nation!`;
-    renderQuizDock({ tone, text });
+    quizState.lastFeedback = { tone, text };
+    renderQuizDock(quizState.lastFeedback);
     return true;
   }
 
@@ -770,13 +702,10 @@
 
     // Close competing UI drawers/modals/filters cleanly so the globe is bright and unobscured
     E.drawer.closeCountryDrawer({ skipRouter: true });
-    if (E.compare && typeof E.compare.closeCompareModal === 'function') {
-      E.compare.closeCompareModal({ skipRouter: true });
-    }
-    if (E.passport && typeof E.passport.closePassportModal === 'function') E.passport.closePassportModal();
-    if (E.trip && typeof E.trip.closeTripModal === 'function') E.trip.closeTripModal();
-    if (E.scriptInspector && typeof E.scriptInspector.closeScriptModal === 'function') E.scriptInspector.closeScriptModal();
     if (E.pins && typeof E.pins.closePinInspector === 'function') E.pins.closePinInspector();
+    if (E.utils && typeof E.utils.closeAllModals === 'function') {
+      E.utils.closeAllModals({ skipRouter: true, skipFocusRestore: true });
+    }
 
     if (E.state.activeTimeEra && E.state.activeTimeEra !== 'today' && E.controls && typeof E.controls.setTimeEra === 'function') {
       E.controls.setTimeEra('today', { skipRouter: true });
@@ -791,14 +720,6 @@
       E.state.showArcs = false;
       if (E.elements.toggleArcsBtn) E.elements.toggleArcsBtn.classList.remove('active');
       E.arcs.updateArcs();
-    }
-    if (E.elements.listModal) {
-      E.elements.listModal.classList.remove('open');
-      E.elements.listModal.setAttribute('aria-hidden', 'true');
-    }
-    if (E.elements.infoModal) {
-      E.elements.infoModal.classList.remove('open');
-      E.elements.infoModal.setAttribute('aria-hidden', 'true');
     }
     if (E.state.isOverlayMenuOpen) {
       E.state.isOverlayMenuOpen = false;
@@ -817,6 +738,7 @@
 
     E.state.isQuizActive = true;
     quizState.roundStatus = 'idle';
+    quizState.lastFeedback = null;
     if (E.elements.quizScopeSelect) E.elements.quizScopeSelect.value = quizState.scope;
     pickNextRound(quizState.mode === 'globe' || quizState.mode === 'daily');
     E.tooltip.hideTooltip();
@@ -827,6 +749,7 @@
     E.state.isQuizActive = false;
     E.state.quizHighlightIso = null;
     E.state.quizHighlightColor = null;
+    quizState.lastFeedback = null;
 
     if (elDock()) {
       elDock().classList.remove('open');
@@ -854,9 +777,10 @@
   }
 
   function initQuiz() {
+    if (quizEventsBound) return;
+    quizEventsBound = true;
+
     const el = E.elements;
-    el.quizModeBar = document.getElementById('quizModeBar');
-    el.quizScopeRow = document.getElementById('quizScopeRow');
 
     if (el.openQuizBtn) {
       el.openQuizBtn.addEventListener('click', () => {
@@ -868,16 +792,107 @@
       el.closeQuizBtn.addEventListener('click', () => stopQuiz({ restoreOverlay: true }));
     }
     if (el.quizModeBar) {
-      el.quizModeBar.querySelectorAll('[data-quiz-mode]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          setQuizMode(btn.getAttribute('data-quiz-mode'));
-        });
+      el.quizModeBar.addEventListener('click', (e) => {
+        const btn = e.target && e.target.closest('[data-quiz-mode]');
+        if (btn) setQuizMode(btn.getAttribute('data-quiz-mode'));
       });
     }
     if (el.quizScopeSelect) {
       el.quizScopeSelect.addEventListener('change', (e) => {
         quizState.scope = e.target.value || 'all';
         if (E.state.isQuizActive && quizState.mode !== 'daily') {
+          pickNextRound(quizState.mode === 'globe');
+        }
+      });
+    }
+    if (el.quizClueBox) {
+      el.quizClueBox.addEventListener('click', (e) => {
+        const speakBtn = e.target && e.target.closest('#quizSpeakBtn');
+        if (!speakBtn) return;
+        e.stopPropagation();
+        speakCurrentClue(speakBtn);
+      });
+    }
+    if (el.quizFeedbackBox) {
+      el.quizFeedbackBox.addEventListener('click', (e) => {
+        const tgt = e.target;
+        if (!tgt) return;
+
+        const copyBtn = tgt.closest('#quizCopyDailyBtn');
+        if (copyBtn) {
+          const { wins, total, grid } = getDailySummaryStats();
+          const shareUrl = window.location.protocol === 'file:'
+            ? 'https://earthlingo.app'
+            : window.location.href.split('#')[0];
+          const text = `Earthlingo Daily #${quizState.dailyDateKey} ${wins}/${total}\n${grid}\n${shareUrl}`;
+          E.utils.copyTextToClipboard(text);
+          copyBtn.textContent = '✓ Copied Grid!';
+          setTimeout(() => {
+            if (copyBtn.isConnected) copyBtn.textContent = 'Copy Shareable Result';
+          }, 2000);
+          return;
+        }
+
+        if (tgt.closest('#quizPlayFreeBtn')) {
+          setQuizMode('globe');
+          return;
+        }
+
+        const scrBtn = tgt.closest('#quizMeetScriptBtn');
+        if (scrBtn && E.scriptInspector) {
+          const scrLabel = scrBtn.getAttribute('data-script') || resolveTargetScriptLabel(quizState.target);
+          E.scriptInspector.openScript(scrLabel, quizState.target);
+          return;
+        }
+
+        if (tgt.closest('#quizViewProfileBtn')) {
+          const c = quizState.target;
+          stopQuiz({ restoreOverlay: true, skipRouter: true });
+          if (c) E.drawer.selectCountry(c, true);
+          return;
+        }
+
+        if (tgt.closest('#quizNextBtn')) {
+          const isDailyLast = quizState.mode === 'daily' && quizState.dailyIndex >= quizState.dailyTargets.length - 1;
+          if (isDailyLast) {
+            quizState.roundStatus = 'daily_done';
+            E.state.quizHighlightIso = null;
+            E.state.quizHighlightColor = null;
+            E.polygons.refreshPolygonVisuals();
+            renderQuizDock();
+          } else {
+            pickNextRound(quizState.mode === 'globe' || quizState.mode === 'daily');
+          }
+          return;
+        }
+
+        const optBtn = tgt.closest('.quiz-dialect-opt[data-opt-iso]');
+        if (optBtn) {
+          const iso = optBtn.getAttribute('data-opt-iso');
+          const picked = (E.state.languagesDb && E.state.languagesDb[iso]) || { iso3: iso, name: iso };
+          handleGlobePick(picked);
+          return;
+        }
+
+        if (tgt.closest('#quizPhoneticToggleBtn')) {
+          quizState.showPhonetic = !quizState.showPhonetic;
+          renderQuizDock(quizState.lastFeedback);
+          return;
+        }
+
+        if (tgt.closest('#quizHintBtn')) {
+          quizState.showRegionHint = true;
+          renderQuizDock(quizState.lastFeedback);
+          return;
+        }
+
+        if (tgt.closest('#quizRevealBtn')) {
+          finishQuizRoundReveal();
+          return;
+        }
+
+        if (tgt.closest('#quizSkipBtn')) {
+          quizState.streak = 0;
           pickNextRound(quizState.mode === 'globe');
         }
       });
@@ -908,6 +923,7 @@
     setQuizMode,
     pickNextRound,
     handleGlobePick,
+    resolveTargetScriptLabel,
     getDebugState
   };
 })(window);

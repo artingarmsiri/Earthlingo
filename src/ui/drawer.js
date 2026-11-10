@@ -4,6 +4,33 @@
 
   const E = (global.Earthlingo = global.Earthlingo || {});
 
+  let drawerEventsBound = false;
+  let gesturesBound = false;
+  let currentRenderedCountry = null;
+  let currentRenderedHotspots = [];
+  let currentRenderedPhrases = [];
+  let currentRenderedOrigin = null;
+  let cachedSpeechVoices = null;
+
+  function clearDrawerHudSyncListeners() {
+    const drawer = E.elements.countryDrawer;
+    if (drawer) {
+      if (drawer._hudSyncTimer) {
+        clearTimeout(drawer._hudSyncTimer);
+        drawer._hudSyncTimer = null;
+      }
+      if (drawer._hudTransFn) {
+        drawer.removeEventListener('transitionend', drawer._hudTransFn);
+        drawer._hudTransFn = null;
+      }
+    }
+    const bar = E.elements.globeControlsBar;
+    if (bar && bar._hudTransFn) {
+      bar.removeEventListener('transitionend', bar._hudTransFn);
+      bar._hudTransFn = null;
+    }
+  }
+
   function measureSheetPeekHeight(vh) {
     const hdr = E.elements.drawerHeader;
     const hdrH = hdr ? Math.ceil(hdr.getBoundingClientRect().height) : 116;
@@ -20,6 +47,7 @@
   function setMobileDrawerSnap(snap, clearInline = true) {
     const drawer = E.elements.countryDrawer;
     if (!drawer) return;
+    clearDrawerHudSyncListeners();
     const targetSnap = (snap === 'peek' || snap === 'half' || snap === 'full') ? snap : 'half';
     E.state.mobileDrawerSnap = targetSnap;
 
@@ -154,6 +182,10 @@
   function renderCountryDrawer(c, opts = {}) {
     const el = E.elements;
     const { escapeHtml } = E.utils;
+    currentRenderedCountry = c;
+    currentRenderedHotspots = [];
+    currentRenderedOrigin = null;
+    currentRenderedPhrases = c.phrases || [];
 
     if (el.drawerBody) {
       el.drawerBody.scrollTop = 0;
@@ -233,26 +265,7 @@
       }
       el.drawerEndangeredCallout.innerHTML = calloutHtml;
       el.drawerEndangeredCallout.hidden = !calloutHtml;
-
-      el.drawerEndangeredCallout.querySelectorAll('.drawer-pin-jump-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const pinId = btn.getAttribute('data-pin-id');
-          const pin = hotspots.find(h => h.id === pinId);
-          if (!pin) return;
-          if (!E.state.showEndangeredPins && E.controls && typeof E.controls.toggleEndangeredPins === 'function') {
-            E.controls.toggleEndangeredPins(true);
-          }
-          if (E.pins && typeof E.pins.openPinInspector === 'function') {
-            E.pins.openPinInspector(pin);
-          }
-          if (E.state.globe) {
-            E.state.globe.pointOfView({ lat: pin.lat, lng: pin.lng, altitude: Math.min(1.6, E.utils.getSelectAltitude()) }, 650);
-          }
-          if (E.utils.isBottomSheetLayout()) {
-            setMobileDrawerSnap('peek', true);
-          }
-        });
-      });
+      currentRenderedHotspots = hotspots;
     }
 
     if (el.drawerOriginSection && el.drawerOriginCard) {
@@ -261,6 +274,7 @@
         ? ORIGINS.resolveCountryOrigin(c)
         : null;
       if (origin) {
+        currentRenderedOrigin = origin;
         el.drawerOriginSection.style.display = 'flex';
         if (el.drawerOriginEra) {
           const rawEra = (origin.era || '').split('•')[0].replace(/\([^)]*\)/g, '').replace(/\s*→\s*c\.\s*/g, ' → ').replace(/\s+/g, ' ').trim();
@@ -310,28 +324,6 @@
             </button>
           ` : ''}
         `;
-
-        const animBtn = document.getElementById('animateCountryOriginBtn');
-        if (animBtn) {
-          animBtn.addEventListener('click', () => {
-            const currentlyActive = Boolean(E.state.showArcs && E.state.activeOriginCorridor === 'country');
-            if (currentlyActive) {
-              E.state.showArcs = false;
-              if (el.toggleArcsBtn) el.toggleArcsBtn.classList.remove('active');
-              E.arcs.updateArcs();
-            } else {
-              E.state.showArcs = true;
-              E.state.activeOriginCorridor = 'country';
-              if (el.toggleArcsBtn) el.toggleArcsBtn.classList.add('active');
-              E.arcs.updateArcs();
-              E.arcs.frameCountryOriginCamera(c, origin);
-            }
-            E.arcs.syncDrawerOriginButton();
-            if (E.router && typeof E.router.syncUrlHash === 'function') {
-              E.router.syncUrlHash();
-            }
-          });
-        }
       } else {
         el.drawerOriginSection.style.display = 'none';
       }
@@ -417,48 +409,6 @@
           </div>
         `;
       }).join('');
-
-      el.drawerLanguagesList.querySelectorAll('.is-script-trigger').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const scr = btn.getAttribute('data-script');
-          if (E.scriptInspector && typeof E.scriptInspector.openScript === 'function') {
-            E.scriptInspector.openScript(scr, c);
-          }
-        });
-      });
-
-      el.drawerLanguagesList.querySelectorAll('.language-card[data-default-token]').forEach(card => {
-        const triggerDefault = () => {
-          const tok = card.getAttribute('data-default-token');
-          const col = card.getAttribute('data-default-color');
-          if (tok && E.controls && typeof E.controls.filterBySpokenLanguage === 'function') {
-            E.controls.filterBySpokenLanguage(tok, col);
-          }
-        };
-        card.addEventListener('click', (e) => {
-          if (e.target && e.target.closest('.lang-spotlight-chip, .is-script-trigger')) return;
-          triggerDefault();
-        });
-        card.addEventListener('keydown', (e) => {
-          if (e.target && e.target !== card) return;
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            triggerDefault();
-          }
-        });
-      });
-
-      el.drawerLanguagesList.querySelectorAll('.lang-spotlight-chip').forEach(chip => {
-        chip.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const tok = chip.getAttribute('data-spotlight-token');
-          const col = chip.getAttribute('data-spotlight-color');
-          if (tok && E.controls && typeof E.controls.filterBySpokenLanguage === 'function') {
-            E.controls.filterBySpokenLanguage(tok, col);
-          }
-        });
-      });
     }
 
     // Accents & Regional Dialects
@@ -513,17 +463,6 @@
           </div>
         `;
       }).join('');
-
-      el.drawerPhrasesList.querySelectorAll('.speak-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const idx = parseInt(btn.getAttribute('data-phrase-idx'), 10);
-          const phrase = phrases[idx];
-          if (phrase) {
-            playSpeechSynthesis(phrase.text, phrase.bcp47 || 'en-US', btn);
-          }
-        });
-      });
     }
 
     el.drawerFunFact.textContent = c.funFact || `${c.name} has a captivating linguistic history with rich local spoken traditions!`;
@@ -572,6 +511,7 @@
   function closeCountryDrawer(opts = {}) {
     const drawer = E.elements.countryDrawer;
     if (!drawer) return;
+    clearDrawerHudSyncListeners();
     drawer.classList.remove('open', 'is-dragging', 'snap-peek', 'snap-half', 'snap-full');
     drawer.style.height = '';
     drawer.style.transform = '';
@@ -608,7 +548,8 @@
     const drawer = E.elements.countryDrawer;
     const header = E.elements.drawerHeader;
     const body = E.elements.drawerBody;
-    if (!drawer || !header) return;
+    if (!drawer || !header || gesturesBound) return;
+    gesturesBound = true;
 
     if (E.elements.drawerCompareBtn) {
       E.elements.drawerCompareBtn.addEventListener('click', (e) => {
@@ -903,9 +844,16 @@
     no: ['no', 'nb', 'nn']
   };
 
+  function getSpeechVoices() {
+    if (!('speechSynthesis' in window)) return [];
+    if (cachedSpeechVoices && cachedSpeechVoices.length > 0) return cachedSpeechVoices;
+    cachedSpeechVoices = window.speechSynthesis.getVoices() || [];
+    return cachedSpeechVoices;
+  }
+
   function findSpeechVoice(bcp47) {
     if (!('speechSynthesis' in window)) return null;
-    const voices = window.speechSynthesis.getVoices() || [];
+    const voices = getSpeechVoices();
     if (voices.length === 0) return null;
     const target = String(bcp47 || 'en-US').toLowerCase().replace('_', '-');
     const base = target.split('-')[0];
@@ -925,7 +873,7 @@
     if (!('speechSynthesis' in window)) {
       return { supported: false, voicesLoaded: false, hasLocalVoice: false, voice: null };
     }
-    const voices = window.speechSynthesis.getVoices() || [];
+    const voices = getSpeechVoices();
     const voice = findSpeechVoice(bcp47);
     return {
       supported: true,
@@ -947,8 +895,13 @@
     });
   }
 
+  function handleVoicesChanged() {
+    cachedSpeechVoices = null;
+    refreshVisiblePhraseHints();
+  }
+
   if ('speechSynthesis' in window && typeof window.speechSynthesis.addEventListener === 'function') {
-    window.speechSynthesis.addEventListener('voiceschanged', refreshVisiblePhraseHints);
+    window.speechSynthesis.addEventListener('voiceschanged', handleVoicesChanged);
   }
 
   function playSpeechSynthesis(text, bcp47, buttonEl, hintEl) {
@@ -993,6 +946,123 @@
     }
   }
 
+  function initDrawer() {
+    if (drawerEventsBound) return;
+    drawerEventsBound = true;
+    const el = E.elements;
+
+    if (el.drawerEndangeredCallout) {
+      el.drawerEndangeredCallout.addEventListener('click', (e) => {
+        const btn = e.target && e.target.closest('.drawer-pin-jump-btn[data-pin-id]');
+        if (!btn) return;
+        const pinId = btn.getAttribute('data-pin-id');
+        const pin = currentRenderedHotspots.find(h => h.id === pinId);
+        if (!pin) return;
+        if (!E.state.showEndangeredPins && E.controls && typeof E.controls.toggleEndangeredPins === 'function') {
+          E.controls.toggleEndangeredPins(true);
+        }
+        if (E.pins && typeof E.pins.openPinInspector === 'function') {
+          E.pins.openPinInspector(pin);
+        }
+        if (E.state.globe) {
+          E.state.globe.pointOfView({ lat: pin.lat, lng: pin.lng, altitude: Math.min(1.6, E.utils.getSelectAltitude()) }, 650);
+        }
+        if (E.utils.isBottomSheetLayout()) {
+          setMobileDrawerSnap('peek', true);
+        }
+      });
+    }
+
+    if (el.drawerOriginCard) {
+      el.drawerOriginCard.addEventListener('click', (e) => {
+        const animBtn = e.target && e.target.closest('#animateCountryOriginBtn');
+        if (!animBtn) return;
+        const c = currentRenderedCountry || E.state.selectedCountry;
+        const currentlyActive = Boolean(E.state.showArcs && E.state.activeOriginCorridor === 'country');
+        if (currentlyActive) {
+          E.state.showArcs = false;
+          if (el.toggleArcsBtn) el.toggleArcsBtn.classList.remove('active');
+          E.arcs.updateArcs();
+        } else {
+          E.state.showArcs = true;
+          E.state.activeOriginCorridor = 'country';
+          if (el.toggleArcsBtn) el.toggleArcsBtn.classList.add('active');
+          E.arcs.updateArcs();
+          if (c && currentRenderedOrigin) {
+            E.arcs.frameCountryOriginCamera(c, currentRenderedOrigin);
+          }
+        }
+        E.arcs.syncDrawerOriginButton();
+        if (E.router && typeof E.router.syncUrlHash === 'function') {
+          E.router.syncUrlHash();
+        }
+      });
+    }
+
+    if (el.drawerLanguagesList) {
+      el.drawerLanguagesList.addEventListener('click', (e) => {
+        const tgt = e.target;
+        if (!tgt) return;
+
+        const scrBtn = tgt.closest('.is-script-trigger');
+        if (scrBtn) {
+          e.stopPropagation();
+          const scr = scrBtn.getAttribute('data-script');
+          if (E.scriptInspector && typeof E.scriptInspector.openScript === 'function') {
+            E.scriptInspector.openScript(scr, currentRenderedCountry || E.state.selectedCountry);
+          }
+          return;
+        }
+
+        const chip = tgt.closest('.lang-spotlight-chip');
+        if (chip) {
+          e.stopPropagation();
+          const tok = chip.getAttribute('data-spotlight-token');
+          const col = chip.getAttribute('data-spotlight-color');
+          if (tok && E.controls && typeof E.controls.filterBySpokenLanguage === 'function') {
+            E.controls.filterBySpokenLanguage(tok, col);
+          }
+          return;
+        }
+
+        const card = tgt.closest('.language-card[data-default-token]');
+        if (card) {
+          const tok = card.getAttribute('data-default-token');
+          const col = card.getAttribute('data-default-color');
+          if (tok && E.controls && typeof E.controls.filterBySpokenLanguage === 'function') {
+            E.controls.filterBySpokenLanguage(tok, col);
+          }
+        }
+      });
+
+      el.drawerLanguagesList.addEventListener('keydown', (e) => {
+        const card = e.target && e.target.matches && e.target.matches('.language-card[data-default-token]') ? e.target : null;
+        if (!card) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const tok = card.getAttribute('data-default-token');
+          const col = card.getAttribute('data-default-color');
+          if (tok && E.controls && typeof E.controls.filterBySpokenLanguage === 'function') {
+            E.controls.filterBySpokenLanguage(tok, col);
+          }
+        }
+      });
+    }
+
+    if (el.drawerPhrasesList) {
+      el.drawerPhrasesList.addEventListener('click', (e) => {
+        const btn = e.target && e.target.closest('.speak-btn[data-phrase-idx]');
+        if (!btn) return;
+        e.stopPropagation();
+        const idx = parseInt(btn.getAttribute('data-phrase-idx'), 10);
+        const phrase = currentRenderedPhrases[idx];
+        if (phrase) {
+          playSpeechSynthesis(phrase.text, phrase.bcp47 || 'en-US', btn);
+        }
+      });
+    }
+  }
+
   E.drawer = {
     getSheetMetrics,
     setMobileDrawerSnap,
@@ -1003,6 +1073,7 @@
     setupMobileDrawerGestures,
     findSpeechVoice,
     checkVoiceSupport,
-    playSpeechSynthesis
+    playSpeechSynthesis,
+    initDrawer
   };
 })(window);

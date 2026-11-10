@@ -15,6 +15,8 @@
   };
 
   let cache = null;
+  let passportEventsBound = false;
+  let passportResetArmed = false;
 
   function loadData() {
     if (cache) return cache;
@@ -102,17 +104,206 @@
     return keys.length;
   }
 
-  function closeOtherOverlays() {
-    if (E.compare && E.state.isCompareOpen) E.compare.closeCompareModal({ skipRouter: true, skipFocusRestore: true });
-    if (E.trip && E.state.tripModalOpen) E.trip.closeTripModal({ skipFocusRestore: true });
-    if (E.scriptInspector && typeof E.scriptInspector.closeScriptModal === 'function') {
-      E.scriptInspector.closeScriptModal({ skipFocusRestore: true });
+  function showPassportStatus(msg, isErr) {
+    const statusEl = document.getElementById('passportStatusMsg');
+    if (!statusEl) return;
+    statusEl.textContent = msg;
+    statusEl.classList.toggle('is-error', Boolean(isErr));
+    statusEl.classList.toggle('is-success', !isErr && Boolean(msg));
+  }
+
+  function renderPassportModal(opts = {}) {
+    const body = E.elements.passportModalBody;
+    if (!body) return;
+    passportResetArmed = false;
+    const d = loadData();
+    const { escapeHtml } = E.utils;
+    const totalNations = (E.state.countriesList && E.state.countriesList.length) || 242;
+    const scriptGroups = (E.config && E.config.SCRIPT_GROUPS) || [];
+    const totalScripts = scriptGroups.length || 9;
+    const acc = d.quizAttempts > 0 ? Math.round((d.quizWins / d.quizAttempts) * 100) : 0;
+    const dailyCount = getDailyStreakCount();
+
+    const scriptCards = scriptGroups.map(sg => {
+      const unlocked = d.unlockedScripts.includes(sg.name);
+      return `
+        <button type="button" class="passport-script-stamp ${unlocked ? 'unlocked' : 'locked'}" data-script="${escapeHtml(sg.name)}">
+          <span class="passport-stamp-dot" style="background:${unlocked ? sg.color : '#334155'};"></span>
+          <span class="passport-stamp-name">${escapeHtml(sg.name)}</span>
+          <span class="passport-stamp-state">${unlocked ? '✓ Unlocked' : 'Locked'}</span>
+        </button>
+      `;
+    }).join('');
+
+    const db = E.state.languagesDb || {};
+    const recentIsos = d.visitedIsos.slice().reverse().slice(0, 36);
+    const stampsHtml = recentIsos.length > 0
+      ? recentIsos.map(iso => {
+          const c = db[iso];
+          if (!c) return '';
+          return `
+            <button type="button" class="passport-country-pill" data-iso="${escapeHtml(iso)}">
+              <span>${c.flag || '🌐'}</span>
+              <span>${escapeHtml(c.name)}</span>
+            </button>
+          `;
+        }).join('')
+      : '<p class="passport-empty">Click any country on the 3D globe to collect your first Linguistic Passport stamps!</p>';
+
+    const statusClass = opts.isError ? 'is-error' : (opts.statusText ? 'is-success' : '');
+
+    body.innerHTML = `
+      <div class="passport-stats-grid">
+        <div class="passport-stat-card">
+          <div class="passport-stat-val">${d.visitedIsos.length} <span class="passport-stat-denom">/ ${totalNations}</span></div>
+          <div class="passport-stat-lbl">Nations Explored</div>
+        </div>
+        <div class="passport-stat-card">
+          <div class="passport-stat-val">${d.unlockedScripts.length} <span class="passport-stat-denom">/ ${totalScripts}</span></div>
+          <div class="passport-stat-lbl">Writing Scripts Unlocked</div>
+        </div>
+        <div class="passport-stat-card">
+          <div class="passport-stat-val">${d.quizWins} <span class="passport-stat-denom">(${acc}%)</span></div>
+          <div class="passport-stat-lbl">Quiz Wins • Best Streak ${d.bestStreak}</div>
+        </div>
+        <div class="passport-stat-card">
+          <div class="passport-stat-val">${dailyCount}</div>
+          <div class="passport-stat-lbl">Daily Challenges Finished</div>
+        </div>
+      </div>
+
+      <div class="passport-section-head">Writing Script Collection (Click to Spotlight)</div>
+      <div class="passport-script-grid">${scriptCards}</div>
+
+      <div class="passport-section-head">Collected Country Stamps (${d.visitedIsos.length})</div>
+      <div class="passport-countries-grid">${stampsHtml}</div>
+
+      <div class="passport-footer-actions">
+        <span id="passportStatusMsg" class="data-io-status ${statusClass}" role="status" aria-live="polite">${escapeHtml(opts.statusText || '')}</span>
+        <div class="data-io-group">
+          <button type="button" class="data-io-btn" id="passportExportBtn">Export JSON</button>
+          <button type="button" class="data-io-btn" id="passportImportBtn">Import JSON</button>
+          <input type="file" id="passportImportInput" accept=".json,application/json" hidden>
+          <button type="button" class="passport-reset-btn" id="passportResetBtn">Reset Progress</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function openPassportModal() {
+    const modal = E.elements.passportModal;
+    if (!modal) return;
+    if (E.utils && typeof E.utils.closeAllModals === 'function') {
+      E.utils.closeAllModals({ except: modal, skipRouter: true, skipFocusRestore: true });
     }
-    if (E.elements.listModal && E.elements.listModal.classList.contains('open')) {
-      E.utils.closeModal(E.elements.listModal, { skipFocusRestore: true });
+    renderPassportModal();
+    E.utils.openModal(modal, { initialFocus: E.elements.closePassportModalBtn });
+  }
+
+  function closePassportModal(opts = {}) {
+    const modal = E.elements.passportModal;
+    if (!modal) return;
+    E.utils.closeModal(modal, opts);
+  }
+
+  function initPassport() {
+    syncNavBadge();
+    if (passportEventsBound) return;
+    passportEventsBound = true;
+
+    const el = E.elements;
+    if (el.openPassportBtn) {
+      el.openPassportBtn.addEventListener('click', openPassportModal);
     }
-    if (E.elements.infoModal && E.elements.infoModal.classList.contains('open')) {
-      E.utils.closeModal(E.elements.infoModal, { skipFocusRestore: true });
+    if (el.closePassportModalBtn) {
+      el.closePassportModalBtn.addEventListener('click', () => closePassportModal());
+    }
+    if (el.passportModal) {
+      el.passportModal.addEventListener('click', (e) => {
+        if (e.target === el.passportModal) closePassportModal();
+      });
+    }
+    if (el.passportModalBody) {
+      el.passportModalBody.addEventListener('change', (e) => {
+        const tgt = e.target;
+        if (!tgt || tgt.id !== 'passportImportInput') return;
+        const file = tgt.files && tgt.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const res = importPassportData(String(reader.result || ''));
+          if (res.ok) {
+            renderPassportModal({
+              statusText: `✓ Imported ${res.data.visitedIsos.length} nations & ${res.data.unlockedScripts.length} scripts`
+            });
+            const reBtn = document.getElementById('passportImportBtn');
+            if (reBtn) reBtn.focus();
+          } else {
+            showPassportStatus(`✕ ${res.error}`, true);
+          }
+        };
+        reader.onerror = () => showPassportStatus('✕ Unable to read selected file.', true);
+        reader.readAsText(file);
+      });
+
+      el.passportModalBody.addEventListener('click', (e) => {
+        const tgt = e.target;
+        if (!tgt) return;
+
+        const scriptBtn = tgt.closest('.passport-script-stamp[data-script]');
+        if (scriptBtn) {
+          const scr = scriptBtn.getAttribute('data-script');
+          const scriptGroups = (E.config && E.config.SCRIPT_GROUPS) || [];
+          const sg = scriptGroups.find(x => x.name === scr);
+          closePassportModal({ skipFocusRestore: true });
+          if (E.controls && typeof E.controls.filterByScriptGroup === 'function') {
+            E.controls.filterByScriptGroup(scr, (sg && sg.color) || '#38bdf8', { forceOn: true });
+          }
+          return;
+        }
+
+        const pillBtn = tgt.closest('.passport-country-pill[data-iso]');
+        if (pillBtn) {
+          const db = E.state.languagesDb || {};
+          const c = db[pillBtn.getAttribute('data-iso')];
+          if (c && E.drawer) {
+            closePassportModal({ skipFocusRestore: true });
+            E.drawer.selectCountry(c, true);
+          }
+          return;
+        }
+
+        if (tgt.closest('#passportExportBtn')) {
+          const payload = exportPassportData();
+          const dateTag = new Date().toISOString().slice(0, 10);
+          E.utils.downloadJsonFile(`earthlingo-passport-${dateTag}.json`, payload);
+          showPassportStatus(`✓ Exported ${payload.data.visitedIsos.length} nations`, false);
+          return;
+        }
+
+        if (tgt.closest('#passportImportBtn')) {
+          const importInput = document.getElementById('passportImportInput');
+          if (importInput) {
+            importInput.value = '';
+            importInput.click();
+          }
+          return;
+        }
+
+        const resetBtn = tgt.closest('#passportResetBtn');
+        if (resetBtn) {
+          if (!passportResetArmed) {
+            passportResetArmed = true;
+            resetBtn.textContent = 'Click again to confirm reset';
+            resetBtn.classList.add('armed');
+            return;
+          }
+          resetPassportData();
+          renderPassportModal({ statusText: '✓ Passport progress reset' });
+          const reReset = document.getElementById('passportResetBtn');
+          if (reReset) reReset.focus();
+        }
+      });
     }
   }
 
@@ -214,199 +405,6 @@
     cache = Object.assign({}, DEFAULT_DATA, { visitedIsos: [], unlockedScripts: [], dailyResults: {} });
     saveData();
     return cache;
-  }
-
-  function renderPassportModal(opts = {}) {
-    const body = E.elements.passportModalBody;
-    if (!body) return;
-    const d = loadData();
-    const { escapeHtml } = E.utils;
-    const totalNations = (E.state.countriesList && E.state.countriesList.length) || 242;
-    const scriptGroups = (E.config && E.config.SCRIPT_GROUPS) || [];
-    const totalScripts = scriptGroups.length || 9;
-    const acc = d.quizAttempts > 0 ? Math.round((d.quizWins / d.quizAttempts) * 100) : 0;
-    const dailyCount = getDailyStreakCount();
-
-    const scriptCards = scriptGroups.map(sg => {
-      const unlocked = d.unlockedScripts.includes(sg.name);
-      return `
-        <button type="button" class="passport-script-stamp ${unlocked ? 'unlocked' : 'locked'}" data-script="${escapeHtml(sg.name)}">
-          <span class="passport-stamp-dot" style="background:${unlocked ? sg.color : '#334155'};"></span>
-          <span class="passport-stamp-name">${escapeHtml(sg.name)}</span>
-          <span class="passport-stamp-state">${unlocked ? '✓ Unlocked' : 'Locked'}</span>
-        </button>
-      `;
-    }).join('');
-
-    const db = E.state.languagesDb || {};
-    const recentIsos = d.visitedIsos.slice().reverse().slice(0, 36);
-    const stampsHtml = recentIsos.length > 0
-      ? recentIsos.map(iso => {
-          const c = db[iso];
-          if (!c) return '';
-          return `
-            <button type="button" class="passport-country-pill" data-iso="${escapeHtml(iso)}">
-              <span>${c.flag || '🌐'}</span>
-              <span>${escapeHtml(c.name)}</span>
-            </button>
-          `;
-        }).join('')
-      : '<p class="passport-empty">Click any country on the 3D globe to collect your first Linguistic Passport stamps!</p>';
-
-    const statusClass = opts.isError ? 'is-error' : (opts.statusText ? 'is-success' : '');
-
-    body.innerHTML = `
-      <div class="passport-stats-grid">
-        <div class="passport-stat-card">
-          <div class="passport-stat-val">${d.visitedIsos.length} <span class="passport-stat-denom">/ ${totalNations}</span></div>
-          <div class="passport-stat-lbl">Nations Explored</div>
-        </div>
-        <div class="passport-stat-card">
-          <div class="passport-stat-val">${d.unlockedScripts.length} <span class="passport-stat-denom">/ ${totalScripts}</span></div>
-          <div class="passport-stat-lbl">Writing Scripts Unlocked</div>
-        </div>
-        <div class="passport-stat-card">
-          <div class="passport-stat-val">${d.quizWins} <span class="passport-stat-denom">(${acc}%)</span></div>
-          <div class="passport-stat-lbl">Quiz Wins • Best Streak ${d.bestStreak}</div>
-        </div>
-        <div class="passport-stat-card">
-          <div class="passport-stat-val">${dailyCount}</div>
-          <div class="passport-stat-lbl">Daily Challenges Finished</div>
-        </div>
-      </div>
-
-      <div class="passport-section-head">Writing Script Collection (Click to Spotlight)</div>
-      <div class="passport-script-grid">${scriptCards}</div>
-
-      <div class="passport-section-head">Collected Country Stamps (${d.visitedIsos.length})</div>
-      <div class="passport-countries-grid">${stampsHtml}</div>
-
-      <div class="passport-footer-actions">
-        <span id="passportStatusMsg" class="data-io-status ${statusClass}" role="status" aria-live="polite">${escapeHtml(opts.statusText || '')}</span>
-        <div class="data-io-group">
-          <button type="button" class="data-io-btn" id="passportExportBtn">Export JSON</button>
-          <button type="button" class="data-io-btn" id="passportImportBtn">Import JSON</button>
-          <input type="file" id="passportImportInput" accept=".json,application/json" hidden>
-          <button type="button" class="passport-reset-btn" id="passportResetBtn">Reset Progress</button>
-        </div>
-      </div>
-    `;
-
-    body.querySelectorAll('.passport-script-stamp').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const scr = btn.getAttribute('data-script');
-        const sg = scriptGroups.find(x => x.name === scr);
-        closePassportModal({ skipFocusRestore: true });
-        if (E.controls && typeof E.controls.filterByScriptGroup === 'function') {
-          E.controls.filterByScriptGroup(scr, (sg && sg.color) || '#38bdf8', { forceOn: true });
-        }
-      });
-    });
-
-    body.querySelectorAll('.passport-country-pill').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const iso = btn.getAttribute('data-iso');
-        const c = db[iso];
-        if (c && E.drawer) {
-          closePassportModal({ skipFocusRestore: true });
-          E.drawer.selectCountry(c, true);
-        }
-      });
-    });
-
-    const exportBtn = document.getElementById('passportExportBtn');
-    const importBtn = document.getElementById('passportImportBtn');
-    const importInput = document.getElementById('passportImportInput');
-    const statusEl = document.getElementById('passportStatusMsg');
-
-    const showPassportStatus = (msg, isErr) => {
-      if (!statusEl) return;
-      statusEl.textContent = msg;
-      statusEl.classList.toggle('is-error', Boolean(isErr));
-      statusEl.classList.toggle('is-success', !isErr && Boolean(msg));
-    };
-
-    if (exportBtn) {
-      exportBtn.addEventListener('click', () => {
-        const payload = exportPassportData();
-        const dateTag = new Date().toISOString().slice(0, 10);
-        E.utils.downloadJsonFile(`earthlingo-passport-${dateTag}.json`, payload);
-        showPassportStatus(`✓ Exported ${payload.data.visitedIsos.length} nations`, false);
-      });
-    }
-
-    if (importBtn && importInput) {
-      importBtn.addEventListener('click', () => {
-        importInput.value = '';
-        importInput.click();
-      });
-      importInput.addEventListener('change', (e) => {
-        const file = e.target && e.target.files && e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = () => {
-          const res = importPassportData(String(reader.result || ''));
-          if (res.ok) {
-            renderPassportModal({
-              statusText: `✓ Imported ${res.data.visitedIsos.length} nations & ${res.data.unlockedScripts.length} scripts`
-            });
-            const reBtn = document.getElementById('passportImportBtn');
-            if (reBtn) reBtn.focus();
-          } else {
-            showPassportStatus(`✕ ${res.error}`, true);
-          }
-        };
-        reader.onerror = () => showPassportStatus('✕ Unable to read selected file.', true);
-        reader.readAsText(file);
-      });
-    }
-
-    const resetBtn = document.getElementById('passportResetBtn');
-    if (resetBtn) {
-      let armed = false;
-      resetBtn.addEventListener('click', () => {
-        if (!armed) {
-          armed = true;
-          resetBtn.textContent = 'Click again to confirm reset';
-          resetBtn.classList.add('armed');
-          return;
-        }
-        resetPassportData();
-        renderPassportModal({ statusText: '✓ Passport progress reset' });
-        const reReset = document.getElementById('passportResetBtn');
-        if (reReset) reReset.focus();
-      });
-    }
-  }
-
-  function openPassportModal() {
-    const modal = E.elements.passportModal;
-    if (!modal) return;
-    closeOtherOverlays();
-    renderPassportModal();
-    E.utils.openModal(modal, { initialFocus: E.elements.closePassportModalBtn });
-  }
-
-  function closePassportModal(opts = {}) {
-    const modal = E.elements.passportModal;
-    if (!modal) return;
-    E.utils.closeModal(modal, opts);
-  }
-
-  function initPassport() {
-    syncNavBadge();
-    const el = E.elements;
-    if (el.openPassportBtn) {
-      el.openPassportBtn.addEventListener('click', openPassportModal);
-    }
-    if (el.closePassportModalBtn) {
-      el.closePassportModalBtn.addEventListener('click', () => closePassportModal());
-    }
-    if (el.passportModal) {
-      el.passportModal.addEventListener('click', (e) => {
-        if (e.target === el.passportModal) closePassportModal();
-      });
-    }
   }
 
   E.passport = {

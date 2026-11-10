@@ -658,15 +658,15 @@
     font-size: 0.72rem;
   }
 
-  #openQuizBtn span,
-  #openCompareBtn span {
+  #openQuizBtn .nav-btn-label,
+  #openCompareBtn .nav-btn-label {
     display: none;
   }
 
   #openQuizBtn,
   #openCompareBtn {
     width: 34px;
-    height: 34px;
+    height: 32px;
     padding: 0;
     justify-content: center;
   }

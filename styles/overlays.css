@@ -252,14 +252,6 @@
   visibility: visible;
 }
 
-.scene-tooltip {
-  pointer-events: none;
-  position: absolute;
-  z-index: 90;
-  transform: translate(-50%, -120%);
-  transition: opacity 0.1s ease-out;
-}
-
 .custom-globe-tooltip {
   background: rgba(11, 17, 32, 0.96);
   border: 1px solid var(--accent-cyan);

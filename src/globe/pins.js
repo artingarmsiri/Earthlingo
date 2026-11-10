@@ -129,6 +129,7 @@
     const colB = srgbToLinear(18 / 255);
 
     const selectedId = (E.state.activePinItem && E.state.activePinItem.id) || E.state.activeWordStopId || '';
+    const basis = {};
 
     for (let i = 0; i < count; i++) {
       const p = pins[i];
@@ -136,15 +137,9 @@
       const isSelected = selectedId && item.id === selectedId;
       const coords = globe.getCoords(item.lat, item.lng, isSelected ? 0.0068 : 0.0056);
       const px = coords.x, py = coords.y, pz = coords.z;
-      const pLen = Math.hypot(px, py, pz) || 100.56;
-      const nx = px / pLen, ny = py / pLen, nz = pz / pLen;
-
-      let tx = nz, ty = 0, tz = -nx;
-      const tLen = Math.hypot(tx, tz) || 1;
-      tx /= tLen; tz /= tLen;
-      const bx = ny * tz - nz * ty;
-      const by = nz * tx - nx * tz;
-      const bz = nx * ty - ny * tx;
+      E.utils.computeSurfaceTangentBasis(px, py, pz, basis);
+      const tx = basis.eastX, ty = basis.eastY, tz = basis.eastZ;
+      const bx = basis.northX, by = basis.northY, bz = basis.northZ;
 
       const scale = p.kind === 'word' ? (isSelected ? 1.48 : 1.24) : (isSelected ? 1.42 : 1.08);
       const r1 = 0.56 * scale;
@@ -272,7 +267,7 @@
         </div>
         <p class="pin-inspector-note">${escapeHtml(item.revitalizationNote || '')}</p>
         <div class="pin-inspector-actions">
-          <button type="button" class="pin-action-btn" id="pinOpenCountryBtn">Open ${escapeHtml(item.iso3 || 'Country')} Profile</button>
+          <button type="button" class="pin-action-btn" id="pinOpenCountryBtn" data-open-iso="${escapeHtml(item.iso3 || '')}">Open ${escapeHtml(item.iso3 || 'Country')} Profile</button>
         </div>
       `;
     } else {
@@ -288,18 +283,13 @@
         </div>
         <p class="pin-inspector-note">${escapeHtml(item.note || '')}</p>
         <div class="pin-inspector-actions">
-          <button type="button" class="pin-action-btn" id="pinOpenCountryBtn">Open ${escapeHtml(item.iso3 || 'Country')} Profile</button>
+          <button type="button" class="pin-action-btn" id="pinOpenCountryBtn" data-open-iso="${escapeHtml(item.iso3 || '')}">Open ${escapeHtml(item.iso3 || 'Country')} Profile</button>
         </div>
       `;
     }
 
     card.classList.add('open');
     card.setAttribute('aria-hidden', 'false');
-
-    const btn = document.getElementById('pinOpenCountryBtn');
-    if (btn) {
-      btn.addEventListener('click', () => openCountryFromIso(item.iso3));
-    }
 
     refreshPins();
     if (E.overlays) {
@@ -323,9 +313,21 @@
     }
   }
 
+  let pinEventsBound = false;
+
   function initPinInspectorEvents() {
+    if (pinEventsBound) return;
+    pinEventsBound = true;
     if (E.elements.pinInspectorCloseBtn) {
       E.elements.pinInspectorCloseBtn.addEventListener('click', closePinInspector);
+    }
+    if (E.elements.pinInspectorBody) {
+      E.elements.pinInspectorBody.addEventListener('click', (e) => {
+        const btn = e.target && e.target.closest('#pinOpenCountryBtn');
+        if (!btn) return;
+        const iso = btn.getAttribute('data-open-iso');
+        if (iso) openCountryFromIso(iso);
+      });
     }
   }
 

@@ -34,6 +34,7 @@
     MAX_SEG_DEG: 1.6,
     MIN_CAM_DIST: 132,
     MAX_CAM_DIST: 850,
+    TAN_HALF_FOV: Math.tan((25 * Math.PI) / 180), // tan(25 deg) for Globe.gl's 50-deg vertical FOV
     MOBILE_MAX_BUFFER_PIXELS: 3200000,
     DESKTOP_MAX_BUFFER_PIXELS: 5500000,
     SELECT_FLY_MS: 550,

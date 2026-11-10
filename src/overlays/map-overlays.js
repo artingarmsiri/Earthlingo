@@ -32,6 +32,7 @@
     isMoving: false,
     settleTimer: 0,
     fadeRaf: 0,
+    dirtyRaf: 0,
     placedBoxes: [],
     stats: {
       hudReadsInsideRender: 0,
@@ -302,11 +303,18 @@
   function markOverlaysDirty(immediate = false) {
     overlayState.dirty = true;
     const globe = E.state.globe;
-    if (immediate && globe && globe.camera() && E.renderBatch.merged) {
+    if (!globe || !globe.camera() || !E.renderBatch.merged) return;
+    if (immediate) {
+      if (overlayState.dirtyRaf) {
+        cancelAnimationFrame(overlayState.dirtyRaf);
+        overlayState.dirtyRaf = 0;
+      }
       updateCountryOverlays(globe.camera(), true);
+      return;
     }
-    if (globe && globe.camera() && E.renderBatch.merged) {
-      requestAnimationFrame(() => {
+    if (!overlayState.dirtyRaf) {
+      overlayState.dirtyRaf = requestAnimationFrame(() => {
+        overlayState.dirtyRaf = 0;
         const cam = E.state.globe ? E.state.globe.camera() : null;
         if (cam) updateCountryOverlays(cam, true);
       });
@@ -394,7 +402,8 @@
     const fullVisibleDot = Math.min(0.97, minVisibleDot + 0.15);
     const fadeDenom = Math.max(0.05, fullVisibleDot - minVisibleDot);
 
-    const projScale = (vh * 0.5) / (0.46630766 * Math.max(101, camDist));
+    const tanHalfV = (E.config && E.config.GLOBE_CONFIG && E.config.GLOBE_CONFIG.TAN_HALF_FOV) || 0.46630766;
+    const projScale = (vh * 0.5) / (tanHalfV * Math.max(101, camDist));
     const globeScreenR = 100 * projScale;
     const isMob = E.utils.isMobileViewport();
     const zoomTier = computeHysteresisZoomTier(globeScreenR, isMob);
@@ -533,11 +542,6 @@
         overlayState.freeSlots.push(slot);
         overlayState.fadeMap.delete(k);
       }
-    }
-
-    // Clean fade entries no longer active
-    for (const k of overlayState.fadeMap.keys()) {
-      if (!chosenKeys.has(k)) overlayState.fadeMap.delete(k);
     }
 
     const now = performance.now();
@@ -736,17 +740,17 @@
     }
 
     if (el.overlayModeOptions) {
-      el.overlayModeOptions.querySelectorAll('.overlay-mode-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const mode = btn.getAttribute('data-overlay');
-          setMapOverlayMode(mode);
-          if (E.utils.isMobileViewport()) {
-            E.state.isOverlayMenuOpen = false;
-            syncOverlayMenuUI();
-            markOverlaysDirty(true);
-          }
-        });
+      el.overlayModeOptions.addEventListener('click', (e) => {
+        const btn = e.target && e.target.closest('.overlay-mode-btn[data-overlay]');
+        if (!btn) return;
+        e.stopPropagation();
+        const mode = btn.getAttribute('data-overlay');
+        setMapOverlayMode(mode);
+        if (E.utils.isMobileViewport()) {
+          E.state.isOverlayMenuOpen = false;
+          syncOverlayMenuUI();
+          markOverlaysDirty(true);
+        }
       });
     }
 

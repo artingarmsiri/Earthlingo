@@ -76,12 +76,6 @@ body.drawer-is-open .arcs-info-panel {
   color: #e2e8f0;
 }
 
-.word-branch-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-}
-
 .word-stops-label {
   font-size: 0.68rem;
   font-weight: 700;
@@ -588,13 +582,6 @@ body.drawer-is-open .arcs-info-panel {
   border-radius: var(--radius-full);
   font-size: 0.76rem;
   color: var(--text-secondary);
-}
-
-.meta-badge-accent {
-  background: rgba(56, 189, 248, 0.15);
-  border-color: rgba(56, 189, 248, 0.3);
-  color: var(--accent-cyan);
-  font-weight: 600;
 }
 
 /* Drawer Content Scroll Area */

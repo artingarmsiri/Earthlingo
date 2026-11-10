@@ -132,7 +132,7 @@
     const h = rb.viewportH || window.innerHeight || 800;
     const aspect = w / Math.max(1, h);
     if (aspect >= 0.9) return 2.5;
-    const tanHalfV = 0.46631; // tan(25 deg) for Globe.gl's 50-deg vertical FOV
+    const tanHalfV = (E.config && E.config.GLOBE_CONFIG && E.config.GLOBE_CONFIG.TAN_HALF_FOV) || 0.46630766;
     const targetTanX = Math.max(0.16, aspect * tanHalfV * 0.94);
     const dOverR = Math.sqrt(1 + 1 / (targetTanX * targetTanX));
     return Math.min(4.45, Math.max(2.5, dOverR - 1));
@@ -160,6 +160,83 @@
     setTimeout(() => {
       overlay.style.display = 'none';
     }, 320);
+  }
+
+  function shuffleArray(list) {
+    const arr = Array.isArray(list) ? list.slice() : [];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = arr[i];
+      arr[i] = arr[j];
+      arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  function copyTextFallback(text) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      ta.style.top = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    } catch (_err) {
+      return false;
+    }
+  }
+
+  function copyTextToClipboard(text, onDone) {
+    const finish = (ok) => {
+      if (typeof onDone === 'function') onDone(ok);
+      return ok;
+    };
+    const isFileProtocol = typeof window !== 'undefined' && window.location && window.location.protocol === 'file:';
+    if (!isFileProtocol && typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function' && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).then(
+        () => finish(true),
+        () => finish(copyTextFallback(text))
+      );
+    }
+    const ok = copyTextFallback(text);
+    if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      try { navigator.clipboard.writeText(text).catch(() => {}); } catch (_e) {}
+    }
+    finish(ok);
+    return Promise.resolve(ok);
+  }
+
+  function computeSurfaceTangentBasis(px, py, pz, out = {}) {
+    let eastX = pz;
+    let eastY = 0;
+    let eastZ = -px;
+    let eastLen = Math.hypot(eastX, eastZ);
+    if (eastLen < 1e-4) {
+      eastX = 1;
+      eastY = 0;
+      eastZ = 0;
+      eastLen = 1;
+    }
+    eastX /= eastLen;
+    eastY /= eastLen;
+    eastZ /= eastLen;
+
+    let northX = py * eastZ - pz * eastY;
+    let northY = pz * eastX - px * eastZ;
+    let northZ = px * eastY - py * eastX;
+    const northLen = Math.hypot(northX, northY, northZ) || 1;
+    out.eastX = eastX;
+    out.eastY = eastY;
+    out.eastZ = eastZ;
+    out.northX = northX / northLen;
+    out.northY = northY / northLen;
+    out.northZ = northZ / northLen;
+    return out;
   }
 
   function downloadJsonFile(filename, dataObj) {
@@ -248,6 +325,52 @@
     }
   }
 
+  function closeAllModals(opts = {}) {
+    const el = E.elements || {};
+    const except = opts.except || null;
+    const skipRouter = Boolean(opts.skipRouter);
+    const skipFocusRestore = Boolean(opts.skipFocusRestore);
+
+    if (el.compareModal && el.compareModal !== except && E.state.isCompareOpen) {
+      if (E.compare && typeof E.compare.closeCompareModal === 'function') {
+        E.compare.closeCompareModal({ skipRouter, skipFocusRestore });
+      } else {
+        closeModal(el.compareModal, { skipFocusRestore });
+      }
+    }
+    if (el.passportModal && el.passportModal !== except && el.passportModal.classList.contains('open')) {
+      if (E.passport && typeof E.passport.closePassportModal === 'function') {
+        E.passport.closePassportModal({ skipFocusRestore });
+      } else {
+        closeModal(el.passportModal, { skipFocusRestore });
+      }
+    }
+    if (el.tripModal && el.tripModal !== except && el.tripModal.classList.contains('open')) {
+      if (E.trip && typeof E.trip.closeTripModal === 'function') {
+        E.trip.closeTripModal({ skipRouter, skipFocusRestore });
+      } else {
+        closeModal(el.tripModal, { skipFocusRestore });
+      }
+    }
+    if (opts.includeScript !== false && el.scriptModal && el.scriptModal !== except && el.scriptModal.classList.contains('open')) {
+      if (E.scriptInspector && typeof E.scriptInspector.closeScriptModal === 'function') {
+        E.scriptInspector.closeScriptModal({ skipFocusRestore });
+      } else {
+        closeModal(el.scriptModal, { skipFocusRestore });
+      }
+    }
+    if (el.listModal && el.listModal !== except && el.listModal.classList.contains('open')) {
+      if (E.listModal && typeof E.listModal.closeListModal === 'function') {
+        E.listModal.closeListModal({ skipFocusRestore });
+      } else {
+        closeModal(el.listModal, { skipFocusRestore });
+      }
+    }
+    if (el.infoModal && el.infoModal !== except && el.infoModal.classList.contains('open')) {
+      closeModal(el.infoModal, { skipFocusRestore });
+    }
+  }
+
   let modalFocusTrapBound = false;
 
   function initModalFocusTrap() {
@@ -297,6 +420,10 @@
     mixColorHex,
     adjustColorBrightness,
     calcAngularDistRad,
+    shuffleArray,
+    copyTextFallback,
+    copyTextToClipboard,
+    computeSurfaceTangentBasis,
     isMobileViewport,
     isBottomSheetLayout,
     getSheetViewportHeight,
@@ -310,6 +437,7 @@
     getTopOpenModal,
     openModal,
     closeModal,
+    closeAllModals,
     initModalFocusTrap
   };
 })(window);

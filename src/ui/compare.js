@@ -4,6 +4,9 @@
 
   const E = (global.Earthlingo = global.Earthlingo || {});
 
+  let compareEventsBound = false;
+  let currentDuelLookup = [];
+
   const CURATED_PRESETS = [
     { a: 'BRA', b: 'PRT', label: 'Brazil vs Portugal' },
     { a: 'JPN', b: 'KOR', label: 'Japan vs S. Korea' },
@@ -388,6 +391,7 @@
         </div>
       `;
     }).join('');
+    currentDuelLookup = duelLookup;
 
     const accA = (cA.accents || []).slice(0, 2);
     const accB = (cB.accents || []).slice(0, 2);
@@ -464,38 +468,6 @@
         </div>
       </section>
     `;
-
-    el.compareBody.querySelectorAll('.compare-fly-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const k = btn.getAttribute('data-fly-country');
-        const c = resolveCountryByKey(k);
-        if (c) {
-          closeCompareModal({ skipRouter: true, skipFocusRestore: true });
-          E.drawer.selectCountry(c, true);
-        }
-      });
-    });
-
-    el.compareBody.querySelectorAll('.compare-lang-pill[data-spotlight-lang]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tok = btn.getAttribute('data-spotlight-lang');
-        if (tok && E.controls && typeof E.controls.filterBySpokenLanguage === 'function') {
-          closeCompareModal({ skipRouter: true, skipFocusRestore: true });
-          E.controls.filterBySpokenLanguage(tok, null, { forceOn: true });
-        }
-      });
-    });
-
-    el.compareBody.querySelectorAll('.compare-speak-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const did = btn.getAttribute('data-duel-id');
-        const found = duelLookup.find(d => d.id === did);
-        if (found && found.phrase) {
-          E.drawer.playSpeechSynthesis(found.phrase.text, found.phrase.bcp47 || 'en-US', btn);
-        }
-      });
-    });
   }
 
   function openComparePair(isoA, isoB, opts = {}) {
@@ -505,17 +477,8 @@
     if (E.state.isQuizActive && E.quiz && typeof E.quiz.stopQuiz === 'function') {
       E.quiz.stopQuiz({ restoreOverlay: true, skipRouter: true });
     }
-    if (el.listModal && el.listModal.classList.contains('open')) {
-      E.utils.closeModal(el.listModal, { skipFocusRestore: true });
-    }
-    if (el.infoModal && el.infoModal.classList.contains('open')) {
-      E.utils.closeModal(el.infoModal, { skipFocusRestore: true });
-    }
-    if (E.passport && typeof E.passport.closePassportModal === 'function') {
-      E.passport.closePassportModal({ skipFocusRestore: true });
-    }
-    if (E.trip && E.state.tripModalOpen && typeof E.trip.closeTripModal === 'function') {
-      E.trip.closeTripModal({ skipFocusRestore: true, skipRouter: true });
+    if (E.utils && typeof E.utils.closeAllModals === 'function') {
+      E.utils.closeAllModals({ except: el.compareModal, skipRouter: true, skipFocusRestore: true });
     }
 
     const cA = resolveCountryByKey(isoA) || resolveCountryByKey(E.state.compareIsoA) || resolveCountryByKey('BRA');
@@ -578,13 +541,55 @@
           ${escapeHtml(p.label)}
         </button>
       `).join('');
+    }
 
-      el.comparePresets.querySelectorAll('.compare-preset-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const a = btn.getAttribute('data-a');
-          const b = btn.getAttribute('data-b');
-          openComparePair(a, b);
-        });
+    if (compareEventsBound) return;
+    compareEventsBound = true;
+
+    if (el.comparePresets) {
+      el.comparePresets.addEventListener('click', (e) => {
+        const btn = e.target && e.target.closest('.compare-preset-btn');
+        if (!btn) return;
+        const a = btn.getAttribute('data-a');
+        const b = btn.getAttribute('data-b');
+        openComparePair(a, b);
+      });
+    }
+
+    if (el.compareBody) {
+      el.compareBody.addEventListener('click', (e) => {
+        const tgt = e.target;
+        if (!tgt) return;
+
+        const flyBtn = tgt.closest('.compare-fly-btn');
+        if (flyBtn) {
+          const c = resolveCountryByKey(flyBtn.getAttribute('data-fly-country'));
+          if (c) {
+            closeCompareModal({ skipRouter: true, skipFocusRestore: true });
+            E.drawer.selectCountry(c, true);
+          }
+          return;
+        }
+
+        const pillBtn = tgt.closest('.compare-lang-pill[data-spotlight-lang]');
+        if (pillBtn) {
+          const tok = pillBtn.getAttribute('data-spotlight-lang');
+          if (tok && E.controls && typeof E.controls.filterBySpokenLanguage === 'function') {
+            closeCompareModal({ skipRouter: true, skipFocusRestore: true });
+            E.controls.filterBySpokenLanguage(tok, null, { forceOn: true });
+          }
+          return;
+        }
+
+        const speakBtn = tgt.closest('.compare-speak-btn');
+        if (speakBtn) {
+          e.stopPropagation();
+          const did = speakBtn.getAttribute('data-duel-id');
+          const found = currentDuelLookup.find(d => d.id === did);
+          if (found && found.phrase) {
+            E.drawer.playSpeechSynthesis(found.phrase.text, found.phrase.bcp47 || 'en-US', speakBtn);
+          }
+        }
       });
     }
 

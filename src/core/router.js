@@ -171,7 +171,7 @@
           E.controls.toggleTimeline(false, { skipRouter: true });
         }
         if (!tripParam && E.state.tripModalOpen && E.trip) {
-          E.trip.closeTripModal();
+          E.trip.closeTripModal({ skipRouter: true });
         }
         if (!spokenParam && !filterParam && !famParam && !scriptParam && !divParam && E.controls) {
           E.controls.clearLanguageFilter({ skipRouter: true });
@@ -204,6 +204,20 @@
       }
 
       // 2. Active Spotlight / Legend Filter
+      const clearFilterFields = () => {
+        if (E.legend && typeof E.legend.clearFilterFields === 'function') {
+          E.legend.clearFilterFields();
+          return;
+        }
+        E.state.activeFilterSpokenLang = null;
+        E.state.activeFilterSpokenCountries = null;
+        E.state.activeFilterLanguage = null;
+        E.state.activeFilterFamily = null;
+        E.state.activeFilterScript = null;
+        E.state.activeFilterDiversityTier = null;
+        E.state.activeFilterColor = null;
+      };
+
       if (spokenParam && E.controls) {
         E.controls.filterBySpokenLanguage(spokenParam, null, {
           forceOn: true,
@@ -214,36 +228,22 @@
       } else if (filterParam && E.controls) {
         const matched = (E.config.SHARED_LANGUAGES || []).find(l => l.name.toLowerCase() === filterParam.toLowerCase());
         const canonical = matched ? matched.name : filterParam;
-        E.state.activeFilterSpokenLang = null;
-        E.state.activeFilterSpokenCountries = null;
-        E.state.activeFilterFamily = null;
-        E.state.activeFilterScript = null;
+        clearFilterFields();
         E.state.activeFilterLanguage = canonical;
         E.state.activeFilterColor = matched ? matched.color : '#38bdf8';
       } else if (famParam) {
         const grp = (E.config.FAMILY_GROUPS || []).find(g => g.name.toLowerCase() === famParam.toLowerCase());
-        E.state.activeFilterSpokenLang = null;
-        E.state.activeFilterSpokenCountries = null;
-        E.state.activeFilterLanguage = null;
-        E.state.activeFilterScript = null;
+        clearFilterFields();
         E.state.activeFilterFamily = grp ? grp.name : famParam;
         E.state.activeFilterColor = grp ? grp.color : findGroupColor(E.config.FAMILY_GROUPS, famParam);
       } else if (scriptParam) {
         const grp = (E.config.SCRIPT_GROUPS || []).find(g => g.name.toLowerCase() === scriptParam.toLowerCase());
-        E.state.activeFilterSpokenLang = null;
-        E.state.activeFilterSpokenCountries = null;
-        E.state.activeFilterLanguage = null;
-        E.state.activeFilterFamily = null;
-        E.state.activeFilterDiversityTier = null;
+        clearFilterFields();
         E.state.activeFilterScript = grp ? grp.name : scriptParam;
         E.state.activeFilterColor = grp ? grp.color : findGroupColor(E.config.SCRIPT_GROUPS, scriptParam);
       } else if (divParam) {
         const grp = (E.config.DIVERSITY_GROUPS || []).find(g => g.name.toLowerCase() === divParam.toLowerCase());
-        E.state.activeFilterSpokenLang = null;
-        E.state.activeFilterSpokenCountries = null;
-        E.state.activeFilterLanguage = null;
-        E.state.activeFilterFamily = null;
-        E.state.activeFilterScript = null;
+        clearFilterFields();
         E.state.activeFilterDiversityTier = grp ? grp.name : divParam;
         E.state.activeFilterColor = grp ? grp.color : findGroupColor(E.config.DIVERSITY_GROUPS, divParam);
       }
@@ -318,21 +318,7 @@
   }
 
   function copyTextFallback(text) {
-    try {
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      ta.setAttribute('readonly', '');
-      ta.style.position = 'fixed';
-      ta.style.left = '-9999px';
-      ta.style.top = '0';
-      document.body.appendChild(ta);
-      ta.select();
-      const ok = document.execCommand('copy');
-      document.body.removeChild(ta);
-      return ok;
-    } catch (_err) {
-      return false;
-    }
+    return E.utils.copyTextFallback(text);
   }
 
   function flashShareFeedback(btnEl) {
@@ -342,6 +328,7 @@
     btnEl.setAttribute('title', 'Link copied to clipboard!');
     if (btnEl._copyTimer) clearTimeout(btnEl._copyTimer);
     btnEl._copyTimer = setTimeout(() => {
+      if (!btnEl.isConnected) return;
       btnEl.classList.remove('is-copied');
       btnEl.setAttribute('title', prevTitle);
     }, 1800);
@@ -350,21 +337,7 @@
   function copyCurrentShareLink(btnEl) {
     syncUrlHash();
     const url = window.location.href;
-    const isFileProtocol = window.location.protocol === 'file:';
-    if (!isFileProtocol && navigator.clipboard && typeof navigator.clipboard.writeText === 'function' && window.isSecureContext) {
-      navigator.clipboard.writeText(url).then(() => {
-        flashShareFeedback(btnEl);
-      }).catch(() => {
-        copyTextFallback(url);
-        flashShareFeedback(btnEl);
-      });
-    } else {
-      copyTextFallback(url);
-      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-        try { navigator.clipboard.writeText(url).catch(() => {}); } catch (_e) {}
-      }
-      flashShareFeedback(btnEl);
-    }
+    E.utils.copyTextToClipboard(url, () => flashShareFeedback(btnEl));
     return url;
   }
 

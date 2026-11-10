@@ -134,7 +134,11 @@ Earthlingo/
 │       ├── drawer.js               # Country drawer, mobile pull gestures & Web Speech TTS
 │       ├── compare.js              # Side-by-side country compare mode & Phrase Duel
 │       ├── quiz.js                 # Locate, Daily 5 seeded challenge, Script Detective & Dialect Trivia
-│       └── controls.js             # Legend filters, Color-By, time-scrubber, keyboard search & 2D list modal
+│       ├── legend.js               # Floating legend, Color-By mode toggles & spoken spotlight filters
+│       ├── timeline.js             # Historical Time-Scrubber ("Languages Before 1492") state & controls
+│       ├── search.js               # Header search bar autocomplete & keyboard navigation
+│       ├── list-modal.js           # Accessible searchable 2D country & language grid modal
+│       └── controls.js             # Toolbar controls, shortcuts & unified UI compatibility facade
 ├── libs/
 │   └── globe.gl.min.js             # Bundled Globe.gl + Three.js runtime (CDN fallback in HTML)
 ├── data/

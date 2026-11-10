@@ -1,0 +1,12 @@
+{
+  "name": "earthlingo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interactive 3D World Languages, Writing Scripts, Dialects & Linguistic Diversity Atlas",
+  "scripts": {
+    "build:db": "node scripts/build_full_database.js",
+    "test": "node tests/validate.js",
+    "check:db": "node tests/check-db-build.js"
+  }
+}
+

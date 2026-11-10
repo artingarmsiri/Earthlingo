@@ -166,7 +166,11 @@ for (const key in db) {
   if (Array.isArray(c.languages)) {
     c.languages.forEach((l, idx) => {
       const s = (l.script || '').trim();
-      if (!s || s === 'Official National Script' || s === 'National Script') {
+      const exactScript = EXACT_ROW_SCRIPTS[iso] && EXACT_ROW_SCRIPTS[iso][idx];
+      if (exactScript && s !== exactScript) {
+        l.script = exactScript;
+        fixedScripts++;
+      } else if (!s || s === 'Official National Script' || s === 'National Script') {
         l.script = inferScriptFromRow(c, l, idx);
         fixedScripts++;
       }

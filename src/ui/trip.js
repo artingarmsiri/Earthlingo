@@ -90,8 +90,77 @@
     if (valid.length > 0) {
       E.state.tripBookmarks = valid.slice(0, MAX_STOPS);
       saveBookmarks();
-      if (opts.open) openTripModal();
+      if (opts.open) openTripModal({ skipRouter: opts.skipRouter });
     }
+  }
+
+  function clearBookmarks() {
+    E.state.tripBookmarks = [];
+    saveBookmarks();
+    return [];
+  }
+
+  function exportTripData() {
+    return {
+      app: 'Earthlingo',
+      kind: 'trip-itinerary',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      bookmarks: (E.state.tripBookmarks || []).slice()
+    };
+  }
+
+  function importTripData(rawOrObj) {
+    let parsed = rawOrObj;
+    if (typeof rawOrObj === 'string') {
+      try {
+        parsed = JSON.parse(rawOrObj);
+      } catch (_err) {
+        return { ok: false, error: 'Invalid JSON syntax in trip file.' };
+      }
+    }
+
+    if (!parsed || typeof parsed !== 'object') {
+      return { ok: false, error: 'Trip JSON must be an object or ISO array.' };
+    }
+    if (parsed.kind === 'linguistic-passport' || Array.isArray(parsed.visitedIsos)) {
+      return { ok: false, error: 'This file is a Linguistic Passport export, not a Trip itinerary.' };
+    }
+
+    let rawList = null;
+    if (Array.isArray(parsed)) {
+      rawList = parsed;
+    } else if (Array.isArray(parsed.bookmarks)) {
+      rawList = parsed.bookmarks;
+    } else if (Array.isArray(parsed.tripBookmarks)) {
+      rawList = parsed.tripBookmarks;
+    } else if (parsed.data && Array.isArray(parsed.data.bookmarks)) {
+      rawList = parsed.data.bookmarks;
+    }
+
+    if (!Array.isArray(rawList)) {
+      return { ok: false, error: 'Missing bookmarks array in Trip JSON.' };
+    }
+
+    const db = E.state.languagesDb || {};
+    const hasDb = Object.keys(db).length > 0;
+    const seen = new Set();
+    rawList.forEach(code => {
+      const upper = String(code || '').trim().toUpperCase();
+      if (!upper) return;
+      if (hasDb ? Boolean(db[upper]) : /^[A-Z0-9-]{2,20}$/.test(upper)) {
+        seen.add(upper);
+      }
+    });
+
+    const valid = Array.from(seen).slice(0, MAX_STOPS);
+    if (rawList.length > 0 && valid.length === 0) {
+      return { ok: false, error: 'No valid country ISO codes found in file.' };
+    }
+
+    E.state.tripBookmarks = valid;
+    saveBookmarks();
+    return { ok: true, count: valid.length, bookmarks: valid };
   }
 
   function syncTripUI() {
@@ -135,16 +204,18 @@
   }
 
   function closeOtherOverlays() {
-    if (E.compare && E.state.isCompareOpen) E.compare.closeCompareModal({ skipRouter: true });
-    if (E.passport && typeof E.passport.closePassportModal === 'function') E.passport.closePassportModal();
-    if (E.scriptInspector && typeof E.scriptInspector.closeScriptModal === 'function') E.scriptInspector.closeScriptModal();
+    if (E.compare && E.state.isCompareOpen) E.compare.closeCompareModal({ skipRouter: true, skipFocusRestore: true });
+    if (E.passport && typeof E.passport.closePassportModal === 'function') E.passport.closePassportModal({ skipFocusRestore: true });
+    if (E.scriptInspector && typeof E.scriptInspector.closeScriptModal === 'function') E.scriptInspector.closeScriptModal({ skipFocusRestore: true });
     if (E.elements.listModal && E.elements.listModal.classList.contains('open')) {
-      E.elements.listModal.classList.remove('open');
-      E.elements.listModal.setAttribute('aria-hidden', 'true');
+      E.utils.closeModal(E.elements.listModal, { skipFocusRestore: true });
+    }
+    if (E.elements.infoModal && E.elements.infoModal.classList.contains('open')) {
+      E.utils.closeModal(E.elements.infoModal, { skipFocusRestore: true });
     }
   }
 
-  function renderTripModal() {
+  function renderTripModal(opts = {}) {
     const body = E.elements.tripModalBody;
     if (!body) return;
     const { escapeHtml } = E.utils;
@@ -205,6 +276,8 @@
         }).join('')
       : `<div class="trip-empty-state">Your Travel Cheat-Sheet is empty. Star any country inside its profile, search below, or load a preset itinerary above!</div>`;
 
+    const statusClass = opts.isError ? 'is-error' : (opts.statusText ? 'is-success' : '');
+
     body.innerHTML = `
       <div class="trip-toolbar">
         <div class="trip-add-row">
@@ -223,6 +296,16 @@
 
       <div class="trip-stops-container" id="tripPrintableArea">
         ${cardsHtml}
+      </div>
+
+      <div class="passport-footer-actions trip-footer-actions">
+        <span id="tripStatusMsg" class="data-io-status ${statusClass}" role="status" aria-live="polite">${escapeHtml(opts.statusText || '')}</span>
+        <div class="data-io-group">
+          <button type="button" class="data-io-btn" id="tripExportBtn">Export JSON</button>
+          <button type="button" class="data-io-btn" id="tripImportBtn">Import JSON</button>
+          <input type="file" id="tripImportInput" accept=".json,application/json" hidden>
+          <button type="button" class="passport-reset-btn" id="tripResetBtn" ${stops.length === 0 ? 'disabled' : ''}>Reset Trip</button>
+        </div>
       </div>
     `;
 
@@ -248,7 +331,7 @@
       btn.addEventListener('click', () => {
         const c = db[btn.getAttribute('data-jump-iso')];
         if (c && E.drawer) {
-          closeTripModal();
+          closeTripModal({ skipFocusRestore: true });
           E.drawer.selectCountry(c, true);
         }
       });
@@ -300,35 +383,94 @@
         if (typeof window.print === 'function') window.print();
       });
     }
+
+    const exportBtn = document.getElementById('tripExportBtn');
+    const importBtn = document.getElementById('tripImportBtn');
+    const importInput = document.getElementById('tripImportInput');
+    const statusEl = document.getElementById('tripStatusMsg');
+    const resetBtn = document.getElementById('tripResetBtn');
+
+    const showTripStatus = (msg, isErr) => {
+      if (!statusEl) return;
+      statusEl.textContent = msg;
+      statusEl.classList.toggle('is-error', Boolean(isErr));
+      statusEl.classList.toggle('is-success', !isErr && Boolean(msg));
+    };
+
+    if (exportBtn) {
+      exportBtn.addEventListener('click', () => {
+        const payload = exportTripData();
+        const dateTag = new Date().toISOString().slice(0, 10);
+        E.utils.downloadJsonFile(`earthlingo-trip-${dateTag}.json`, payload);
+        showTripStatus(`✓ Exported ${payload.bookmarks.length} trip stops`, false);
+      });
+    }
+
+    if (importBtn && importInput) {
+      importBtn.addEventListener('click', () => {
+        importInput.value = '';
+        importInput.click();
+      });
+      importInput.addEventListener('change', (e) => {
+        const file = e.target && e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const res = importTripData(String(reader.result || ''));
+          if (res.ok) {
+            renderTripModal({ statusText: `✓ Imported ${res.count} trip stops` });
+            const reBtn = document.getElementById('tripImportBtn');
+            if (reBtn) reBtn.focus();
+          } else {
+            showTripStatus(`✕ ${res.error}`, true);
+          }
+        };
+        reader.onerror = () => showTripStatus('✕ Unable to read selected file.', true);
+        reader.readAsText(file);
+      });
+    }
+
+    if (resetBtn) {
+      let armed = false;
+      resetBtn.addEventListener('click', () => {
+        if (!armed) {
+          armed = true;
+          resetBtn.textContent = 'Click again to clear trip';
+          resetBtn.classList.add('armed');
+          return;
+        }
+        clearBookmarks();
+        renderTripModal({ statusText: '✓ Trip stops cleared' });
+        const reClose = E.elements.closeTripModalBtn;
+        if (reClose) reClose.focus();
+      });
+    }
   }
 
-  function openTripModal() {
+  function openTripModal(opts = {}) {
     const modal = E.elements.tripModal;
     if (!modal) return;
     closeOtherOverlays();
     E.state.tripModalOpen = true;
     renderTripModal();
-    modal.classList.add('open');
-    modal.setAttribute('aria-hidden', 'false');
-    if (E.router && typeof E.router.syncUrlHash === 'function') E.router.syncUrlHash();
-    if (E.elements.closeTripModalBtn) E.elements.closeTripModalBtn.focus();
+    E.utils.openModal(modal, { initialFocus: E.elements.closeTripModalBtn });
+    if (!opts.skipRouter && E.router && typeof E.router.syncUrlHash === 'function') E.router.syncUrlHash();
   }
 
-  function closeTripModal() {
+  function closeTripModal(opts = {}) {
     const modal = E.elements.tripModal;
     E.state.tripModalOpen = false;
     if (!modal) return;
-    modal.classList.remove('open');
-    modal.setAttribute('aria-hidden', 'true');
-    if (E.router && typeof E.router.syncUrlHash === 'function') E.router.syncUrlHash();
+    E.utils.closeModal(modal, opts);
+    if (!opts.skipRouter && E.router && typeof E.router.syncUrlHash === 'function') E.router.syncUrlHash();
   }
 
   function initTrip() {
     loadBookmarks();
     syncTripUI();
     const el = E.elements;
-    if (el.openTripBtn) el.openTripBtn.addEventListener('click', openTripModal);
-    if (el.closeTripModalBtn) el.closeTripModalBtn.addEventListener('click', closeTripModal);
+    if (el.openTripBtn) el.openTripBtn.addEventListener('click', () => openTripModal());
+    if (el.closeTripModalBtn) el.closeTripModalBtn.addEventListener('click', () => closeTripModal());
     if (el.drawerTripBtn) {
       el.drawerTripBtn.addEventListener('click', () => {
         if (E.state.selectedCountry && E.state.selectedCountry.iso3) {
@@ -352,7 +494,10 @@
     addBookmark,
     removeBookmark,
     toggleBookmark,
+    clearBookmarks,
     importBookmarks,
+    exportTripData,
+    importTripData,
     buildCheatSheetText,
     syncTripUI,
     openTripModal,

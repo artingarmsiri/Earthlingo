@@ -46,6 +46,7 @@
       if (E.compare && typeof E.compare.initCompare === 'function') E.compare.initCompare();
       if (E.quiz && typeof E.quiz.initQuiz === 'function') E.quiz.initQuiz();
       E.controls.initAccessibilityShortcuts();
+      if (E.utils && typeof E.utils.initModalFocusTrap === 'function') E.utils.initModalFocusTrap();
       if (E.router && typeof E.router.initRouter === 'function') E.router.initRouter();
       E.overlays.refreshOverlayHudRects();
 

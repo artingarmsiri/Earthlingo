@@ -96,29 +96,26 @@
     if (spotBtn) {
       spotBtn.addEventListener('click', () => {
         const grpName = info.scriptFilterGroup || 'Latin';
-        closeScriptModal();
+        closeScriptModal({ skipFocusRestore: true });
         if (E.controls && typeof E.controls.filterByScriptGroup === 'function') {
           E.controls.filterByScriptGroup(grpName, info.accentColor || '#38bdf8', { forceOn: true });
         }
       });
     }
 
-    modal.classList.add('open');
-    modal.setAttribute('aria-hidden', 'false');
-    if (E.elements.closeScriptModalBtn) E.elements.closeScriptModalBtn.focus();
+    E.utils.openModal(modal, { initialFocus: E.elements.closeScriptModalBtn });
   }
 
-  function closeScriptModal() {
+  function closeScriptModal(opts = {}) {
     const modal = E.elements.scriptModal;
     if (!modal) return;
-    modal.classList.remove('open');
-    modal.setAttribute('aria-hidden', 'true');
+    E.utils.closeModal(modal, opts);
   }
 
   function initScriptInspector() {
     const el = E.elements;
     if (el.closeScriptModalBtn) {
-      el.closeScriptModalBtn.addEventListener('click', closeScriptModal);
+      el.closeScriptModalBtn.addEventListener('click', () => closeScriptModal());
     }
     if (el.scriptModal) {
       el.scriptModal.addEventListener('click', (e) => {

@@ -103,16 +103,120 @@
   }
 
   function closeOtherOverlays() {
-    if (E.compare && E.state.isCompareOpen) E.compare.closeCompareModal({ skipRouter: true });
-    if (E.trip && E.state.tripModalOpen) E.trip.closeTripModal();
-    if (E.scriptInspector && typeof E.scriptInspector.closeScriptModal === 'function') E.scriptInspector.closeScriptModal();
+    if (E.compare && E.state.isCompareOpen) E.compare.closeCompareModal({ skipRouter: true, skipFocusRestore: true });
+    if (E.trip && E.state.tripModalOpen) E.trip.closeTripModal({ skipFocusRestore: true });
+    if (E.scriptInspector && typeof E.scriptInspector.closeScriptModal === 'function') {
+      E.scriptInspector.closeScriptModal({ skipFocusRestore: true });
+    }
     if (E.elements.listModal && E.elements.listModal.classList.contains('open')) {
-      E.elements.listModal.classList.remove('open');
-      E.elements.listModal.setAttribute('aria-hidden', 'true');
+      E.utils.closeModal(E.elements.listModal, { skipFocusRestore: true });
+    }
+    if (E.elements.infoModal && E.elements.infoModal.classList.contains('open')) {
+      E.utils.closeModal(E.elements.infoModal, { skipFocusRestore: true });
     }
   }
 
-  function renderPassportModal() {
+  function exportPassportData() {
+    const d = loadData();
+    return {
+      app: 'Earthlingo',
+      kind: 'linguistic-passport',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      data: {
+        visitedIsos: d.visitedIsos.slice(),
+        unlockedScripts: d.unlockedScripts.slice(),
+        quizAttempts: d.quizAttempts,
+        quizWins: d.quizWins,
+        bestStreak: d.bestStreak,
+        dailyResults: JSON.parse(JSON.stringify(d.dailyResults || {}))
+      }
+    };
+  }
+
+  function importPassportData(rawOrObj) {
+    let parsed = rawOrObj;
+    if (typeof rawOrObj === 'string') {
+      try {
+        parsed = JSON.parse(rawOrObj);
+      } catch (_err) {
+        return { ok: false, error: 'Invalid JSON syntax in passport file.' };
+      }
+    }
+
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return { ok: false, error: 'Passport JSON must be an object.' };
+    }
+    if (parsed.kind === 'trip-itinerary' || Array.isArray(parsed.bookmarks)) {
+      return { ok: false, error: 'This file is a Trip Cheat-Sheet export, not a Linguistic Passport.' };
+    }
+
+    const src = (parsed.data && typeof parsed.data === 'object' && !Array.isArray(parsed.data)) ? parsed.data : parsed;
+    const hasKnownField = ['visitedIsos', 'unlockedScripts', 'quizAttempts', 'quizWins', 'bestStreak', 'dailyResults']
+      .some(k => Object.prototype.hasOwnProperty.call(src, k));
+    if (!hasKnownField) {
+      return { ok: false, error: 'Missing expected passport fields in JSON.' };
+    }
+
+    const db = E.state.languagesDb || {};
+    const hasDb = Object.keys(db).length > 0;
+    const rawVisited = Array.isArray(src.visitedIsos) ? src.visitedIsos : [];
+    const visitedSet = new Set();
+    rawVisited.forEach(code => {
+      const upper = String(code || '').trim().toUpperCase();
+      if (!upper) return;
+      if (hasDb ? Boolean(db[upper]) : /^[A-Z0-9-]{2,20}$/.test(upper)) {
+        visitedSet.add(upper);
+      }
+    });
+
+    const validScriptsSet = new Set(((E.config && E.config.SCRIPT_GROUPS) || []).map(sg => sg.name));
+    const rawScripts = Array.isArray(src.unlockedScripts) ? src.unlockedScripts : [];
+    const unlockedSet = new Set();
+    rawScripts.forEach(scr => {
+      const clean = String(scr || '').trim();
+      if (!clean) return;
+      if (validScriptsSet.size === 0 || validScriptsSet.has(clean)) {
+        unlockedSet.add(clean);
+      }
+    });
+
+    const attempts = Math.max(0, Math.floor(Number(src.quizAttempts) || 0));
+    const wins = Math.min(attempts, Math.max(0, Math.floor(Number(src.quizWins) || 0)));
+    const streak = Math.max(0, Math.floor(Number(src.bestStreak) || 0));
+
+    const cleanDaily = {};
+    if (src.dailyResults && typeof src.dailyResults === 'object' && !Array.isArray(src.dailyResults)) {
+      Object.keys(src.dailyResults).forEach(dateKey => {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) return;
+        const rec = src.dailyResults[dateKey];
+        if (rec && typeof rec === 'object') {
+          cleanDaily[dateKey] = Object.assign({}, rec, {
+            completed: Boolean(rec.completed)
+          });
+        }
+      });
+    }
+
+    cache = {
+      visitedIsos: Array.from(visitedSet),
+      unlockedScripts: Array.from(unlockedSet),
+      quizAttempts: attempts,
+      quizWins: wins,
+      bestStreak: streak,
+      dailyResults: cleanDaily
+    };
+    saveData();
+    return { ok: true, data: cache };
+  }
+
+  function resetPassportData() {
+    cache = Object.assign({}, DEFAULT_DATA, { visitedIsos: [], unlockedScripts: [], dailyResults: {} });
+    saveData();
+    return cache;
+  }
+
+  function renderPassportModal(opts = {}) {
     const body = E.elements.passportModalBody;
     if (!body) return;
     const d = loadData();
@@ -149,6 +253,8 @@
         }).join('')
       : '<p class="passport-empty">Click any country on the 3D globe to collect your first Linguistic Passport stamps!</p>';
 
+    const statusClass = opts.isError ? 'is-error' : (opts.statusText ? 'is-success' : '');
+
     body.innerHTML = `
       <div class="passport-stats-grid">
         <div class="passport-stat-card">
@@ -176,7 +282,13 @@
       <div class="passport-countries-grid">${stampsHtml}</div>
 
       <div class="passport-footer-actions">
-        <button type="button" class="passport-reset-btn" id="passportResetBtn">Reset Progress</button>
+        <span id="passportStatusMsg" class="data-io-status ${statusClass}" role="status" aria-live="polite">${escapeHtml(opts.statusText || '')}</span>
+        <div class="data-io-group">
+          <button type="button" class="data-io-btn" id="passportExportBtn">Export JSON</button>
+          <button type="button" class="data-io-btn" id="passportImportBtn">Import JSON</button>
+          <input type="file" id="passportImportInput" accept=".json,application/json" hidden>
+          <button type="button" class="passport-reset-btn" id="passportResetBtn">Reset Progress</button>
+        </div>
       </div>
     `;
 
@@ -184,7 +296,7 @@
       btn.addEventListener('click', () => {
         const scr = btn.getAttribute('data-script');
         const sg = scriptGroups.find(x => x.name === scr);
-        closePassportModal();
+        closePassportModal({ skipFocusRestore: true });
         if (E.controls && typeof E.controls.filterByScriptGroup === 'function') {
           E.controls.filterByScriptGroup(scr, (sg && sg.color) || '#38bdf8', { forceOn: true });
         }
@@ -196,11 +308,58 @@
         const iso = btn.getAttribute('data-iso');
         const c = db[iso];
         if (c && E.drawer) {
-          closePassportModal();
+          closePassportModal({ skipFocusRestore: true });
           E.drawer.selectCountry(c, true);
         }
       });
     });
+
+    const exportBtn = document.getElementById('passportExportBtn');
+    const importBtn = document.getElementById('passportImportBtn');
+    const importInput = document.getElementById('passportImportInput');
+    const statusEl = document.getElementById('passportStatusMsg');
+
+    const showPassportStatus = (msg, isErr) => {
+      if (!statusEl) return;
+      statusEl.textContent = msg;
+      statusEl.classList.toggle('is-error', Boolean(isErr));
+      statusEl.classList.toggle('is-success', !isErr && Boolean(msg));
+    };
+
+    if (exportBtn) {
+      exportBtn.addEventListener('click', () => {
+        const payload = exportPassportData();
+        const dateTag = new Date().toISOString().slice(0, 10);
+        E.utils.downloadJsonFile(`earthlingo-passport-${dateTag}.json`, payload);
+        showPassportStatus(`✓ Exported ${payload.data.visitedIsos.length} nations`, false);
+      });
+    }
+
+    if (importBtn && importInput) {
+      importBtn.addEventListener('click', () => {
+        importInput.value = '';
+        importInput.click();
+      });
+      importInput.addEventListener('change', (e) => {
+        const file = e.target && e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const res = importPassportData(String(reader.result || ''));
+          if (res.ok) {
+            renderPassportModal({
+              statusText: `✓ Imported ${res.data.visitedIsos.length} nations & ${res.data.unlockedScripts.length} scripts`
+            });
+            const reBtn = document.getElementById('passportImportBtn');
+            if (reBtn) reBtn.focus();
+          } else {
+            showPassportStatus(`✕ ${res.error}`, true);
+          }
+        };
+        reader.onerror = () => showPassportStatus('✕ Unable to read selected file.', true);
+        reader.readAsText(file);
+      });
+    }
 
     const resetBtn = document.getElementById('passportResetBtn');
     if (resetBtn) {
@@ -212,9 +371,10 @@
           resetBtn.classList.add('armed');
           return;
         }
-        cache = Object.assign({}, DEFAULT_DATA, { visitedIsos: [], unlockedScripts: [], dailyResults: {} });
-        saveData();
-        renderPassportModal();
+        resetPassportData();
+        renderPassportModal({ statusText: '✓ Passport progress reset' });
+        const reReset = document.getElementById('passportResetBtn');
+        if (reReset) reReset.focus();
       });
     }
   }
@@ -224,16 +384,13 @@
     if (!modal) return;
     closeOtherOverlays();
     renderPassportModal();
-    modal.classList.add('open');
-    modal.setAttribute('aria-hidden', 'false');
-    if (E.elements.closePassportModalBtn) E.elements.closePassportModalBtn.focus();
+    E.utils.openModal(modal, { initialFocus: E.elements.closePassportModalBtn });
   }
 
-  function closePassportModal() {
+  function closePassportModal(opts = {}) {
     const modal = E.elements.passportModal;
     if (!modal) return;
-    modal.classList.remove('open');
-    modal.setAttribute('aria-hidden', 'true');
+    E.utils.closeModal(modal, opts);
   }
 
   function initPassport() {
@@ -243,7 +400,7 @@
       el.openPassportBtn.addEventListener('click', openPassportModal);
     }
     if (el.closePassportModalBtn) {
-      el.closePassportModalBtn.addEventListener('click', closePassportModal);
+      el.closePassportModalBtn.addEventListener('click', () => closePassportModal());
     }
     if (el.passportModal) {
       el.passportModal.addEventListener('click', (e) => {
@@ -259,6 +416,9 @@
     recordQuizOutcome,
     getDailyResult,
     saveDailyResult,
+    exportPassportData,
+    importPassportData,
+    resetPassportData,
     openPassportModal,
     closePassportModal,
     initPassport

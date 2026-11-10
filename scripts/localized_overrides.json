@@ -1,0 +1,6060 @@
+{
+  "ABW": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Bon dia! / Con ta bai? (Papiamento Hello)",
+        "phonetic": "bon DEE-a / kon ta BYE",
+        "bcp47": "nl-NL"
+      },
+      {
+        "type": "Thank You",
+        "text": "Masha danki! (Thank you very much!)",
+        "phonetic": "MA-sha DAHN-kee",
+        "bcp47": "nl-NL"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Ayo! / Te otro biaha! (Goodbye / See you!)",
+        "phonetic": "AH-yo / teh OH-tro BYA-ha",
+        "bcp47": "nl-NL"
+      },
+      {
+        "type": "How are you?",
+        "text": "Tur cos ta bon! (Everything is good!)",
+        "phonetic": "toor kos ta BON",
+        "bcp47": "nl-NL"
+      }
+    ],
+    "languages": [
+      {
+        "name": "Papiamento & Dutch",
+        "nativeName": "Papiamento / Nederlands",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Iberian Creole / Germanic",
+        "script": "Latin",
+        "bcp47": "nl-NL",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Aruba."
+      }
+    ]
+  },
+  "AFG": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "سلام علیکم! / ستړی مه شې! (Salām! / Stəṛay ma she!)",
+        "phonetic": "sa-LAM / stuh-RAY ma shay",
+        "bcp47": "fa-AF"
+      },
+      {
+        "type": "Thank You",
+        "text": "تشکر! / مننه! (Tashakor! Dari / Manana! Pashto)",
+        "phonetic": "ta-sha-KOR / ma-NA-na",
+        "bcp47": "fa-AF"
+      },
+      {
+        "type": "Goodbye",
+        "text": "خداحافظ! / په مخه دې ښه! (Khodā hāfez / Pa makha de kha)",
+        "phonetic": "kho-DA ha-FEZ",
+        "bcp47": "fa-AF"
+      },
+      {
+        "type": "How are you?",
+        "text": "چطور هستید؟ / څنګه یې؟ (Chetor hastid? / Tsanga ye?)",
+        "phonetic": "che-TOR has-TEED / TSAN-ga yay",
+        "bcp47": "fa-AF"
+      }
+    ]
+  },
+  "AGO": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Olá! / Tudo bem? / Mambo! (Angolan Portuguese)",
+        "phonetic": "oh-LAH / TOO-doo beng",
+        "bcp47": "pt-PT"
+      },
+      {
+        "type": "Thank You",
+        "text": "Muito obrigado! (m) / Muito obrigada! (f)",
+        "phonetic": "MWEEN-too ob-ree-GA-doo",
+        "bcp47": "pt-PT"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Tchau! / Até já! (Bye / See you soon!)",
+        "phonetic": "chow / a-TEH ZHA",
+        "bcp47": "pt-PT"
+      },
+      {
+        "type": "How are you?",
+        "text": "Como está? / Tudo fixe? (How's everything?)",
+        "phonetic": "KO-moo esh-TA",
+        "bcp47": "pt-PT"
+      }
+    ]
+  },
+  "AIA": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Good morning! / How yuh keeping? (Caribbean English)",
+        "phonetic": "how yuh KEE-pin",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Thank You",
+        "text": "Thank you kindly! / Much appreciated!",
+        "phonetic": "thank yoo KYND-lee",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Goodbye",
+        "text": "See you soon! / Walk safe!",
+        "phonetic": "wawk SAYF",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "How are you?",
+        "text": "Everything irie / Alright by you?",
+        "phonetic": "ev-ree-thing EYE-ree",
+        "bcp47": "en-GB"
+      }
+    ],
+    "languages": [
+      {
+        "name": "English & Anguillian Creole",
+        "nativeName": "English / Creole",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Germanic / Creole",
+        "script": "Latin",
+        "bcp47": "en-GB",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Anguilla."
+      }
+    ]
+  },
+  "ALA": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Hej! / God dag! (Hello / Good day!)",
+        "phonetic": "hay / goo DAG",
+        "bcp47": "sv-SE"
+      },
+      {
+        "type": "Thank You",
+        "text": "Tack så mycket! (Thank you very much!)",
+        "phonetic": "tahk so MYK-eh",
+        "bcp47": "sv-SE"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Hej då! / Vi ses! (Goodbye / See you!)",
+        "phonetic": "hay DOH / vee SES",
+        "bcp47": "sv-SE"
+      },
+      {
+        "type": "How are you?",
+        "text": "Hur mår du? (How are you?)",
+        "phonetic": "hoor MOR doo",
+        "bcp47": "sv-SE"
+      }
+    ],
+    "languages": [
+      {
+        "name": "Swedish",
+        "nativeName": "Svenska",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Indo-European (North Germanic)",
+        "script": "Latin",
+        "bcp47": "sv-SE",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Åland."
+      }
+    ]
+  },
+  "ALB": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Përshëndetje! / Mirëdita! (Hello / Good day!)",
+        "phonetic": "pur-shun-DET-yeh / mee-ruh-DEE-ta",
+        "bcp47": "sq-AL"
+      },
+      {
+        "type": "Thank You",
+        "text": "Faleminderit shumë! (Thank you very much!)",
+        "phonetic": "fa-le-min-DE-rit SHOOM",
+        "bcp47": "sq-AL"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Mirupafshim! / Ditën e mirë! (Goodbye!)",
+        "phonetic": "mee-roo-PAF-shim",
+        "bcp47": "sq-AL"
+      },
+      {
+        "type": "How are you?",
+        "text": "Si jeni? / Si je? (How are you?)",
+        "phonetic": "see YEH-nee / see yeh",
+        "bcp47": "sq-AL"
+      }
+    ]
+  },
+  "AND": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Hola! / Bon dia! (Catalan Hello / Good day!)",
+        "phonetic": "OH-la / bon DEE-a",
+        "bcp47": "ca-AD"
+      },
+      {
+        "type": "Thank You",
+        "text": "Moltes gràcies! (Thank you very much!)",
+        "phonetic": "MOL-tes GRA-syas",
+        "bcp47": "ca-AD"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Adéu! / Fins aviat! (Goodbye / See you soon!)",
+        "phonetic": "a-DEH-oo / feens a-vee-AT",
+        "bcp47": "ca-AD"
+      },
+      {
+        "type": "How are you?",
+        "text": "Com estàs? / Com anem? (How are you?)",
+        "phonetic": "kom es-TAS",
+        "bcp47": "ca-AD"
+      }
+    ]
+  },
+  "ARE": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "هلا ومرحبا! / السلام عليكم (Hala wa marhaba!)",
+        "phonetic": "HA-la wa MAR-ha-ba",
+        "bcp47": "ar-AE"
+      },
+      {
+        "type": "Thank You",
+        "text": "مشكور / شكراً جزيلاً (Mashkoor!)",
+        "phonetic": "mash-KOOR / SHUK-ran ja-ZEE-lan",
+        "bcp47": "ar-AE"
+      },
+      {
+        "type": "Goodbye",
+        "text": "مع السلامة / فمان الله (Ma'as-salama)",
+        "phonetic": "ma-as-sa-LA-ma / f-man il-LAH",
+        "bcp47": "ar-AE"
+      },
+      {
+        "type": "How are you?",
+        "text": "شحالك؟ / علومك؟ (Shhalak? — Emirati)",
+        "phonetic": "sh-HA-lak / u-LOOM-ak",
+        "bcp47": "ar-AE"
+      }
+    ]
+  },
+  "ARM": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Բարև ձեզ! / Բարև! (Barev dzez! — Hello!)",
+        "phonetic": "ba-REV dzez",
+        "bcp47": "hy-AM"
+      },
+      {
+        "type": "Thank You",
+        "text": "Շնորհակալություն! / Մերսի! (Shnorhakalutyun!)",
+        "phonetic": "shnor-ha-ka-lu-TYOON",
+        "bcp47": "hy-AM"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Ցտեսություն! (Tstesutyun! — See you soon!)",
+        "phonetic": "ts-te-soo-TYOON",
+        "bcp47": "hy-AM"
+      },
+      {
+        "type": "How are you?",
+        "text": "Ինչպե՞ս եք (Inchpes ek? — How are you?)",
+        "phonetic": "eench-PES ek",
+        "bcp47": "hy-AM"
+      }
+    ]
+  },
+  "ASM": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Talofa lava! / Hello! (Samoan & English)",
+        "phonetic": "ta-LO-fa LA-va",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Thank You",
+        "text": "Fa'afetai lava! (Thank you! — Samoan)",
+        "phonetic": "fa-a-feh-TAI LA-va",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Tofa soifua! (Farewell! — Samoan)",
+        "phonetic": "TO-fa soy-FOO-a",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "How are you?",
+        "text": "O a mai oe? (How are you? — Samoan)",
+        "phonetic": "o a MY o-eh",
+        "bcp47": "en-US"
+      }
+    ],
+    "languages": [
+      {
+        "name": "Samoan & English",
+        "nativeName": "Gagana Samoa / English",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Austronesian / Germanic",
+        "script": "Latin",
+        "bcp47": "en-US",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in American Samoa."
+      }
+    ]
+  },
+  "ATA": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Hello! / Bonjour! / Привет! / Hola!",
+        "phonetic": "heh-LOH / bohn-ZHOOR",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Thank You",
+        "text": "Thank you! / Merci! / Спасибо! / Gracias!",
+        "phonetic": "thank yoo / spa-SEE-bo",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Safe travels! / See you at McMurdo!",
+        "phonetic": "sayf TRA-vulz",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "How are you?",
+        "text": "Keeping warm down at 90° South?",
+        "phonetic": "KEE-ping warm",
+        "bcp47": "en-US"
+      }
+    ],
+    "languages": [
+      {
+        "name": "English & Scientific Lingua Francas",
+        "nativeName": "International Research Stations",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Multilingual Outposts",
+        "script": "Latin / Cyrillic",
+        "bcp47": "en-US",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Antarctica."
+      }
+    ]
+  },
+  "ATC": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "G'day! / Hello there! (Australian English)",
+        "phonetic": "g-DAY",
+        "bcp47": "en-AU"
+      },
+      {
+        "type": "Thank You",
+        "text": "Cheers! / Thanks very much!",
+        "phonetic": "cheerz",
+        "bcp47": "en-AU"
+      },
+      {
+        "type": "Goodbye",
+        "text": "See you later! / Fair winds!",
+        "phonetic": "fair WINDZ",
+        "bcp47": "en-AU"
+      },
+      {
+        "type": "How are you?",
+        "text": "How's everything out in the Timor Sea?",
+        "phonetic": "howz it GO-ing",
+        "bcp47": "en-AU"
+      }
+    ],
+    "languages": [
+      {
+        "name": "English (Australian)",
+        "nativeName": "English",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Indo-European (Germanic)",
+        "script": "Latin",
+        "bcp47": "en-AU",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Ashmore and Cartier Is.."
+      }
+    ]
+  },
+  "ATF": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Bonjour ! / Salut ! (French Research Stations)",
+        "phonetic": "bohn-ZHOOR / sa-LYOO",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Thank You",
+        "text": "Merci beaucoup ! (Thank you very much!)",
+        "phonetic": "mer-SEE boh-KOO",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Au revoir ! / Bon vent ! (Fair winds!)",
+        "phonetic": "oh ruh-VWAHR / bohn VAHN",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "How are you?",
+        "text": "Comment ça va aux Kerguelen ?",
+        "phonetic": "ko-mahn sa VA",
+        "bcp47": "fr-FR"
+      }
+    ],
+    "languages": [
+      {
+        "name": "French",
+        "nativeName": "Français",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Indo-European (Romance)",
+        "script": "Latin",
+        "bcp47": "fr-FR",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Fr. S. Antarctic Lands."
+      }
+    ]
+  },
+  "ATG": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Wah a gwaan? / Good day! (Antiguan Creole)",
+        "phonetic": "wah a GWAHN",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Thank You",
+        "text": "Tank yuh very much! / Blessings!",
+        "phonetic": "tank yuh / BLESS-inz",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Goodbye",
+        "text": "See yuh later! / Take care!",
+        "phonetic": "see yuh LAY-ta",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "How are you?",
+        "text": "Me good, man! How yuh keeping?",
+        "phonetic": "mee GOOD mahn",
+        "bcp47": "en-US"
+      }
+    ]
+  },
+  "AZE": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Salam! / Xoş gördük! (Hello!)",
+        "phonetic": "sa-LAM / khosh gur-DUK",
+        "bcp47": "az-AZ"
+      },
+      {
+        "type": "Thank You",
+        "text": "Çox sağ olun! / Təşəkkür edirəm! (Thank you)",
+        "phonetic": "chokh sah oh-LOON",
+        "bcp47": "az-AZ"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Sağ olun! / Görüşənədək! (Goodbye!)",
+        "phonetic": "sah oh-LOON / gu-ru-sha-na-DEK",
+        "bcp47": "az-AZ"
+      },
+      {
+        "type": "How are you?",
+        "text": "Necəsiniz? / İşlər necədir? (How are you?)",
+        "phonetic": "ne-je-si-NIZ",
+        "bcp47": "az-AZ"
+      }
+    ]
+  },
+  "BDI": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Bwakeye! / Amahoro! (Good day / Peace — Kirundi)",
+        "phonetic": "bwa-KE-ye / a-ma-HO-ro",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Thank You",
+        "text": "Urakoze cane! / Merci beaucoup! (Thank you!)",
+        "phonetic": "oo-ra-KO-ze CHA-ne",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Goodbye",
+        "text": "N'agasaga! / Au revoir! (Goodbye!)",
+        "phonetic": "na-ga-SA-ga",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "How are you?",
+        "text": "Amakuru? / Ni meza! (How are you? / Fine!)",
+        "phonetic": "a-ma-KOO-roo",
+        "bcp47": "fr-FR"
+      }
+    ]
+  },
+  "BEN": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Kú àbɔ̀! / Bonjour ! (Fon & French)",
+        "phonetic": "koo a-BAW / bohn-ZHOOR",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Thank You",
+        "text": "Akpé! / E ná cɛ! / Merci beaucoup !",
+        "phonetic": "ak-PEH / eh na CHEH",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Ó dàbò! / Au revoir ! (Goodbye!)",
+        "phonetic": "oh da-BAW / oh ruh-VWAHR",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "How are you?",
+        "text": "A fɔ́n ganjí à? (Did you wake well? — Fon)",
+        "phonetic": "a fawn gan-JEE a",
+        "bcp47": "fr-FR"
+      }
+    ]
+  },
+  "BFA": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Ne y kibare! (Mooré) / Bonjour !",
+        "phonetic": "neh ee kee-BA-re / bohn-ZHOOR",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Thank You",
+        "text": "Barka! / Merci beaucoup ! (Thank you!)",
+        "phonetic": "BAR-ka / mer-SEE",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Wend na ko ndaare! / Au revoir !",
+        "phonetic": "wend na ko n-DA-re",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "How are you?",
+        "text": "Laafi bala! (Only health / Very well — Mooré)",
+        "phonetic": "LAA-fee BA-la",
+        "bcp47": "fr-FR"
+      }
+    ]
+  },
+  "BGD": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "আসসালামু আলাইকুম! / নমস্কার! (Salam / Nomoshkar!)",
+        "phonetic": "sa-LAM / no-mosh-KAR",
+        "bcp47": "bn-BD"
+      },
+      {
+        "type": "Thank You",
+        "text": "অনেক ধন্যবাদ! (Onek dhonnobad!)",
+        "phonetic": "o-NEK dhon-no-BAD",
+        "bcp47": "bn-BD"
+      },
+      {
+        "type": "Goodbye",
+        "text": "আবার দেখা হবে! / বিদায়! (Abar dekha hobe!)",
+        "phonetic": "a-BAR de-KHA ho-BE",
+        "bcp47": "bn-BD"
+      },
+      {
+        "type": "How are you?",
+        "text": "আপনি কেমন আছেন? (Apni kemon achen?)",
+        "phonetic": "ap-NEE ke-MON a-CHEN",
+        "bcp47": "bn-BD"
+      }
+    ]
+  },
+  "BGR": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Здравейте! / Здравей! (Zdraveyte!)",
+        "phonetic": "zdra-VEY-te / zdra-VEY",
+        "bcp47": "bg-BG"
+      },
+      {
+        "type": "Thank You",
+        "text": "Благодаря много! (Blagodarya mnogo!)",
+        "phonetic": "bla-go-dar-YA MNO-go",
+        "bcp47": "bg-BG"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Довиждане! / Чао! (Dovizhdane!)",
+        "phonetic": "do-VIZH-da-ne / CHOW",
+        "bcp47": "bg-BG"
+      },
+      {
+        "type": "How are you?",
+        "text": "Как сте? / Как си? (Kak ste?)",
+        "phonetic": "kahk STE / kahk SEE",
+        "bcp47": "bg-BG"
+      }
+    ]
+  },
+  "BHR": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "هلا ومرحبا! / السلام عليكم (Hala wa marhaba!)",
+        "phonetic": "HA-la wa MAR-ha-ba",
+        "bcp47": "ar-BH"
+      },
+      {
+        "type": "Thank You",
+        "text": "مشكور ما قصرت / شكراً (Mashkoor!)",
+        "phonetic": "mash-KOOR ma gas-SART",
+        "bcp47": "ar-BH"
+      },
+      {
+        "type": "Goodbye",
+        "text": "مع السلامة / في أمان الله (Ma'as-salama)",
+        "phonetic": "ma-as-sa-LA-ma",
+        "bcp47": "ar-BH"
+      },
+      {
+        "type": "How are you?",
+        "text": "شحوالك؟ / شخبار؟ (Shakhbar? — Bahraini)",
+        "phonetic": "shakh-BAR / sh-HWA-lak",
+        "bcp47": "ar-BH"
+      }
+    ]
+  },
+  "BHS": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "How ya doin', bey? / Good morning!",
+        "phonetic": "how ya DOO-in bay",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Thank You",
+        "text": "Much tanks! / Thank you kindly!",
+        "phonetic": "much TANKS",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Check ya later! / Catch ya soon!",
+        "phonetic": "chek ya LAY-ta",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "How are you?",
+        "text": "Everything straight, man!",
+        "phonetic": "ev-ree-thing STRAYT mahn",
+        "bcp47": "en-US"
+      }
+    ]
+  },
+  "BIH": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Dobar dan! / Zdravo! / Merhaba!",
+        "phonetic": "DO-bar dahn / ZDRA-vo",
+        "bcp47": "bs-BA"
+      },
+      {
+        "type": "Thank You",
+        "text": "Hvala lijepa! / Hvala puno! (Thank you!)",
+        "phonetic": "HVA-la LYE-pa / POO-no",
+        "bcp47": "bs-BA"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Doviđenja! / Vidimo se! (Goodbye!)",
+        "phonetic": "do-vee-JEN-ya",
+        "bcp47": "bs-BA"
+      },
+      {
+        "type": "How are you?",
+        "text": "Kako ste? / Šta ima? (How are you?)",
+        "phonetic": "KA-ko ste / shta EE-ma",
+        "bcp47": "bs-BA"
+      }
+    ]
+  },
+  "BLM": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Bonjour ! / Salut ! (French Caribbean Hello)",
+        "phonetic": "bohn-ZHOOR / sa-LYOO",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Thank You",
+        "text": "Merci beaucoup ! / Merci bien ! (Thank you!)",
+        "phonetic": "mer-SEE boh-KOO",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Au revoir ! / À la prochaine ! (See you soon!)",
+        "phonetic": "oh ruh-VWAHR",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "How are you?",
+        "text": "Comment allez-vous ? / Ça va ? (How are you?)",
+        "phonetic": "ko-mahn ta-lay VOO",
+        "bcp47": "fr-FR"
+      }
+    ],
+    "languages": [
+      {
+        "name": "French",
+        "nativeName": "Français",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Indo-European (Romance)",
+        "script": "Latin",
+        "bcp47": "fr-FR",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in St-Barthélemy."
+      }
+    ]
+  },
+  "BLR": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Прывітанне! / Добры дзень! (Pryvitannie!)",
+        "phonetic": "pry-vee-TAN-ye / DOB-ry dzen",
+        "bcp47": "be-BY"
+      },
+      {
+        "type": "Thank You",
+        "text": "Дзякуй вялікі! / Спасибо! (Dziakuj vialiki!)",
+        "phonetic": "DZYA-koo-ee vya-LEE-kee",
+        "bcp47": "be-BY"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Да пабачэння! (Da pabačennia!)",
+        "phonetic": "da pa-ba-CHEN-ya",
+        "bcp47": "be-BY"
+      },
+      {
+        "type": "How are you?",
+        "text": "Як справы? (Jak spravy? — How are things?)",
+        "phonetic": "yahk SPRA-vy",
+        "bcp47": "be-BY"
+      }
+    ]
+  },
+  "BLZ": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Weh di go aan? / ¡Hola! (Belizean Kriol & Spanish)",
+        "phonetic": "weh dee go AHN",
+        "bcp47": "en-BZ"
+      },
+      {
+        "type": "Thank You",
+        "text": "Tenk yu! / Muchas gracias! (Thank you!)",
+        "phonetic": "tenk yoo",
+        "bcp47": "en-BZ"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Si yu lata! / ¡Hasta luego! (See you later!)",
+        "phonetic": "see yoo LA-ta",
+        "bcp47": "en-BZ"
+      },
+      {
+        "type": "How are you?",
+        "text": "Ah good, man! / ¿Todo bien?",
+        "phonetic": "ah good mahn",
+        "bcp47": "en-BZ"
+      }
+    ]
+  },
+  "BMU": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "What's on, aceboy? / Good morning! (Bermudian)",
+        "phonetic": "wuts on AYS-boy",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Thank You",
+        "text": "Thank you kindly! / Cheers!",
+        "phonetic": "thank yoo KYND-lee",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Take it easy! / Catch ya later!",
+        "phonetic": "tayk it EE-zee",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "How are you?",
+        "text": "How ya keepin'? All good?",
+        "phonetic": "how ya KEE-pin",
+        "bcp47": "en-GB"
+      }
+    ]
+  },
+  "BRA": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Olá! / Tudo bem?",
+        "phonetic": "oh-LAH / TOO-doo beng",
+        "bcp47": "pt-BR"
+      },
+      {
+        "type": "Thank You",
+        "text": "Muito obrigado (m) / obrigada (f)",
+        "phonetic": "MOOY-too oh-bree-GAH-doo",
+        "bcp47": "pt-BR"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Tchau! / Até logo!",
+        "phonetic": "CHOW / ah-TEH LOH-goo",
+        "bcp47": "pt-BR"
+      },
+      {
+        "type": "How are you?",
+        "text": "Como vai? / E aí, beleza?",
+        "phonetic": "koh-moo VYE / eh eye, beh-LEH-zah",
+        "bcp47": "pt-BR"
+      }
+    ]
+  },
+  "BRB": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "How yuh doing? / Good day! (Bajan English)",
+        "phonetic": "how yuh DOO-in",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Thank You",
+        "text": "Thank yuh kindly! / Much obliged!",
+        "phonetic": "thank yuh KYND-lee",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Walk good! / Check yuh later!",
+        "phonetic": "wawk GOOD",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "How are you?",
+        "text": "Everything sweet, man!",
+        "phonetic": "ev-ree-thing SWEET",
+        "bcp47": "en-US"
+      }
+    ]
+  },
+  "BRN": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Assalamualaikum! / Selamat pagi! (Malay)",
+        "phonetic": "se-LA-mat PA-gee",
+        "bcp47": "ms-MY"
+      },
+      {
+        "type": "Thank You",
+        "text": "Terima kasih banyak! (Thank you very much!)",
+        "phonetic": "te-REE-ma KA-sih BAN-yak",
+        "bcp47": "ms-MY"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Jumpa lagi! / Selamat jalan! (See you again!)",
+        "phonetic": "JOOM-pa LA-gee",
+        "bcp47": "ms-MY"
+      },
+      {
+        "type": "How are you?",
+        "text": "Sihat biskita? / Apa khabar? (How are you?)",
+        "phonetic": "see-HAT bis-KEE-ta",
+        "bcp47": "ms-MY"
+      }
+    ]
+  },
+  "BTN": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "ཀུ་ཟུ་ཟང་པོ་ལ། (Kuzuzangpo la! — Dzongkha Hello)",
+        "phonetic": "koo-zoo-zang-po LA",
+        "bcp47": "dz-BT"
+      },
+      {
+        "type": "Thank You",
+        "text": "བཀའ་དྲིན་ཆེ་ལ། (Kadrinchey la! — Thank you)",
+        "phonetic": "ka-drin-chey LA",
+        "bcp47": "dz-BT"
+      },
+      {
+        "type": "Goodbye",
+        "text": "ལོག་མཇལ་གེ (Lok jay ge! — See you again!)",
+        "phonetic": "lok JAY gay",
+        "bcp47": "dz-BT"
+      },
+      {
+        "type": "How are you?",
+        "text": "ག་དེ་སྦེ་ཡོད? (Gadey bay yoe? — How are you?)",
+        "phonetic": "ga-DAY bay YO",
+        "bcp47": "dz-BT"
+      }
+    ]
+  },
+  "BWA": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Dumela rra / mma! (Setswana — Hello Sir / Madam)",
+        "phonetic": "doo-MEH-la rah / mah",
+        "bcp47": "en-ZA"
+      },
+      {
+        "type": "Thank You",
+        "text": "Ke a leboga! (Thank you! — Setswana)",
+        "phonetic": "keh a leh-BO-ga",
+        "bcp47": "en-ZA"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Tsamaya sentle! (Go well! — Goodbye!)",
+        "phonetic": "tsa-MY-a SEN-tleh",
+        "bcp47": "en-ZA"
+      },
+      {
+        "type": "How are you?",
+        "text": "O tsogile jang? (How did you wake?)",
+        "phonetic": "o tso-GEE-le jang",
+        "bcp47": "en-ZA"
+      }
+    ]
+  },
+  "CAF": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Bara ala! / Mo yeke? (Sango — Central African)",
+        "phonetic": "BA-ra a-LA / mo YE-ke",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Thank You",
+        "text": "Singila mingi! / Merci beaucoup ! (Thank you!)",
+        "phonetic": "sin-GEE-la MIN-gee",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Gue nzoni! / Au revoir ! (Go well!)",
+        "phonetic": "geh n-ZO-nee",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "How are you?",
+        "text": "Mbi yeke nzoni! (I am well! — Sango)",
+        "phonetic": "m-bee YE-ke n-ZO-nee",
+        "bcp47": "fr-FR"
+      }
+    ]
+  },
+  "CIV": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Akwaba! (Welcome — Akan) / Bonjour !",
+        "phonetic": "a-KWA-ba / bohn-ZHOOR",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Thank You",
+        "text": "Merci beaucoup ! / Yako! (Thank you!)",
+        "phonetic": "mer-SEE boh-KOO",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Au revoir ! / On est ensemble ! (Goodbye!)",
+        "phonetic": "oh ruh-VWAHR",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "How are you?",
+        "text": "Comment ça va ? / Y'a pas drap! (Ivorian French)",
+        "phonetic": "ko-mahn sa VA",
+        "bcp47": "fr-FR"
+      }
+    ]
+  },
+  "CMR": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Bonjour ! / Mbote! / How na? (Cameroon)",
+        "phonetic": "bohn-ZHOOR / m-BO-te",
+        "bcp47": "fr-CM"
+      },
+      {
+        "type": "Thank You",
+        "text": "Merci beaucoup ! / Thank you plenty!",
+        "phonetic": "mer-SEE boh-KOO",
+        "bcp47": "fr-CM"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Au revoir ! / On se voit bientôt ! (Goodbye!)",
+        "phonetic": "oh ruh-VWAHR",
+        "bcp47": "fr-CM"
+      },
+      {
+        "type": "How are you?",
+        "text": "Ça va ? / Comment les bails? (How's it going?)",
+        "phonetic": "sa VA / ko-mahn lay BYE",
+        "bcp47": "fr-CM"
+      }
+    ]
+  },
+  "COD": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Mbote! (Lingala) / Jambo! (Swahili) / Bonjour !",
+        "phonetic": "m-BO-te / JAM-bo",
+        "bcp47": "fr-CD"
+      },
+      {
+        "type": "Thank You",
+        "text": "Matondo! / Asante! / Merci mingi! (Thank you!)",
+        "phonetic": "ma-TON-do / a-SAN-te",
+        "bcp47": "fr-CD"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Kende malamu! / Tokomonana! (Go well!)",
+        "phonetic": "KEN-de ma-LA-moo",
+        "bcp47": "fr-CD"
+      },
+      {
+        "type": "How are you?",
+        "text": "Ozali malamu? / Sango nini? (What's the news?)",
+        "phonetic": "o-ZA-li ma-LA-moo",
+        "bcp47": "fr-CD"
+      }
+    ]
+  },
+  "COG": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Mbote! / Bonjour ! (Lingala, Kituba & French)",
+        "phonetic": "m-BO-te / bohn-ZHOOR",
+        "bcp47": "fr-CG"
+      },
+      {
+        "type": "Thank You",
+        "text": "Matondi! / Merci mingi! (Thank you very much!)",
+        "phonetic": "ma-TON-dee / mer-SEE MIN-gee",
+        "bcp47": "fr-CG"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Tikala malamu! / Au revoir ! (Stay well!)",
+        "phonetic": "tee-KA-la ma-LA-moo",
+        "bcp47": "fr-CG"
+      },
+      {
+        "type": "How are you?",
+        "text": "Sango nini? / Ozali malamu? (How are you?)",
+        "phonetic": "SAHN-go NEE-nee",
+        "bcp47": "fr-CG"
+      }
+    ]
+  },
+  "COK": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Kia orana! (May you live long! — Cook Is. Māori)",
+        "phonetic": "kee-a o-RA-na",
+        "bcp47": "en-NZ"
+      },
+      {
+        "type": "Thank You",
+        "text": "Meitaki ma'ata! (Thank you very much!)",
+        "phonetic": "may-TA-kee ma-A-ta",
+        "bcp47": "en-NZ"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Ka kite! / Aere ra! (See you soon!)",
+        "phonetic": "ka KEE-te / ay-EH-re ra",
+        "bcp47": "en-NZ"
+      },
+      {
+        "type": "How are you?",
+        "text": "Pe'ea koe? (How are you?)",
+        "phonetic": "peh-EY-a ko-EH",
+        "bcp47": "en-NZ"
+      }
+    ],
+    "languages": [
+      {
+        "name": "Cook Islands Māori & English",
+        "nativeName": "Te Reo Ipukarea",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Austronesian (Polynesian)",
+        "script": "Latin",
+        "bcp47": "en-NZ",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Cook Is.."
+      }
+    ]
+  },
+  "COM": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Bariza! / As-salamu alaykum! (Shikomori & Arabic)",
+        "phonetic": "ba-REE-za / sa-LA-mu a-LAY-kum",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Thank You",
+        "text": "Marahaba! / Merci beaucoup ! (Thank you!)",
+        "phonetic": "ma-ra-HA-ba",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Kwaheri! / Au revoir ! (Goodbye!)",
+        "phonetic": "kwa-HEH-ree",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "How are you?",
+        "text": "Mwana wa dji? / Salama! (How are you?)",
+        "phonetic": "MWA-na wa jee",
+        "bcp47": "fr-FR"
+      }
+    ]
+  },
+  "CPV": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Bon dia! / Modja ki bu sta? (Kabuverdianu Kriolu)",
+        "phonetic": "bohn DEE-a / MO-ja kee boo sta",
+        "bcp47": "pt-PT"
+      },
+      {
+        "type": "Thank You",
+        "text": "Obrigadu! / Obrigada! (Thank you!)",
+        "phonetic": "ob-ree-GA-doo",
+        "bcp47": "pt-PT"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Té logu! / Até logo! (See you later!)",
+        "phonetic": "teh LO-goo",
+        "bcp47": "pt-PT"
+      },
+      {
+        "type": "How are you?",
+        "text": "N sta dretu! (I am doing great! — Kriolu)",
+        "phonetic": "n-sta DREH-too",
+        "bcp47": "pt-PT"
+      }
+    ]
+  },
+  "CRI": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "¡Hola! / ¡Pura vida! (Iconic Costa Rican greeting)",
+        "phonetic": "OH-la / POO-ra VEE-da",
+        "bcp47": "es-CR"
+      },
+      {
+        "type": "Thank You",
+        "text": "¡Muchas gracias! / ¡Pura vida! (Thank you!)",
+        "phonetic": "MOO-chas GRA-syas",
+        "bcp47": "es-CR"
+      },
+      {
+        "type": "Goodbye",
+        "text": "¡Hasta luego! / ¡Nos vemos, mae! (Goodbye!)",
+        "phonetic": "AS-ta LWE-go",
+        "bcp47": "es-CR"
+      },
+      {
+        "type": "How are you?",
+        "text": "¿Cómo estás? / ¿Todo pura vida? (How are you?)",
+        "phonetic": "KO-mo es-TAS",
+        "bcp47": "es-CR"
+      }
+    ]
+  },
+  "CUB": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "¡Hola! / ¿Qué bolá, asere? (Cuban greeting)",
+        "phonetic": "OH-la / keh bo-LA a-SE-re",
+        "bcp47": "es-419"
+      },
+      {
+        "type": "Thank You",
+        "text": "¡Muchas gracias! / ¡Mil gracias! (Thank you!)",
+        "phonetic": "MOO-chas GRA-syas",
+        "bcp47": "es-419"
+      },
+      {
+        "type": "Goodbye",
+        "text": "¡Chao! / ¡Nos vemos! (Goodbye / See you!)",
+        "phonetic": "chow / nos VE-mos",
+        "bcp47": "es-419"
+      },
+      {
+        "type": "How are you?",
+        "text": "¿Cómo tú estás? / ¿Todo bien? (How are you?)",
+        "phonetic": "KO-mo too es-TAS",
+        "bcp47": "es-419"
+      }
+    ]
+  },
+  "CUW": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Bon dia! / Kon ta bai? (Papiamentu Hello)",
+        "phonetic": "bon DEE-a / kon ta BYE",
+        "bcp47": "nl-NL"
+      },
+      {
+        "type": "Thank You",
+        "text": "Masha danki! (Thank you very much!)",
+        "phonetic": "MA-sha DAHN-kee",
+        "bcp47": "nl-NL"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Ayó! / Te aweró! (Goodbye / See you soon!)",
+        "phonetic": "a-YO / teh a-weh-RO",
+        "bcp47": "nl-NL"
+      },
+      {
+        "type": "How are you?",
+        "text": "Mi ta bon, danki! (I am well, thank you!)",
+        "phonetic": "mee ta BON DAHN-kee",
+        "bcp47": "nl-NL"
+      }
+    ],
+    "languages": [
+      {
+        "name": "Papiamentu & Dutch",
+        "nativeName": "Papiamentu / Nederlands",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Iberian Creole / Germanic",
+        "script": "Latin",
+        "bcp47": "nl-NL",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Curaçao."
+      }
+    ]
+  },
+  "CYM": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "What's happenin'? / Good day! (Caymanian)",
+        "phonetic": "wuts HAP-nin",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Thank You",
+        "text": "Thank you kindly! / Much appreciated!",
+        "phonetic": "thank yoo KYND-lee",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Take care! / Catch you soon!",
+        "phonetic": "tayk KAIR",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "How are you?",
+        "text": "How you keepin'? / Doing fine!",
+        "phonetic": "how yoo KEE-pin",
+        "bcp47": "en-US"
+      }
+    ],
+    "languages": [
+      {
+        "name": "English (Caymanian)",
+        "nativeName": "English",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Indo-European (Germanic)",
+        "script": "Latin",
+        "bcp47": "en-US",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Cayman Is.."
+      }
+    ]
+  },
+  "CYN": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Merhaba! / Hoş geldiniz! (Turkish Hello)",
+        "phonetic": "mer-ha-BA / hosh gel-di-NIZ",
+        "bcp47": "tr-TR"
+      },
+      {
+        "type": "Thank You",
+        "text": "Teşekkür ederim! / Çok sağ olun! (Thank you)",
+        "phonetic": "te-shek-KUR e-de-RIM",
+        "bcp47": "tr-TR"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Görüşmek üzere! / Hoşça kalın! (Goodbye!)",
+        "phonetic": "go-rush-MEK u-ze-RE",
+        "bcp47": "tr-TR"
+      },
+      {
+        "type": "How are you?",
+        "text": "Nasılsınız? / Ne haber? (How are you?)",
+        "phonetic": "na-sul-su-NUZ",
+        "bcp47": "tr-TR"
+      }
+    ],
+    "languages": [
+      {
+        "name": "Turkish",
+        "nativeName": "Türkçe",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Turkic (Oghuz)",
+        "script": "Latin",
+        "bcp47": "tr-TR",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in N. Cyprus."
+      }
+    ]
+  },
+  "CYP": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Γεια σου! / Merhaba! (Yia sou / Merhaba!)",
+        "phonetic": "YA soo / mer-ha-BA",
+        "bcp47": "el-CY"
+      },
+      {
+        "type": "Thank You",
+        "text": "Ευχαριστώ πολύ! / Teşekkür ederim!",
+        "phonetic": "ef-kha-ree-STO po-LEE",
+        "bcp47": "el-CY"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Αντίο! / Τα λέμε! / Hoşça kal!",
+        "phonetic": "a-DEE-o / ta LE-me",
+        "bcp47": "el-CY"
+      },
+      {
+        "type": "How are you?",
+        "text": "Τι κάνεις; / Nasılsın? (How are you?)",
+        "phonetic": "tee KA-nees / na-sul-SUN",
+        "bcp47": "el-CY"
+      }
+    ]
+  },
+  "CZE": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Dobrý den! / Ahoj! (Hello / Good day!)",
+        "phonetic": "DOB-ree den / a-HOY",
+        "bcp47": "cs-CZ"
+      },
+      {
+        "type": "Thank You",
+        "text": "Děkuji mockrát! / Díky! (Thank you very much!)",
+        "phonetic": "DYE-ku-yi MOTS-krat",
+        "bcp47": "cs-CZ"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Na shledanou! / Ahoj! (Goodbye!)",
+        "phonetic": "na SKHLE-da-nou",
+        "bcp47": "cs-CZ"
+      },
+      {
+        "type": "How are you?",
+        "text": "Jak se máte? / Jak se máš? (How are you?)",
+        "phonetic": "yahk se MA-te",
+        "bcp47": "cs-CZ"
+      }
+    ]
+  },
+  "DJI": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Nabad! (Somali) / Ma'asse! (Afar) / Salaam!",
+        "phonetic": "na-BAD / ma-AS-seh",
+        "bcp47": "ar-DJ"
+      },
+      {
+        "type": "Thank You",
+        "text": "Mahadsanid! / Shukran! / Merci! (Thank you!)",
+        "phonetic": "ma-had-SA-nid / SHUK-ran",
+        "bcp47": "ar-DJ"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Nabad gelyo! / Au revoir ! (Go in peace!)",
+        "phonetic": "na-BAD gel-YO",
+        "bcp47": "ar-DJ"
+      },
+      {
+        "type": "How are you?",
+        "text": "Iska warran? / Ça va? (What's the news?)",
+        "phonetic": "is-ka war-RAN",
+        "bcp47": "ar-DJ"
+      }
+    ]
+  },
+  "DMA": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Sa ka fèt? (Kwéyòl) / Good morning!",
+        "phonetic": "sa ka FET",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Thank You",
+        "text": "Mèsi anpil! / Thank you very much!",
+        "phonetic": "meh-SEE ahn-PEEL",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Orevwa! / See you later!",
+        "phonetic": "o-reh-VWA",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "How are you?",
+        "text": "Mwen byen! (I am well — Kwéyòl)",
+        "phonetic": "mwen BYEN",
+        "bcp47": "en-US"
+      }
+    ]
+  },
+  "DNK": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Hej! / Goddag! (Hello / Good day!)",
+        "phonetic": "hy / go-DA",
+        "bcp47": "da-DK"
+      },
+      {
+        "type": "Thank You",
+        "text": "Tusind tak! / Mange tak! (A thousand thanks!)",
+        "phonetic": "TOO-sin tahk",
+        "bcp47": "da-DK"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Farvel! / Vi ses! (Goodbye / See you!)",
+        "phonetic": "far-VEL / vee SAYS",
+        "bcp47": "da-DK"
+      },
+      {
+        "type": "How are you?",
+        "text": "Hvordan har du det? (How are you?)",
+        "phonetic": "vor-DAN har doo deh",
+        "bcp47": "da-DK"
+      }
+    ]
+  },
+  "DOM": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "¡Hola! / ¿Qué lo qué? (KLK — Dominican!)",
+        "phonetic": "OH-la / keh lo KEH",
+        "bcp47": "es-DO"
+      },
+      {
+        "type": "Thank You",
+        "text": "¡Muchas gracias! (Thank you very much!)",
+        "phonetic": "MOO-chas GRA-syas",
+        "bcp47": "es-DO"
+      },
+      {
+        "type": "Goodbye",
+        "text": "¡Nos vemos! / ¡Cuídate mucho! (See you!)",
+        "phonetic": "nos VE-mos",
+        "bcp47": "es-DO"
+      },
+      {
+        "type": "How are you?",
+        "text": "¿Cómo tú tá? / ¿Todo bien? (How are you?)",
+        "phonetic": "KO-mo too TAH",
+        "bcp47": "es-DO"
+      }
+    ]
+  },
+  "DZA": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "سلام! / أزول! (Salam! / Azul! — Tamazight)",
+        "phonetic": "sa-LAM / a-ZOOL",
+        "bcp47": "ar-DZ"
+      },
+      {
+        "type": "Thank You",
+        "text": "صحيت / شكراً بزاف (Sahhit! / Tanemmirt!)",
+        "phonetic": "sah-HEET / ta-nem-MEERT",
+        "bcp47": "ar-DZ"
+      },
+      {
+        "type": "Goodbye",
+        "text": "بسلامة! / تهلا في روحك (Beslama!)",
+        "phonetic": "bes-LA-ma",
+        "bcp47": "ar-DZ"
+      },
+      {
+        "type": "How are you?",
+        "text": "واش راك؟ / لاباس؟ (Wash rak? — Darja)",
+        "phonetic": "wash RAK / la-BAS",
+        "bcp47": "ar-DZ"
+      }
+    ]
+  },
+  "ECU": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "¡Hola! / Allillanchu! (Spanish & Kichwa)",
+        "phonetic": "OH-la / ah-yee-YAN-choo",
+        "bcp47": "es-EC"
+      },
+      {
+        "type": "Thank You",
+        "text": "¡Muchas gracias! / Yupaychani! (Thank you!)",
+        "phonetic": "MOO-chas GRA-syas / yoo-pai-CHA-nee",
+        "bcp47": "es-EC"
+      },
+      {
+        "type": "Goodbye",
+        "text": "¡Chao! / ¡Nos vemos, ñaño! (Goodbye!)",
+        "phonetic": "chow / nos VE-mos NYA-nyo",
+        "bcp47": "es-EC"
+      },
+      {
+        "type": "How are you?",
+        "text": "¿Cómo estás? / ¿Todo chévere? (How are you?)",
+        "phonetic": "KO-mo es-TAS",
+        "bcp47": "es-EC"
+      }
+    ]
+  },
+  "ERI": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "ሰላም! / ከመይ ኣለኻ? (Selam! — Tigrinya & Arabic)",
+        "phonetic": "se-LAM / ke-MEY a-le-KHA",
+        "bcp47": "ar-SA"
+      },
+      {
+        "type": "Thank You",
+        "text": "የቐንየለይ! (Yekenyeley! — Thank you! — Tigrinya)",
+        "phonetic": "ye-ken-ye-LEY",
+        "bcp47": "ar-SA"
+      },
+      {
+        "type": "Goodbye",
+        "text": "ደሓን ኩኑ! (Dehan kunu! — Stay well!)",
+        "phonetic": "de-HAHN koo-NOO",
+        "bcp47": "ar-SA"
+      },
+      {
+        "type": "How are you?",
+        "text": "ጥዕና ይሃበና! (Tena yihabena! — May we have health)",
+        "phonetic": "TEH-na yee-ha-BEH-na",
+        "bcp47": "ar-SA"
+      }
+    ]
+  },
+  "ESH": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "السلام عليكم! / مرحبا بيك! (Marhaba bik!)",
+        "phonetic": "as-sa-LA-mu a-LAY-kum",
+        "bcp47": "ar-MA"
+      },
+      {
+        "type": "Thank You",
+        "text": "شكراً جزيلاً / بارك الله فيك (Shukran!)",
+        "phonetic": "SHUK-ran ja-ZEE-lan",
+        "bcp47": "ar-MA"
+      },
+      {
+        "type": "Goodbye",
+        "text": "بالسلامة / في أمان الله (Beslama!)",
+        "phonetic": "bis-sa-LA-ma",
+        "bcp47": "ar-MA"
+      },
+      {
+        "type": "How are you?",
+        "text": "ياك لاباس؟ (Yak labas? — Hassaniya)",
+        "phonetic": "yak la-BAS",
+        "bcp47": "ar-MA"
+      }
+    ],
+    "languages": [
+      {
+        "name": "Arabic (Hassaniya)",
+        "nativeName": "العربية (حسانية)",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Afroasiatic (Semitic)",
+        "script": "Arabic",
+        "bcp47": "ar-MA",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in W. Sahara."
+      }
+    ]
+  },
+  "EST": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Tere! / Tere päevast! (Hello / Good day!)",
+        "phonetic": "TEH-reh / TEH-reh PAE-vast",
+        "bcp47": "et-EE"
+      },
+      {
+        "type": "Thank You",
+        "text": "Aitäh! / Suur tänu! (Thank you!)",
+        "phonetic": "eye-TAEH / soor TA-nu",
+        "bcp47": "et-EE"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Head aega! / Nägemist! (Goodbye!)",
+        "phonetic": "head EYE-ga / NAE-ge-mist",
+        "bcp47": "et-EE"
+      },
+      {
+        "type": "How are you?",
+        "text": "Kuidas läheb? (How is it going?)",
+        "phonetic": "KOO-ee-das LAE-heb",
+        "bcp47": "et-EE"
+      }
+    ]
+  },
+  "FIN": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Hei! / Hyvää päivää! (Hello / Good day!)",
+        "phonetic": "hay / HYU-va PAI-va",
+        "bcp47": "fi-FI"
+      },
+      {
+        "type": "Thank You",
+        "text": "Kiitos paljon! (Thank you very much!)",
+        "phonetic": "KEE-tos PAL-yon",
+        "bcp47": "fi-FI"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Näkemiin! / Moi moi! (Goodbye!)",
+        "phonetic": "NA-ke-meen / moy moy",
+        "bcp47": "fi-FI"
+      },
+      {
+        "type": "How are you?",
+        "text": "Mitä kuuluu? (How are you? — Lit. What's heard?)",
+        "phonetic": "MEE-ta KOO-loo",
+        "bcp47": "fi-FI"
+      }
+    ]
+  },
+  "FLK": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "G'day! / Good morning! (Falklands English)",
+        "phonetic": "g-DAY",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Thank You",
+        "text": "Cheers! / Thank you very much!",
+        "phonetic": "cheerz",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Goodbye",
+        "text": "See you later! / Keep safe!",
+        "phonetic": "see yoo LAY-ter",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "How are you?",
+        "text": "How's it going out on camp?",
+        "phonetic": "howz it GO-ing",
+        "bcp47": "en-GB"
+      }
+    ],
+    "languages": [
+      {
+        "name": "English (Falkland Islands)",
+        "nativeName": "English",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Indo-European (Germanic)",
+        "script": "Latin",
+        "bcp47": "en-GB",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Falkland Is.."
+      }
+    ]
+  },
+  "FRO": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Hey! / Góðan dag! (Faroese Hello / Good day!)",
+        "phonetic": "hay / GO-wan dahg",
+        "bcp47": "fo-FO"
+      },
+      {
+        "type": "Thank You",
+        "text": "Takk fyri! / Mange takk! (Thank you!)",
+        "phonetic": "tahk FEE-ree",
+        "bcp47": "fo-FO"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Farvæl! / Síggjast! (Goodbye / See you!)",
+        "phonetic": "far-VAL / SID-jast",
+        "bcp47": "fo-FO"
+      },
+      {
+        "type": "How are you?",
+        "text": "Hvussu hevur tú tað? (How are you?)",
+        "phonetic": "KVOOS-soo HEH-voor too ta",
+        "bcp47": "fo-FO"
+      }
+    ],
+    "languages": [
+      {
+        "name": "Faroese & Danish",
+        "nativeName": "Føroyskt / Dansk",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Indo-European (North Germanic)",
+        "script": "Latin",
+        "bcp47": "fo-FO",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Faeroe Is.."
+      }
+    ]
+  },
+  "FSM": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Kaselehlie! (Pohnpeian) / Ran annim! (Chuukese)",
+        "phonetic": "ka-se-LEH-lee-eh / rahn ahn-NEEM",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Thank You",
+        "text": "Kalahngan! (Pohnpeian) / Kinisou! (Chuukese)",
+        "phonetic": "ka-LAHN-gahn / kee-nee-SOU",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Kaselehlie maing! / Keneou!",
+        "phonetic": "ka-se-LEH-lee-eh myng",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "How are you?",
+        "text": "Ia iromw? (How are you doing?)",
+        "phonetic": "ee-AH ee-ROM",
+        "bcp47": "en-US"
+      }
+    ]
+  },
+  "GAB": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Mbôlô! / Bonjour ! (Fang & French Hello)",
+        "phonetic": "m-BO-lo / bohn-ZHOOR",
+        "bcp47": "fr-GA"
+      },
+      {
+        "type": "Thank You",
+        "text": "Akiba! / Merci beaucoup ! (Thank you!)",
+        "phonetic": "a-KEE-ba / mer-SEE",
+        "bcp47": "fr-GA"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Ma ke! / Au revoir ! (I am going / Goodbye!)",
+        "phonetic": "ma KEH / oh ruh-VWAHR",
+        "bcp47": "fr-GA"
+      },
+      {
+        "type": "How are you?",
+        "text": "Comment ça va ? / On dit quoi? (What's up?)",
+        "phonetic": "ko-mahn sa VA",
+        "bcp47": "fr-GA"
+      }
+    ]
+  },
+  "GEO": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "გამარჯობა! (Gamarjoba! — Victory / Hello!)",
+        "phonetic": "ga-mar-JO-ba",
+        "bcp47": "ka-GE"
+      },
+      {
+        "type": "Thank You",
+        "text": "გმადლობთ! / მადლობა! (Gmadlobt / Madloba!)",
+        "phonetic": "g-mad-LOBT / mad-LO-ba",
+        "bcp47": "ka-GE"
+      },
+      {
+        "type": "Goodbye",
+        "text": "ნახვამდის! (Nakhvamdis! — Until we meet again!)",
+        "phonetic": "nakh-VAM-dis",
+        "bcp47": "ka-GE"
+      },
+      {
+        "type": "How are you?",
+        "text": "როგორ ხართ? / როგორ ხარ? (Rogor khart?)",
+        "phonetic": "ro-GOR khart",
+        "bcp47": "ka-GE"
+      }
+    ]
+  },
+  "GGY": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Banjaour! / Hello! (Guernésiais & English)",
+        "phonetic": "bahn-JOOR / heh-LOH",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Thank You",
+        "text": "Mèrci bian! / Thank you kindly!",
+        "phonetic": "mer-SEE byahn",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Goodbye",
+        "text": "À la perchoine! / See you soon!",
+        "phonetic": "ah la pair-SHWAN",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "How are you?",
+        "text": "Coumme est qu'tu vas? / All good?",
+        "phonetic": "koom eh k-too VA",
+        "bcp47": "en-GB"
+      }
+    ],
+    "languages": [
+      {
+        "name": "English & Guernésiais",
+        "nativeName": "English / Dgèrnésiais",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Germanic / Norman-Romance",
+        "script": "Latin",
+        "bcp47": "en-GB",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Guernsey."
+      }
+    ]
+  },
+  "GHA": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Akwaaba! (Welcome!) / Maakye! (Good morning — Twi)",
+        "phonetic": "a-KWA-ba / ma-CHAY",
+        "bcp47": "en-GH"
+      },
+      {
+        "type": "Thank You",
+        "text": "Medaase paa! (Thank you very much! — Twi)",
+        "phonetic": "me-DA-say paa",
+        "bcp47": "en-GH"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Nante yie! (Walk well / Goodbye! — Twi)",
+        "phonetic": "NAN-te yee-EH",
+        "bcp47": "en-GH"
+      },
+      {
+        "type": "How are you?",
+        "text": "Ɛte sɛn? / Me ho yɛ! (How is it? / I am fine!)",
+        "phonetic": "eh-teh SEN / me ho YEH",
+        "bcp47": "en-GH"
+      }
+    ]
+  },
+  "GIN": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "I ni ce! (Maninka) / Jam waali! (Pular) / Bonjour !",
+        "phonetic": "ee nee CHEH / jahm WAA-lee",
+        "bcp47": "fr-GN"
+      },
+      {
+        "type": "Thank You",
+        "text": "A baraka! / Jaraama! / Merci beaucoup !",
+        "phonetic": "a ba-RA-ka / ja-RAA-ma",
+        "bcp47": "fr-GN"
+      },
+      {
+        "type": "Goodbye",
+        "text": "K'an ben! / Au revoir ! (See you soon!)",
+        "phonetic": "kahn BEN",
+        "bcp47": "fr-GN"
+      },
+      {
+        "type": "How are you?",
+        "text": "Tanaa alaa? / Jam tan! (Peace only!)",
+        "phonetic": "ta-NAA a-LAA / jahm TAHN",
+        "bcp47": "fr-GN"
+      }
+    ]
+  },
+  "GMB": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "I be naa! (Mandinka) / Nanga def! (Wolof)",
+        "phonetic": "ee beh NAA / nahn-ga DEF",
+        "bcp47": "en-GM"
+      },
+      {
+        "type": "Thank You",
+        "text": "Abaraka! / Jërëjëf! (Thank you!)",
+        "phonetic": "a-ba-RA-ka / je-re-JEF",
+        "bcp47": "en-GM"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Faa tuma! / Ba beneen yoon! (Until next time!)",
+        "phonetic": "faa TOO-ma",
+        "bcp47": "en-GM"
+      },
+      {
+        "type": "How are you?",
+        "text": "Kaira be? / Kaira dorong! (Peace only!)",
+        "phonetic": "KY-ra beh / KY-ra do-RONG",
+        "bcp47": "en-GM"
+      }
+    ]
+  },
+  "GNB": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Kuma ku bu sta? (Crioulo) / Olá! (Portuguese)",
+        "phonetic": "KOO-ma koo boo STA",
+        "bcp47": "pt-PT"
+      },
+      {
+        "type": "Thank You",
+        "text": "Obrigadu! / Obrigada! (Thank you!)",
+        "phonetic": "ob-ree-GA-doo",
+        "bcp47": "pt-PT"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Até logu! / N na bai! (See you later!)",
+        "phonetic": "a-TEH LO-goo",
+        "bcp47": "pt-PT"
+      },
+      {
+        "type": "How are you?",
+        "text": "N sta bon! (I am fine! — Guinea-Bissau Kriol)",
+        "phonetic": "n-sta BON",
+        "bcp47": "pt-PT"
+      }
+    ]
+  },
+  "GNQ": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "¡Hola! / Mbôlô! (Spanish & Fang)",
+        "phonetic": "OH-la / m-BO-lo",
+        "bcp47": "es-GQ"
+      },
+      {
+        "type": "Thank You",
+        "text": "¡Muchas gracias! / Akiba! (Thank you!)",
+        "phonetic": "MOO-chas GRA-syas / a-KEE-ba",
+        "bcp47": "es-GQ"
+      },
+      {
+        "type": "Goodbye",
+        "text": "¡Hasta luego! / Ma ke! (See you later!)",
+        "phonetic": "AS-ta LWE-go",
+        "bcp47": "es-GQ"
+      },
+      {
+        "type": "How are you?",
+        "text": "¿Cómo estás? / ¿Todo bien? (How are you?)",
+        "phonetic": "KO-mo es-TAS",
+        "bcp47": "es-GQ"
+      }
+    ]
+  },
+  "GRD": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "How yuh going? / Mornin'! (Grenadian)",
+        "phonetic": "how yuh GO-in",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Thank You",
+        "text": "Thanks plenty! / Much appreciated!",
+        "phonetic": "tanks PLEN-tee",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Later! / Walk good! (Goodbye!)",
+        "phonetic": "wawk GOOD",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "How are you?",
+        "text": "Everything bless, man!",
+        "phonetic": "ev-ree-thing BLESS",
+        "bcp47": "en-US"
+      }
+    ]
+  },
+  "GRL": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Aluu! / Kutaa! (Hello / Good day! — Kalaallisut)",
+        "phonetic": "a-LOO / koo-TAA",
+        "bcp47": "kl-GL"
+      },
+      {
+        "type": "Thank You",
+        "text": "Qujanaq! / Qujanaq-aaq! (Thank you very much!)",
+        "phonetic": "koo-YA-nak",
+        "bcp47": "kl-GL"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Baaj! / Takuss! (Goodbye / See you!)",
+        "phonetic": "bye / ta-KOOS",
+        "bcp47": "kl-GL"
+      },
+      {
+        "type": "How are you?",
+        "text": "Qanoq ippit? (How are you?)",
+        "phonetic": "ka-NOK ip-PEET",
+        "bcp47": "kl-GL"
+      }
+    ]
+  },
+  "GTM": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "¡Hola! / Utz awäch! (Spanish & Kaqchikel Maya)",
+        "phonetic": "OH-la / oots a-WACH",
+        "bcp47": "es-GT"
+      },
+      {
+        "type": "Thank You",
+        "text": "¡Muchas gracias! / Matyox! (Thank you!)",
+        "phonetic": "MOO-chas GRA-syas / mat-YOSH",
+        "bcp47": "es-GT"
+      },
+      {
+        "type": "Goodbye",
+        "text": "¡Hasta luego! / ¡Nos vemos! (Goodbye!)",
+        "phonetic": "AS-ta LWE-go",
+        "bcp47": "es-GT"
+      },
+      {
+        "type": "How are you?",
+        "text": "¿Qué tal? / ¿Todo chilero? (How are you?)",
+        "phonetic": "keh TAL / chee-LE-ro",
+        "bcp47": "es-GT"
+      }
+    ]
+  },
+  "GUM": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Håfa adai! (Hello / What's up? — CHamoru)",
+        "phonetic": "HA-fa a-DAI",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Thank You",
+        "text": "Si Yu'os ma'åse'! (Thank you! — CHamoru)",
+        "phonetic": "see dzoo-OS ma-AH-seh",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Adios! / Esta agupa'! (Until tomorrow!)",
+        "phonetic": "ah-DYOS / ES-ta a-GOO-pa",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "How are you?",
+        "text": "Håfa tatatmanu hao? (How are you?)",
+        "phonetic": "HA-fa ta-tat-MA-noo how",
+        "bcp47": "en-US"
+      }
+    ]
+  },
+  "GUY": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Wa happening? / How yuh do? (Guyanese)",
+        "phonetic": "wah HAP-nin",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Thank You",
+        "text": "Tenk yuh! / Thanks plenty! (Thank you!)",
+        "phonetic": "tenk yuh",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Goodbye",
+        "text": "See yuh later! / Keep safe!",
+        "phonetic": "see yuh LAY-ta",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "How are you?",
+        "text": "Ah deh! / Everything good!",
+        "phonetic": "ah DEH",
+        "bcp47": "en-US"
+      }
+    ]
+  },
+  "HKG": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "你好！ / 早晨！ (Néih hóu! / Jóu-sàhn! — Cantonese)",
+        "phonetic": "nay HO / jo SAHN",
+        "bcp47": "zh-HK"
+      },
+      {
+        "type": "Thank You",
+        "text": "唔該！ / 多謝！ (M̀h-gōi / Dō-jeh!)",
+        "phonetic": "m-GOY / do-JEH",
+        "bcp47": "zh-HK"
+      },
+      {
+        "type": "Goodbye",
+        "text": "再見！ / 拜拜！ (Joi-gin! / Bāai-bāai!)",
+        "phonetic": "joy-GEEN / bye-bye",
+        "bcp47": "zh-HK"
+      },
+      {
+        "type": "How are you?",
+        "text": "你好嗎？ / 食咗飯未？ (Néih hóu ma?)",
+        "phonetic": "nay HO ma",
+        "bcp47": "zh-HK"
+      }
+    ]
+  },
+  "HMD": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "G'day! / Greetings! (Australian Antarctic Terr.)",
+        "phonetic": "g-DAY",
+        "bcp47": "en-AU"
+      },
+      {
+        "type": "Thank You",
+        "text": "Cheers mate! / Thank you very much!",
+        "phonetic": "cheerz MAYT",
+        "bcp47": "en-AU"
+      },
+      {
+        "type": "Goodbye",
+        "text": "See ya later! / Safe voyage!",
+        "phonetic": "sayf VOY-aj",
+        "bcp47": "en-AU"
+      },
+      {
+        "type": "How are you?",
+        "text": "How's everything down south?",
+        "phonetic": "howz ev-ree-thing",
+        "bcp47": "en-AU"
+      }
+    ],
+    "languages": [
+      {
+        "name": "English (Australian)",
+        "nativeName": "English",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Indo-European (Germanic)",
+        "script": "Latin",
+        "bcp47": "en-AU",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Heard I. and McDonald Is.."
+      }
+    ]
+  },
+  "HND": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "¡Hola! / ¿Qué onda, vos? (Honduran Spanish)",
+        "phonetic": "OH-la / keh ON-da vos",
+        "bcp47": "es-HN"
+      },
+      {
+        "type": "Thank You",
+        "text": "¡Muchas gracias! (Thank you very much!)",
+        "phonetic": "MOO-chas GRA-syas",
+        "bcp47": "es-HN"
+      },
+      {
+        "type": "Goodbye",
+        "text": "¡Hasta luego! / ¡Nos vemos! (Goodbye!)",
+        "phonetic": "AS-ta LWE-go",
+        "bcp47": "es-HN"
+      },
+      {
+        "type": "How are you?",
+        "text": "¿Cómo estás? / ¿Todo al cien? (All good?)",
+        "phonetic": "KO-mo es-TAS",
+        "bcp47": "es-HN"
+      }
+    ]
+  },
+  "HRV": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Dobar dan! / Bok! (Good day / Hi!)",
+        "phonetic": "DO-bar dahn / bok",
+        "bcp47": "hr-HR"
+      },
+      {
+        "type": "Thank You",
+        "text": "Hvala lijepa! / Puno hvala! (Thank you very much!)",
+        "phonetic": "HVA-la LYE-pa",
+        "bcp47": "hr-HR"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Doviđenja! / Bok! (Goodbye!)",
+        "phonetic": "do-vee-JEN-ya",
+        "bcp47": "hr-HR"
+      },
+      {
+        "type": "How are you?",
+        "text": "Kako ste? / Kako si? (How are you?)",
+        "phonetic": "KA-ko ste / KA-ko see",
+        "bcp47": "hr-HR"
+      }
+    ]
+  },
+  "HTI": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Bonjou! / Sak pase? (Hello / What's happening?)",
+        "phonetic": "bohn-JOO / sahk pa-SEH",
+        "bcp47": "fr-HT"
+      },
+      {
+        "type": "Thank You",
+        "text": "Mèsi anpil! (Thank you very much! — Kreyòl)",
+        "phonetic": "meh-SEE ahn-PEEL",
+        "bcp47": "fr-HT"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Orevwa! / N a wè! (Goodbye / See you!)",
+        "phonetic": "o-reh-VWA / nah WEH",
+        "bcp47": "fr-HT"
+      },
+      {
+        "type": "How are you?",
+        "text": "N ap boule! (I'm doing fine — Lit. We're rolling!)",
+        "phonetic": "nahp boo-LEH",
+        "bcp47": "fr-HT"
+      }
+    ]
+  },
+  "HUN": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Jó napot! / Szia! (Good day / Hi!)",
+        "phonetic": "yoh NA-pot / SEE-a",
+        "bcp47": "hu-HU"
+      },
+      {
+        "type": "Thank You",
+        "text": "Köszönöm szépen! (Thank you nicely!)",
+        "phonetic": "KU-su-num SEY-pen",
+        "bcp47": "hu-HU"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Viszontlátásra! / Szia! (Goodbye!)",
+        "phonetic": "vee-sont-LA-tash-ra",
+        "bcp47": "hu-HU"
+      },
+      {
+        "type": "How are you?",
+        "text": "Hogy van? / Hogy vagy? (How are you?)",
+        "phonetic": "hodj vahn / hodj vadj",
+        "bcp47": "hu-HU"
+      }
+    ]
+  },
+  "IMN": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Moghrey mie! / Hello! (Good morning in Manx)",
+        "phonetic": "MAW-ree my / heh-LOH",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Thank You",
+        "text": "Gura mie ayd! / Thank you very much!",
+        "phonetic": "goo-ra MY ayd",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Slane lhiat! / Cheerio! (Go safe!)",
+        "phonetic": "slahn LYAT",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "How are you?",
+        "text": "Kys t'ou? / How are you keeping?",
+        "phonetic": "kiss TOW",
+        "bcp47": "en-GB"
+      }
+    ],
+    "languages": [
+      {
+        "name": "English & Manx Gaelic",
+        "nativeName": "English / Gaelg",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Germanic / Celtic",
+        "script": "Latin",
+        "bcp47": "en-GB",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Isle of Man."
+      }
+    ]
+  },
+  "IOA": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "G'day! / Selamat datang! (Christmas & Cocos Is.)",
+        "phonetic": "g-DAY / se-LA-mat DA-tahng",
+        "bcp47": "en-AU"
+      },
+      {
+        "type": "Thank You",
+        "text": "Cheers! / Terima kasih! (Thank you!)",
+        "phonetic": "cheerz / te-REE-ma KA-sih",
+        "bcp47": "en-AU"
+      },
+      {
+        "type": "Goodbye",
+        "text": "See you later! / Jumpa lagi!",
+        "phonetic": "joom-PA la-GEE",
+        "bcp47": "en-AU"
+      },
+      {
+        "type": "How are you?",
+        "text": "How are you going today?",
+        "phonetic": "how ah yoo GO-ing",
+        "bcp47": "en-AU"
+      }
+    ],
+    "languages": [
+      {
+        "name": "Australian English & Cocos Malay",
+        "nativeName": "English / Bahasa Cocos",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Germanic / Austronesian",
+        "script": "Latin",
+        "bcp47": "en-AU",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Indian Ocean Ter.."
+      }
+    ]
+  },
+  "IOT": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Good morning! / Hello there! (British English)",
+        "phonetic": "good MOR-ning",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Thank You",
+        "text": "Cheers! / Thank you very much!",
+        "phonetic": "cheerz",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Cheerio! / Catch you later!",
+        "phonetic": "chee-ree-OH",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "How are you?",
+        "text": "How are things going today?",
+        "phonetic": "how ahr thingz GO-ing",
+        "bcp47": "en-GB"
+      }
+    ],
+    "languages": [
+      {
+        "name": "English",
+        "nativeName": "English",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Indo-European (Germanic)",
+        "script": "Latin",
+        "bcp47": "en-GB",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Br. Indian Ocean Ter.."
+      }
+    ]
+  },
+  "IRQ": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "هلو! / السلام عليكم / سڵاو! (Hala! / Slaw! Kurdish)",
+        "phonetic": "HA-la / s-LAW",
+        "bcp47": "ar-IQ"
+      },
+      {
+        "type": "Thank You",
+        "text": "شكراً جزيلاً / ممنون / سوپاس! (Mamnoon / Supas)",
+        "phonetic": "mam-NOON / soo-PAS",
+        "bcp47": "ar-IQ"
+      },
+      {
+        "type": "Goodbye",
+        "text": "مع السلامة / الله وياك (Allah wiyyak)",
+        "phonetic": "al-LAH wee-YAK",
+        "bcp47": "ar-IQ"
+      },
+      {
+        "type": "How are you?",
+        "text": "شلونك؟ / شلون الصحة؟ (Shlonak? — Iraqi)",
+        "phonetic": "SHLOH-nak",
+        "bcp47": "ar-IQ"
+      }
+    ]
+  },
+  "ISL": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Halló! / Góðan daginn! (Hello / Good day!)",
+        "phonetic": "ha-LO / GO-than DAY-yin",
+        "bcp47": "is-IS"
+      },
+      {
+        "type": "Thank You",
+        "text": "Takk fyrir! / Kærar þakkir! (Thank you!)",
+        "phonetic": "tahk FEE-rir / KY-rar THAHK-ir",
+        "bcp47": "is-IS"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Bless! / Sjáumst! (Goodbye / See you!)",
+        "phonetic": "bless / SYOWMST",
+        "bcp47": "is-IS"
+      },
+      {
+        "type": "How are you?",
+        "text": "Hvað segirðu gott? (What good do you say?)",
+        "phonetic": "kvath SAY-yir-thu got",
+        "bcp47": "is-IS"
+      }
+    ]
+  },
+  "ISR": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "שלום! / אהלן! / مرحبا! (Shalom! / Ahlan!)",
+        "phonetic": "sha-LOM / AH-lan / MAR-ha-ba",
+        "bcp47": "he-IL"
+      },
+      {
+        "type": "Thank You",
+        "text": "תודה רבה! (Toda raba! — Thank you very much!)",
+        "phonetic": "to-DA ra-BA",
+        "bcp47": "he-IL"
+      },
+      {
+        "type": "Goodbye",
+        "text": "להתראות! (Lehitra'ot! — See you later!)",
+        "phonetic": "le-heet-ra-OT",
+        "bcp47": "he-IL"
+      },
+      {
+        "type": "How are you?",
+        "text": "מה נשמע? / מה שלומך? (Ma nishma?)",
+        "phonetic": "ma neesh-MA / ma shlom-KHA",
+        "bcp47": "he-IL"
+      }
+    ]
+  },
+  "JAM": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Wah gwaan! (Hello / What's going on? — Patois)",
+        "phonetic": "wah GWAHN",
+        "bcp47": "en-JM"
+      },
+      {
+        "type": "Thank You",
+        "text": "Big up! / Give tanks! (Thank you!)",
+        "phonetic": "big UP / giv TANKS",
+        "bcp47": "en-JM"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Likkle more! / Walk good! (See you soon!)",
+        "phonetic": "lik-kl MOR / wawk GOOD",
+        "bcp47": "en-JM"
+      },
+      {
+        "type": "How are you?",
+        "text": "Mi irie, man! (Everything is good!)",
+        "phonetic": "mee EYE-ree mahn",
+        "bcp47": "en-JM"
+      }
+    ]
+  },
+  "JEY": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Bouônjour! / Hello! (Jèrriais & English)",
+        "phonetic": "bwan-JOOR / heh-LOH",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Thank You",
+        "text": "Mèrci bein des fais! / Thank you!",
+        "phonetic": "mer-SEE bay day fay",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Goodbye",
+        "text": "À bétôt! / Cheerio for now!",
+        "phonetic": "ah bay-TOH",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "How are you?",
+        "text": "Coumme tchi qu'tu'es? / Doing alright?",
+        "phonetic": "koom chee k-too eh",
+        "bcp47": "en-GB"
+      }
+    ],
+    "languages": [
+      {
+        "name": "English & Jèrriais",
+        "nativeName": "English / Jèrriais",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Germanic / Norman-Romance",
+        "script": "Latin",
+        "bcp47": "en-GB",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Jersey."
+      }
+    ]
+  },
+  "JOR": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "مرحباً! / يا هلا! (Marhaban! / Ya hala!)",
+        "phonetic": "MAR-ha-ban / ya HA-la",
+        "bcp47": "ar-JO"
+      },
+      {
+        "type": "Thank You",
+        "text": "يسلمو / شكراً كتير (Yeslamu / Shukran)",
+        "phonetic": "yes-LA-mu / SHUK-ran k-TEER",
+        "bcp47": "ar-JO"
+      },
+      {
+        "type": "Goodbye",
+        "text": "مع السلامة / الله معك (Ma'as-salama)",
+        "phonetic": "ma-as-sa-LA-ma",
+        "bcp47": "ar-JO"
+      },
+      {
+        "type": "How are you?",
+        "text": "كيف حالك؟ / شو أخبارك؟ (Keef halak?)",
+        "phonetic": "KEEF HA-lak",
+        "bcp47": "ar-JO"
+      }
+    ]
+  },
+  "KAS": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "السلام علیکم ! / آداب ! (As-salamu alaykum)",
+        "phonetic": "as-sa-LA-mu a-lay-KUM",
+        "bcp47": "ur-PK"
+      },
+      {
+        "type": "Thank You",
+        "text": "بہت شکریہ ! (Bohat shukriya!)",
+        "phonetic": "bo-HOT shuk-ree-YA",
+        "bcp47": "ur-PK"
+      },
+      {
+        "type": "Goodbye",
+        "text": "خدا حافظ ! (Khuda hafiz!)",
+        "phonetic": "khoo-DA ha-FEZ",
+        "bcp47": "ur-PK"
+      },
+      {
+        "type": "How are you?",
+        "text": "آپ کیسے ہیں؟ (Aap kaise hain?)",
+        "phonetic": "aap KAY-say hain",
+        "bcp47": "ur-PK"
+      }
+    ],
+    "languages": [
+      {
+        "name": "Urdu, Balti & Shina",
+        "nativeName": "اردو / بلتی",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Indo-Aryan / Sino-Tibetan",
+        "script": "Perso-Arabic",
+        "bcp47": "ur-PK",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Siachen Glacier."
+      }
+    ]
+  },
+  "KAZ": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Сәлеметсіз бе! / Сәлем! (Sälemetsiz be!)",
+        "phonetic": "sa-le-MET-siz be / sa-LEM",
+        "bcp47": "kk-KZ"
+      },
+      {
+        "type": "Thank You",
+        "text": "Рақмет! / Көп рақмет! (Köpp raqmet!)",
+        "phonetic": "kup rahk-MET",
+        "bcp47": "kk-KZ"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Сау болыңыз! / Көріскенше! (Sau bolıñız!)",
+        "phonetic": "sow bo-li-NGIZ",
+        "bcp47": "kk-KZ"
+      },
+      {
+        "type": "How are you?",
+        "text": "Қалыңыз қалай? (Qalıñız qalai? — How are you?)",
+        "phonetic": "ka-li-NGIZ ka-LAI",
+        "bcp47": "kk-KZ"
+      }
+    ]
+  },
+  "KGZ": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Саламатсызбы! / Салам! (Salamatsyzby!)",
+        "phonetic": "sa-la-MAT-syz-by",
+        "bcp47": "ky-KG"
+      },
+      {
+        "type": "Thank You",
+        "text": "Чоң рахмат! (Chong rakhmat! — Thank you very much)",
+        "phonetic": "chong rahk-MAT",
+        "bcp47": "ky-KG"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Кош болуңуз! / Көрүшкөнчө! (Kosh bolunguz!)",
+        "phonetic": "kosh bo-lun-GUZ",
+        "bcp47": "ky-KG"
+      },
+      {
+        "type": "How are you?",
+        "text": "Кандайсыз? / Жакшысызбы? (Kandaisyz?)",
+        "phonetic": "kan-DAI-syz",
+        "bcp47": "ky-KG"
+      }
+    ]
+  },
+  "KHM": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "សួស្តី! / ជម្រាបសួរ! (Suosdei! / Choum reap suor!)",
+        "phonetic": "soo-uhs-DAY / choom ree-up SOO-ur",
+        "bcp47": "km-KH"
+      },
+      {
+        "type": "Thank You",
+        "text": "អរគុណច្រើន! (Orkun chraen! — Thank you!)",
+        "phonetic": "aw-KOON chran",
+        "bcp47": "km-KH"
+      },
+      {
+        "type": "Goodbye",
+        "text": "លាហើយ! / ជួបគ្នាពេលក្រោយ! (Lea haey!)",
+        "phonetic": "lee-a HOY",
+        "bcp47": "km-KH"
+      },
+      {
+        "type": "How are you?",
+        "text": "អ្នកសុខសប្បាយជាទេ? (Neak sok sabbay chea te?)",
+        "phonetic": "nyak sok sa-BYE chea teh",
+        "bcp47": "km-KH"
+      }
+    ]
+  },
+  "KIR": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Mauri! (Blessings / Hello! — Gilbertese)",
+        "phonetic": "MOW-ree",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Thank You",
+        "text": "Ko rabwa! (Thank you! — Gilbertese)",
+        "phonetic": "ko RAH-bwa",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Ti a boo! (We'll meet again / Goodbye!)",
+        "phonetic": "tee ah BO",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "How are you?",
+        "text": "Ko uara? (How are you?)",
+        "phonetic": "ko wa-RA",
+        "bcp47": "en-GB"
+      }
+    ]
+  },
+  "KNA": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Wah happening? / Good day! (Kittitian English)",
+        "phonetic": "wah HAP-nin",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Thank You",
+        "text": "Thanks a million! / Much obliged!",
+        "phonetic": "thanks a MIL-yun",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Goodbye",
+        "text": "See yuh later! / Safe travels!",
+        "phonetic": "see yuh LAY-ta",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "How are you?",
+        "text": "Me alright! How by you?",
+        "phonetic": "mee awl-RYT",
+        "bcp47": "en-US"
+      }
+    ]
+  },
+  "KOS": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Përshëndetje! / Mirëdita! / Tung! (Albanian)",
+        "phonetic": "pur-shun-DET-yeh / toong",
+        "bcp47": "sq-AL"
+      },
+      {
+        "type": "Thank You",
+        "text": "Faleminderit shumë! (Thank you very much!)",
+        "phonetic": "fa-le-min-DE-rit SHOOM",
+        "bcp47": "sq-AL"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Mirupafshim! / Kalofsh mirë! (Goodbye!)",
+        "phonetic": "mee-roo-PAF-shim",
+        "bcp47": "sq-AL"
+      },
+      {
+        "type": "How are you?",
+        "text": "Qysh je? / Si jeni? (How are you?)",
+        "phonetic": "chysh YEH / see YEH-nee",
+        "bcp47": "sq-AL"
+      }
+    ],
+    "languages": [
+      {
+        "name": "Albanian",
+        "nativeName": "Shqip",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Indo-European (Albanian)",
+        "script": "Latin",
+        "bcp47": "sq-AL",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Kosovo."
+      }
+    ]
+  },
+  "KWT": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "هلا والله! / السلام عليكم (Hala wallah!)",
+        "phonetic": "HA-la wal-LAH",
+        "bcp47": "ar-KW"
+      },
+      {
+        "type": "Thank You",
+        "text": "مشكور / يعطيك العافية (Mashkoor!)",
+        "phonetic": "mash-KOOR / ya-TEEK al-AF-ya",
+        "bcp47": "ar-KW"
+      },
+      {
+        "type": "Goodbye",
+        "text": "مع السلامة / فمان الله (Ma'as-salama)",
+        "phonetic": "ma-as-sa-LA-ma",
+        "bcp47": "ar-KW"
+      },
+      {
+        "type": "How are you?",
+        "text": "شلونك؟ / شخبارك؟ (Shlonak? — Kuwaiti)",
+        "phonetic": "SHLOH-nak / shakh-BA-rak",
+        "bcp47": "ar-KW"
+      }
+    ]
+  },
+  "LAO": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "ສະບາຍດີ! (Sabaidee! — Hello / Peace be with you)",
+        "phonetic": "sa-bye-DEE",
+        "bcp47": "lo-LA"
+      },
+      {
+        "type": "Thank You",
+        "text": "ຂອບໃຈຫຼາຍໆ! (Khop chai lai lai! — Thank you!)",
+        "phonetic": "kop-JAI lie-lie",
+        "bcp47": "lo-LA"
+      },
+      {
+        "type": "Goodbye",
+        "text": "ລາກ່ອນ! / ພົບກັນໃໝ່! (La kon!)",
+        "phonetic": "la KON",
+        "bcp47": "lo-LA"
+      },
+      {
+        "type": "How are you?",
+        "text": "ສະບາຍດີບໍ່? (Sabaidee bo? — How are you?)",
+        "phonetic": "sa-bye-DEE baw",
+        "bcp47": "lo-LA"
+      }
+    ]
+  },
+  "LBN": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "مرحبا! / أهلين! (Marhaba! / Ahlein!)",
+        "phonetic": "MAR-ha-ba / ah-LAYN",
+        "bcp47": "ar-LB"
+      },
+      {
+        "type": "Thank You",
+        "text": "شكراً / ميرسي كتير (Shukran / Merci kteer!)",
+        "phonetic": "SHUK-ran / mer-SEE k-TEER",
+        "bcp47": "ar-LB"
+      },
+      {
+        "type": "Goodbye",
+        "text": "مع السلامة / باي! (Ma'as-salama)",
+        "phonetic": "ma-as-sa-LA-ma",
+        "bcp47": "ar-LB"
+      },
+      {
+        "type": "How are you?",
+        "text": "كيفك؟ / شو أخبارك؟ (Keefak? / Shu akhbarak?)",
+        "phonetic": "KEE-fak / shoo akh-BA-rak",
+        "bcp47": "ar-LB"
+      }
+    ]
+  },
+  "LBR": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "How y'all doing? / Ya-eh! (Liberian English)",
+        "phonetic": "how yawl DOO-in",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Thank You",
+        "text": "Thank ya plenty! / Much obliged!",
+        "phonetic": "tank ya PLEN-tee",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Goodbye",
+        "text": "We'll see later, my people! (Goodbye!)",
+        "phonetic": "weel see LAY-ta",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "How are you?",
+        "text": "Everything alright! / No wahala!",
+        "phonetic": "no wa-HA-la",
+        "bcp47": "en-US"
+      }
+    ]
+  },
+  "LBY": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "أهلاً بيك! / السلام عليكم (Ahlan bik!)",
+        "phonetic": "AH-lan beek",
+        "bcp47": "ar-LY"
+      },
+      {
+        "type": "Thank You",
+        "text": "صحيت / بارك الله فيك (Sahhit!)",
+        "phonetic": "sah-HEET",
+        "bcp47": "ar-LY"
+      },
+      {
+        "type": "Goodbye",
+        "text": "بالسلامة / نشوفك بخير (Beslama!)",
+        "phonetic": "bis-sa-LA-ma",
+        "bcp47": "ar-LY"
+      },
+      {
+        "type": "How are you?",
+        "text": "كيف حالك؟ / شن جوك؟ (Shin jawwak?)",
+        "phonetic": "KEEF HA-lak / shin JAW-wak",
+        "bcp47": "ar-LY"
+      }
+    ]
+  },
+  "LCA": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Sa ka fèt? (Kwéyòl) / Bonjou!",
+        "phonetic": "sa ka FET / bohn-JOO",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Thank You",
+        "text": "Mèsi anpil! / Thank you very much!",
+        "phonetic": "meh-SEE ahn-PEEL",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Goodbye",
+        "text": "À pli ta! / See you later!",
+        "phonetic": "ah plee TA",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "How are you?",
+        "text": "An byen, mèsi! (I am well, thank you!)",
+        "phonetic": "ahn BYEN meh-SEE",
+        "bcp47": "en-US"
+      }
+    ]
+  },
+  "LIE": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Grüß Gott! / Hoi! (Alemannic Hello)",
+        "phonetic": "grus GOT / hoy",
+        "bcp47": "de-CH"
+      },
+      {
+        "type": "Thank You",
+        "text": "Vielen Dank! / Vergelt's Gott! (Thank you!)",
+        "phonetic": "FEE-len dahnk",
+        "bcp47": "de-CH"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Uf Wiederluaga! / Tschüss! (Goodbye!)",
+        "phonetic": "oof VEE-der-loo-a-ga",
+        "bcp47": "de-CH"
+      },
+      {
+        "type": "How are you?",
+        "text": "Wie goht's? (How goes it?)",
+        "phonetic": "vee GOHTS",
+        "bcp47": "de-CH"
+      }
+    ]
+  },
+  "LKA": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "ආයුබෝවන්! / வணக்கம்! (Ayubowan / Vanakkam)",
+        "phonetic": "ah-yu-BO-wan / va-NA-kam",
+        "bcp47": "si-LK"
+      },
+      {
+        "type": "Thank You",
+        "text": "බොහොම ස්තුතියි! / நன்றி! (Bohoma sthuthiyi / Nandri!)",
+        "phonetic": "bo-HO-ma sthoo-TEE / NAN-dree",
+        "bcp47": "si-LK"
+      },
+      {
+        "type": "Goodbye",
+        "text": "ගිහින් එන්නම්! (Gihin ennam! — Go and come back!)",
+        "phonetic": "gee-HEEN en-NAM",
+        "bcp47": "si-LK"
+      },
+      {
+        "type": "How are you?",
+        "text": "කොහොමද? / எப்படி இருக்கிறீர்கள்? (Kohomada?)",
+        "phonetic": "ko-HO-ma-da",
+        "bcp47": "si-LK"
+      }
+    ]
+  },
+  "LSO": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Lumela! / Khotso! (Hello / Peace! — Sesotho)",
+        "phonetic": "doo-MEH-la / KHO-tso",
+        "bcp47": "en-ZA"
+      },
+      {
+        "type": "Thank You",
+        "text": "Kea leboha! (Thank you! — Sesotho)",
+        "phonetic": "ke-a le-BO-ha",
+        "bcp47": "en-ZA"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Tsamaea hantle! / Sala hantle! (Go/Stay well!)",
+        "phonetic": "tsa-MY-a HAHN-tleh",
+        "bcp47": "en-ZA"
+      },
+      {
+        "type": "How are you?",
+        "text": "U phela joang? (How are you living?)",
+        "phonetic": "oo PEH-la jwang",
+        "bcp47": "en-ZA"
+      }
+    ]
+  },
+  "LTU": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Laba diena! / Labas! (Good day / Hi!)",
+        "phonetic": "LA-ba DYE-na / LA-bas",
+        "bcp47": "lt-LT"
+      },
+      {
+        "type": "Thank You",
+        "text": "Labai ačiū! (Thank you very much!)",
+        "phonetic": "la-BAI AH-choo",
+        "bcp47": "lt-LT"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Viso gero! / Iki! (Goodbye / Until next time!)",
+        "phonetic": "VEE-so GEH-ro / ee-KEE",
+        "bcp47": "lt-LT"
+      },
+      {
+        "type": "How are you?",
+        "text": "Kaip sekasi? (How are you doing?)",
+        "phonetic": "kaip SEH-ka-see",
+        "bcp47": "lt-LT"
+      }
+    ]
+  },
+  "LUX": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Moien! / Gudde Mëtteg! (Hello — Luxembourgish)",
+        "phonetic": "MOY-en / GOO-de MET-tekh",
+        "bcp47": "lb-LU"
+      },
+      {
+        "type": "Thank You",
+        "text": "Villmools merci! (Thank you very much!)",
+        "phonetic": "FEEL-mohls mer-SEE",
+        "bcp47": "lb-LU"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Äddi! / Bis geschwënn! (Goodbye!)",
+        "phonetic": "AD-dee / bis ge-SHVEN",
+        "bcp47": "lb-LU"
+      },
+      {
+        "type": "How are you?",
+        "text": "Wéi geet et Iech? (How are you?)",
+        "phonetic": "vay GAYT et eekh",
+        "bcp47": "lb-LU"
+      }
+    ]
+  },
+  "LVA": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Labdien! / Sveiki! (Good day / Hello!)",
+        "phonetic": "lahb-DYEN / SVEY-kee",
+        "bcp47": "lv-LV"
+      },
+      {
+        "type": "Thank You",
+        "text": "Liels paldies! (Thank you very much!)",
+        "phonetic": "lyels PAHL-dyes",
+        "bcp47": "lv-LV"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Uz redzēšanos! / Atā! (Goodbye!)",
+        "phonetic": "ooz re-DZEY-sha-nos",
+        "bcp47": "lv-LV"
+      },
+      {
+        "type": "How are you?",
+        "text": "Kā jums klājas? / Kā iet? (How are you?)",
+        "phonetic": "kah yooms KLA-yas",
+        "bcp47": "lv-LV"
+      }
+    ]
+  },
+  "MAC": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "你好！ / Olá! (Néih hóu! — Cantonese & Portuguese)",
+        "phonetic": "nay HO / oh-LAH",
+        "bcp47": "zh-HK"
+      },
+      {
+        "type": "Thank You",
+        "text": "唔該！ / Muito obrigado! (M̀h-gōi!)",
+        "phonetic": "m-GOY / ob-ree-GA-doo",
+        "bcp47": "zh-HK"
+      },
+      {
+        "type": "Goodbye",
+        "text": "再見！ / Até logo! (Joi-gin!)",
+        "phonetic": "joy-GEEN / a-TEH LO-goo",
+        "bcp47": "zh-HK"
+      },
+      {
+        "type": "How are you?",
+        "text": "點呀？ / Tudo bem? (Dím a?)",
+        "phonetic": "DEEM a / TOO-doo beng",
+        "bcp47": "zh-HK"
+      }
+    ]
+  },
+  "MAF": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Bonjour ! / Hello! (French & Caribbean English)",
+        "phonetic": "bohn-ZHOOR / heh-LOH",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Thank You",
+        "text": "Merci beaucoup ! / Thank you!",
+        "phonetic": "mer-SEE boh-KOO",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Au revoir ! / See you soon!",
+        "phonetic": "oh ruh-VWAHR",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "How are you?",
+        "text": "Comment ça va ? / All good?",
+        "phonetic": "ko-mahn sa VA",
+        "bcp47": "fr-FR"
+      }
+    ],
+    "languages": [
+      {
+        "name": "French & Caribbean English",
+        "nativeName": "Français / English",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Romance / Germanic",
+        "script": "Latin",
+        "bcp47": "fr-FR",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in St-Martin."
+      }
+    ]
+  },
+  "MCO": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Bonjour ! / Bongiorno! (French & Monégasque)",
+        "phonetic": "bohn-ZHOOR / bon-JOR-no",
+        "bcp47": "fr-MC"
+      },
+      {
+        "type": "Thank You",
+        "text": "Merci beaucoup ! / Grassie! (Thank you!)",
+        "phonetic": "mer-SEE boh-KOO / GRA-syeh",
+        "bcp47": "fr-MC"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Au revoir ! / A rivedesse! (Goodbye!)",
+        "phonetic": "oh ruh-VWAHR",
+        "bcp47": "fr-MC"
+      },
+      {
+        "type": "How are you?",
+        "text": "Comment allez-vous ? (How are you?)",
+        "phonetic": "ko-mahn ta-lay VOO",
+        "bcp47": "fr-MC"
+      }
+    ]
+  },
+  "MDA": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Bună ziua! / Noroc! (Good day / Hello!)",
+        "phonetic": "BOO-nuh ZEE-wa / no-ROK",
+        "bcp47": "ro-MD"
+      },
+      {
+        "type": "Thank You",
+        "text": "Mulțumesc frumos! (Thank you kindly!)",
+        "phonetic": "mool-tsoo-MESK froo-MOS",
+        "bcp47": "ro-MD"
+      },
+      {
+        "type": "Goodbye",
+        "text": "La revedere! / Pe curând! (Goodbye!)",
+        "phonetic": "la re-ve-DE-re",
+        "bcp47": "ro-MD"
+      },
+      {
+        "type": "How are you?",
+        "text": "Ce mai faci? (How are you doing?)",
+        "phonetic": "che mai FACH",
+        "bcp47": "ro-MD"
+      }
+    ]
+  },
+  "MDG": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Manao ahoana! / Salama! (Malagasy Hello)",
+        "phonetic": "ma-now-A-wa-na / sa-LA-ma",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Thank You",
+        "text": "Misaotra betsaka! (Thank you very much!)",
+        "phonetic": "mee-SOW-tra be-TSA-ka",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Veloma! (May you live! / Goodbye!)",
+        "phonetic": "ve-LOO-ma",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "How are you?",
+        "text": "Tsara fa misaotra! (Fine, thank you!)",
+        "phonetic": "TSA-ra fa mee-SOW-tra",
+        "bcp47": "fr-FR"
+      }
+    ]
+  },
+  "MDV": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "އައްސަލާމު ޢަލައިކުމް! (Assalaamu alaikum! — Dhivehi)",
+        "phonetic": "as-sa-LA-mu a-lai-KUM",
+        "bcp47": "dv-MV"
+      },
+      {
+        "type": "Thank You",
+        "text": "ޝުކުރިއްޔާ! (Shukuriyyaa! — Thank you!)",
+        "phonetic": "shu-ku-RIY-yaa",
+        "bcp47": "dv-MV"
+      },
+      {
+        "type": "Goodbye",
+        "text": "ވަކިވެލަން! / ދަނީ! (Vakivelan! / Dhanee!)",
+        "phonetic": "va-ki-VE-lan",
+        "bcp47": "dv-MV"
+      },
+      {
+        "type": "How are you?",
+        "text": "ކިހިނެއްތަ؟ (Kihinetha? — How are you?)",
+        "phonetic": "ki-hi-NET-ta",
+        "bcp47": "dv-MV"
+      }
+    ]
+  },
+  "MHL": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Iokwe! (Hello / Love / Peace — Marshallese)",
+        "phonetic": "yok-WEH",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Thank You",
+        "text": "Kommol tata! (Thank you very much!)",
+        "phonetic": "kom-MOL ta-TA",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Bar lo eok! (See you again!)",
+        "phonetic": "bar LO yok",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "How are you?",
+        "text": "Ej et am mour? (How is your life?)",
+        "phonetic": "ej et am MOUR",
+        "bcp47": "en-US"
+      }
+    ]
+  },
+  "MKD": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Здраво! / Добар ден! (Zdravo! / Dobar den!)",
+        "phonetic": "ZDRA-vo / DO-bar den",
+        "bcp47": "mk-MK"
+      },
+      {
+        "type": "Thank You",
+        "text": "Благодарам многу! / Фала! (Blagodaram!)",
+        "phonetic": "bla-go-DA-ram MNO-goo",
+        "bcp47": "mk-MK"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Довидување! / Чао! (Doviduvanje!)",
+        "phonetic": "do-vee-DOO-van-ye",
+        "bcp47": "mk-MK"
+      },
+      {
+        "type": "How are you?",
+        "text": "Како сте? / Како си? (Kako ste?)",
+        "phonetic": "KA-ko ste",
+        "bcp47": "mk-MK"
+      }
+    ]
+  },
+  "MLI": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "I ni ce! / Aw ni sogoma! (Bambara Hello!)",
+        "phonetic": "ee nee CHEH / ow nee so-go-MA",
+        "bcp47": "fr-ML"
+      },
+      {
+        "type": "Thank You",
+        "text": "I ni ce! / A baraka! / Merci beaucoup !",
+        "phonetic": "ee nee CHEH / a ba-RA-ka",
+        "bcp47": "fr-ML"
+      },
+      {
+        "type": "Goodbye",
+        "text": "K'an ben! / Au revoir ! (Until we meet again!)",
+        "phonetic": "kahn BEN",
+        "bcp47": "fr-ML"
+      },
+      {
+        "type": "How are you?",
+        "text": "Hɛrɛ bɛ! (Peace is here! / Doing fine!)",
+        "phonetic": "heh-reh BEH",
+        "bcp47": "fr-ML"
+      }
+    ]
+  },
+  "MLT": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Bonġu! / Merħba! (Good morning / Welcome!)",
+        "phonetic": "BON-joo / MER-hba",
+        "bcp47": "mt-MT"
+      },
+      {
+        "type": "Thank You",
+        "text": "Grazzi ħafna! (Thank you very much!)",
+        "phonetic": "GRAT-si HAF-na",
+        "bcp47": "mt-MT"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Saħħa! / Ċaw! (Health to you / Goodbye!)",
+        "phonetic": "SAH-ha / chow",
+        "bcp47": "mt-MT"
+      },
+      {
+        "type": "How are you?",
+        "text": "Kif int? (How are you? — Maltese)",
+        "phonetic": "keef EENT",
+        "bcp47": "mt-MT"
+      }
+    ]
+  },
+  "MMR": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "မင်္ဂလာပါ! (Mingalaba! — Blessing to you!)",
+        "phonetic": "min-ga-la-BA",
+        "bcp47": "my-MM"
+      },
+      {
+        "type": "Thank You",
+        "text": "ကျေးဇူးတင်ပါတယ်! (Kyei-zu tin-ba-deh!)",
+        "phonetic": "jay-ZOO tin-ba-DEH",
+        "bcp47": "my-MM"
+      },
+      {
+        "type": "Goodbye",
+        "text": "သွားတော့မယ်! / နောက်မှတွေ့မယ်! (Thwa-daw-meh!)",
+        "phonetic": "thwa-daw-MEH",
+        "bcp47": "my-MM"
+      },
+      {
+        "type": "How are you?",
+        "text": "နေကောင်းလား? (Nei kaung la? — Are you well?)",
+        "phonetic": "nay KOWN la",
+        "bcp47": "my-MM"
+      }
+    ]
+  },
+  "MNE": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Dobar dan! / Zdravo! (Good day / Hello!)",
+        "phonetic": "DO-bar dahn / ZDRA-vo",
+        "bcp47": "sr-ME"
+      },
+      {
+        "type": "Thank You",
+        "text": "Hvala puno! / Hvala Vam! (Thank you!)",
+        "phonetic": "HVA-la POO-no",
+        "bcp47": "sr-ME"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Doviđenja! / Vidimo se! (Goodbye!)",
+        "phonetic": "do-vee-JEN-ya",
+        "bcp47": "sr-ME"
+      },
+      {
+        "type": "How are you?",
+        "text": "Kako ste? / Što činiš? (How are you?)",
+        "phonetic": "KA-ko ste / shto CHEE-nish",
+        "bcp47": "sr-ME"
+      }
+    ]
+  },
+  "MNG": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Сайн байна уу! (Sain bainuu! — Are you well?)",
+        "phonetic": "sine bay-NOO",
+        "bcp47": "mn-MN"
+      },
+      {
+        "type": "Thank You",
+        "text": "Баярлалаа! / Маш их баярлалаа! (Bayarlalaa!)",
+        "phonetic": "bay-ar-la-LAA",
+        "bcp47": "mn-MN"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Баяртай! / Дараа уулзъя! (Bayartai!)",
+        "phonetic": "bay-ar-TAI",
+        "bcp47": "mn-MN"
+      },
+      {
+        "type": "How are you?",
+        "text": "Сонин юу байна? (Sonin yuu baina? — What's new?)",
+        "phonetic": "so-nin yoo BAIN",
+        "bcp47": "mn-MN"
+      }
+    ]
+  },
+  "MNP": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Håfa adai! (CHamoru) / Tirow! (Carolinian)",
+        "phonetic": "HA-fa a-DAI / tee-ROW",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Thank You",
+        "text": "Si Yu'os ma'åse'! / Ghilisou! (Thank you!)",
+        "phonetic": "see dzoo-OS ma-AH-seh",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Esta! / Adios! (See you later!)",
+        "phonetic": "ES-ta",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "How are you?",
+        "text": "Maolek ha'! (Everything's good!)",
+        "phonetic": "MOW-lek ha",
+        "bcp47": "en-US"
+      }
+    ],
+    "languages": [
+      {
+        "name": "CHamoru, Carolinian & English",
+        "nativeName": "Finu' CHamoru / Refaluwasch",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Austronesian / Germanic",
+        "script": "Latin",
+        "bcp47": "en-US",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in N. Mariana Is.."
+      }
+    ]
+  },
+  "MOZ": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Olá! / Tudo bem? / Kanimambo! (Mozambique)",
+        "phonetic": "oh-LAH / ka-nee-MAM-bo",
+        "bcp47": "pt-PT"
+      },
+      {
+        "type": "Thank You",
+        "text": "Muito obrigado! / Kanimambo! (Thank you!)",
+        "phonetic": "MWEEN-too ob-ree-GA-doo",
+        "bcp47": "pt-PT"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Tchau! / Até logo! (Goodbye!)",
+        "phonetic": "chow / a-TEH LO-goo",
+        "bcp47": "pt-PT"
+      },
+      {
+        "type": "How are you?",
+        "text": "Está tudo bem? (Is everything well?)",
+        "phonetic": "esh-TA TOO-doo beng",
+        "bcp47": "pt-PT"
+      }
+    ]
+  },
+  "MRT": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "السلام عليكم! / مرحبا (As-salamu alaykum!)",
+        "phonetic": "as-sa-LA-mu a-LAY-kum",
+        "bcp47": "ar-MR"
+      },
+      {
+        "type": "Thank You",
+        "text": "بارك الله فيك / شكراً (Barakallahu fik)",
+        "phonetic": "ba-RA-kal-LA-hu feek",
+        "bcp47": "ar-MR"
+      },
+      {
+        "type": "Goodbye",
+        "text": "تبقى على خير! (Tibqa ala khayr)",
+        "phonetic": "tib-QA a-la KHAYR",
+        "bcp47": "ar-MR"
+      },
+      {
+        "type": "How are you?",
+        "text": "ياك ما باس؟ / شحالك؟ (Yak ma bas? — Hassaniya)",
+        "phonetic": "yak ma BAS / sh-HA-lak",
+        "bcp47": "ar-MR"
+      }
+    ]
+  },
+  "MSR": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Top o' the mornin'! / How yuh going?",
+        "phonetic": "how yuh GO-in",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Thank You",
+        "text": "Thank you kindly! / Cheers!",
+        "phonetic": "thank yoo KYND-lee",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Goodbye",
+        "text": "See yuh soon! / Walk good!",
+        "phonetic": "wawk GOOD",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "How are you?",
+        "text": "Everything bless, friend!",
+        "phonetic": "ev-ree-thing BLESS",
+        "bcp47": "en-GB"
+      }
+    ],
+    "languages": [
+      {
+        "name": "English & Montserratian Creole",
+        "nativeName": "English",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Indo-European (Germanic)",
+        "script": "Latin",
+        "bcp47": "en-GB",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Montserrat."
+      }
+    ]
+  },
+  "MUS": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Bonzour! / Ki manier? (Mauritian Creole)",
+        "phonetic": "bohn-ZOOR / kee man-YER",
+        "bcp47": "fr-MU"
+      },
+      {
+        "type": "Thank You",
+        "text": "Mersi boukou! / Thank you very much!",
+        "phonetic": "mer-SEE boo-KOO",
+        "bcp47": "fr-MU"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Orevwar! / A pli tar! (See you later!)",
+        "phonetic": "o-reh-VWAR / a plee TAR",
+        "bcp47": "fr-MU"
+      },
+      {
+        "type": "How are you?",
+        "text": "Mo bien, mersi! (I am well, thank you!)",
+        "phonetic": "mo BYEN mer-SEE",
+        "bcp47": "fr-MU"
+      }
+    ]
+  },
+  "MWI": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Muli bwanji! (Hello! — Chichewa)",
+        "phonetic": "MOO-lee BWAN-jee",
+        "bcp47": "en-MW"
+      },
+      {
+        "type": "Thank You",
+        "text": "Zikomo kwambiri! (Thank you very much!)",
+        "phonetic": "zee-KO-mo kwam-BEE-ree",
+        "bcp47": "en-MW"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Tsalani bwino! (Stay well! / Goodbye!)",
+        "phonetic": "tsa-LA-nee BWEE-no",
+        "bcp47": "en-MW"
+      },
+      {
+        "type": "How are you?",
+        "text": "Ndili bwino, zikomo! (I am fine, thank you!)",
+        "phonetic": "n-DEE-lee BWEE-no",
+        "bcp47": "en-MW"
+      }
+    ]
+  },
+  "MYS": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Selamat pagi! / Apa khabar! (Malay Hello)",
+        "phonetic": "se-LA-mat PA-gee",
+        "bcp47": "ms-MY"
+      },
+      {
+        "type": "Thank You",
+        "text": "Terima kasih banyak! (Thank you very much!)",
+        "phonetic": "te-REE-ma KA-sih BAN-yak",
+        "bcp47": "ms-MY"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Selamat tinggal! / Jumpa lagi! (Goodbye!)",
+        "phonetic": "se-LA-mat ting-GAL",
+        "bcp47": "ms-MY"
+      },
+      {
+        "type": "How are you?",
+        "text": "Apa khabar? (What's the news? / How are you?)",
+        "phonetic": "AH-pa KA-bar",
+        "bcp47": "ms-MY"
+      }
+    ]
+  },
+  "NAM": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Wa lalapo! (Oshiwambo) / Goeiedag! / Hello!",
+        "phonetic": "wa la-LA-po / KHOO-yeh-dakh",
+        "bcp47": "en-NA"
+      },
+      {
+        "type": "Thank You",
+        "text": "Tangi unene! / Baie dankie! (Thank you!)",
+        "phonetic": "TAHN-gee oo-NEH-neh",
+        "bcp47": "en-NA"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Kala po nawa! / Totsiens! (Stay well!)",
+        "phonetic": "KA-la po NA-wa",
+        "bcp47": "en-NA"
+      },
+      {
+        "type": "How are you?",
+        "text": "Opo u li? / Onghee? (How are you?)",
+        "phonetic": "OH-po oo lee",
+        "bcp47": "en-NA"
+      }
+    ]
+  },
+  "NCL": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Bonjour ! / Alô! / Nââ kwê! (French & Kanak)",
+        "phonetic": "bohn-ZHOOR / naa KWEH",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Thank You",
+        "text": "Merci beaucoup ! / Olé! (Thank you!)",
+        "phonetic": "mer-SEE boh-KOO",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Au revoir ! / À plus tard ! (Goodbye!)",
+        "phonetic": "oh ruh-VWAHR",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "How are you?",
+        "text": "Ça va ? / Comment ça va sur le Caillou ?",
+        "phonetic": "sa VA",
+        "bcp47": "fr-FR"
+      }
+    ]
+  },
+  "NER": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Sannu! (Hausa) / Fo fo! (Zarma) / Bonjour !",
+        "phonetic": "SAN-noo / FO fo",
+        "bcp47": "fr-NE"
+      },
+      {
+        "type": "Thank You",
+        "text": "Na gode! / Fofo! / Merci beaucoup !",
+        "phonetic": "na GO-de / fo-FO",
+        "bcp47": "fr-NE"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Sai an jima! / Au revoir ! (See you later!)",
+        "phonetic": "say ahn JEE-ma",
+        "bcp47": "fr-NE"
+      },
+      {
+        "type": "How are you?",
+        "text": "Lafiya lau? / Baani? (Is all peaceful?)",
+        "phonetic": "la-FEE-ya low",
+        "bcp47": "fr-NE"
+      }
+    ]
+  },
+  "NFK": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Watawieh yorlye! (How are you all? — Norf'k)",
+        "phonetic": "wa-ta-WEE YOR-lee",
+        "bcp47": "en-AU"
+      },
+      {
+        "type": "Thank You",
+        "text": "Thank yorlye! / Cheers! (Norf'k)",
+        "phonetic": "thank YOR-lee",
+        "bcp47": "en-AU"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Morla! / See yorlye! (See you tomorrow!)",
+        "phonetic": "MOR-la",
+        "bcp47": "en-AU"
+      },
+      {
+        "type": "How are you?",
+        "text": "S'good? / Kush! (Everything's great!)",
+        "phonetic": "s-good / KOOSH",
+        "bcp47": "en-AU"
+      }
+    ],
+    "languages": [
+      {
+        "name": "Norf'k & English",
+        "nativeName": "Norf'k / English",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "English-Tahitian Creole / Germanic",
+        "script": "Latin",
+        "bcp47": "en-AU",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Norfolk Island."
+      }
+    ]
+  },
+  "NIC": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "¡Hola! / ¿Ideay, pues? (Nicaraguan greeting)",
+        "phonetic": "OH-la / ee-DEY pwes",
+        "bcp47": "es-NI"
+      },
+      {
+        "type": "Thank You",
+        "text": "¡Muchas gracias! (Thank you very much!)",
+        "phonetic": "MOO-chas GRA-syas",
+        "bcp47": "es-NI"
+      },
+      {
+        "type": "Goodbye",
+        "text": "¡Adiós! / ¡Nos vemos! (Goodbye!)",
+        "phonetic": "ah-DYOS / nos VE-mos",
+        "bcp47": "es-NI"
+      },
+      {
+        "type": "How are you?",
+        "text": "¿Cómo estás? / ¿Todo tuani? (All good?)",
+        "phonetic": "KO-mo es-TAS / TWA-nee",
+        "bcp47": "es-NI"
+      }
+    ]
+  },
+  "NIU": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Fakaalofa lahi atu! (Much love / Hello! — Niuean)",
+        "phonetic": "fa-ka-a-LO-fa la-HEE a-too",
+        "bcp47": "en-NZ"
+      },
+      {
+        "type": "Thank You",
+        "text": "Fakaaue lahi! (Thank you very much!)",
+        "phonetic": "fa-ka-OW-eh la-HEE",
+        "bcp47": "en-NZ"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Koe kia! (Goodbye! — Niuean)",
+        "phonetic": "ko-EH kee-A",
+        "bcp47": "en-NZ"
+      },
+      {
+        "type": "How are you?",
+        "text": "Malolo nakai a koe? (Are you healthy?)",
+        "phonetic": "ma-LO-lo na-KAI a ko-EH",
+        "bcp47": "en-NZ"
+      }
+    ],
+    "languages": [
+      {
+        "name": "Niuean & English",
+        "nativeName": "Ko e vagahau Niuē",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Austronesian (Polynesian)",
+        "script": "Latin",
+        "bcp47": "en-NZ",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Niue."
+      }
+    ]
+  },
+  "NPL": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "नमस्ते! / नमस्कार! (Namaste! — Nepali)",
+        "phonetic": "na-mas-TE",
+        "bcp47": "ne-NP"
+      },
+      {
+        "type": "Thank You",
+        "text": "धेरै धन्यवाद! (Dherai dhanyabad!)",
+        "phonetic": "DHE-rai dhan-ya-BAD",
+        "bcp47": "ne-NP"
+      },
+      {
+        "type": "Goodbye",
+        "text": "फेरि भेटौंला! (Pheri bhetaula! — Meet again!)",
+        "phonetic": "FE-ree bhe-TOW-la",
+        "bcp47": "ne-NP"
+      },
+      {
+        "type": "How are you?",
+        "text": "तपाईंलाई कस्तो छ? (Tapailai kasto chha?)",
+        "phonetic": "ta-pai-LAI kas-TO chha",
+        "bcp47": "ne-NP"
+      }
+    ]
+  },
+  "NRU": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Ekamowir omo! (Hello! — Nauruan)",
+        "phonetic": "e-ka-MO-weer O-mo",
+        "bcp47": "en-AU"
+      },
+      {
+        "type": "Thank You",
+        "text": "Tubwa kor! (Thank you very much! — Nauruan)",
+        "phonetic": "TOOB-wa kor",
+        "bcp47": "en-AU"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Aran! / See you again! (Goodbye!)",
+        "phonetic": "a-RAHN",
+        "bcp47": "en-AU"
+      },
+      {
+        "type": "How are you?",
+        "text": "Wo ranga? (How are you? — Nauruan)",
+        "phonetic": "wo RAHN-ga",
+        "bcp47": "en-AU"
+      }
+    ]
+  },
+  "OMN": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "أهلاً وسهلاً! / حياك الله (Ahlan wa sahlan!)",
+        "phonetic": "AH-lan wa SAH-lan",
+        "bcp47": "ar-OM"
+      },
+      {
+        "type": "Thank You",
+        "text": "مشكور وايد / جزاك الله خير (Mashkoor wayed!)",
+        "phonetic": "mash-KOOR wa-YID",
+        "bcp47": "ar-OM"
+      },
+      {
+        "type": "Goodbye",
+        "text": "في أمان الله / مع السلامة (Fi amanillah)",
+        "phonetic": "fee a-MA-nil-LAH",
+        "bcp47": "ar-OM"
+      },
+      {
+        "type": "How are you?",
+        "text": "كيف حالك؟ / مو هبات؟ (Mo habat? — Omani)",
+        "phonetic": "KAY-fa HA-lak / moo ha-BAT",
+        "bcp47": "ar-OM"
+      }
+    ]
+  },
+  "PAN": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "¡Hola! / ¿Qué xopa? (Panamanian What's up?)",
+        "phonetic": "OH-la / keh SHO-pa",
+        "bcp47": "es-PA"
+      },
+      {
+        "type": "Thank You",
+        "text": "¡Muchas gracias! (Thank you very much!)",
+        "phonetic": "MOO-chas GRA-syas",
+        "bcp47": "es-PA"
+      },
+      {
+        "type": "Goodbye",
+        "text": "¡Chao! / ¡Nos vemos! (See you later!)",
+        "phonetic": "chow / nos VE-mos",
+        "bcp47": "es-PA"
+      },
+      {
+        "type": "How are you?",
+        "text": "¿Cómo andas? / ¿Todo bien? (How are you?)",
+        "phonetic": "KO-mo AN-das",
+        "bcp47": "es-PA"
+      }
+    ]
+  },
+  "PCN": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Bout ya? / Whut a way yorlye? (Pitkern)",
+        "phonetic": "bowt YA / wa-ta-WAY",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Thank You",
+        "text": "Thank yorlye! / Thank you very much!",
+        "phonetic": "thank YOR-lee",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Morla! / See you soon! (Until tomorrow!)",
+        "phonetic": "MOR-la",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "How are you?",
+        "text": "How ya gettin' on?",
+        "phonetic": "how ya GET-tin on",
+        "bcp47": "en-GB"
+      }
+    ],
+    "languages": [
+      {
+        "name": "Pitkern & English",
+        "nativeName": "Pitkern / English",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "English-Tahitian Creole",
+        "script": "Latin",
+        "bcp47": "en-GB",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Pitcairn Is.."
+      }
+    ]
+  },
+  "PLW": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Alii! (Hello! — Palauan)",
+        "phonetic": "ah-LEE",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Thank You",
+        "text": "Ke kmal mesaul! (Thank you very much!)",
+        "phonetic": "keh k-mahl me-SOWL",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Mechikung! (Goodbye! — Palauan)",
+        "phonetic": "me-chee-KOONG",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "How are you?",
+        "text": "Ke ua ngerang? / Ak mesisiich!",
+        "phonetic": "keh wa nge-RANG",
+        "bcp47": "en-US"
+      }
+    ]
+  },
+  "PNG": {
+    "languages": [
+      {
+        "name": "Tok Pisin",
+        "nativeName": "Tok Pisin",
+        "type": "Official National Lingua Franca",
+        "percentage": "70.0%",
+        "speakers": "6M",
+        "family": "English-based Creole",
+        "script": "Latin",
+        "bcp47": "en-PG",
+        "regions": "Nationwide (Northern regions & Highlands)",
+        "notes": "Highly expressive creole developed on Pacific plantations; official language in parliament."
+      },
+      {
+        "name": "English",
+        "nativeName": "English",
+        "type": "Official Constitutional Language",
+        "percentage": "2.0%",
+        "speakers": "200K",
+        "family": "Indo-European (Germanic)",
+        "script": "Latin",
+        "bcp47": "en-PG",
+        "regions": "Government, Education, Courts",
+        "notes": "Official language of higher schooling and formal law."
+      },
+      {
+        "name": "Hiri Motu",
+        "nativeName": "Hiri Motu",
+        "type": "Official Constitutional Language",
+        "percentage": "3.0%",
+        "speakers": "120K",
+        "family": "Motu-based Pidgin",
+        "script": "Latin",
+        "bcp47": "en-PG",
+        "regions": "Southern coastal regions around Port Moresby",
+        "notes": "Historic trading pidgin of the Motu sea expeditions (Hiri voyages)."
+      },
+      {
+        "name": "Papuan & Austronesian Indigenous (840+)",
+        "nativeName": "Enga, Melpa, Huli, Kuman",
+        "type": "Indigenous Mother Tongues",
+        "percentage": "85.0%",
+        "speakers": "8M",
+        "family": "Trans-New Guinea & Oceanic",
+        "script": "Oral traditions / Latin",
+        "bcp47": "en-PG",
+        "regions": "Highlands, Sepik, New Britain, Bougainville",
+        "notes": "Enga is the largest indigenous language with ~230,000 speakers; hundreds have fewer than 1,000 speakers."
+      }
+    ]
+  },
+  "PRI": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "¡Hola! / ¿Qué es la que hay? (Puerto Rican)",
+        "phonetic": "OH-la / kes la keh EYE",
+        "bcp47": "es-PR"
+      },
+      {
+        "type": "Thank You",
+        "text": "¡Muchas gracias! (Thank you very much!)",
+        "phonetic": "MOO-chas GRA-syas",
+        "bcp47": "es-PR"
+      },
+      {
+        "type": "Goodbye",
+        "text": "¡Hasta luego! / ¡Cuídate! (Goodbye / Take care!)",
+        "phonetic": "AS-ta LWE-go",
+        "bcp47": "es-PR"
+      },
+      {
+        "type": "How are you?",
+        "text": "¿Cómo tú estás? / ¿Todo bien, pana?",
+        "phonetic": "KO-mo too es-TAS",
+        "bcp47": "es-PR"
+      }
+    ]
+  },
+  "PRK": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "안녕하세요! / 반갑습니다! (Annyeonghaseyo!)",
+        "phonetic": "ahn-nyung-ha-SEH-yo",
+        "bcp47": "ko-KP"
+      },
+      {
+        "type": "Thank You",
+        "text": "고맙습니다! (Gomap-seumnida! — Thank you!)",
+        "phonetic": "go-map-seum-ni-DA",
+        "bcp47": "ko-KP"
+      },
+      {
+        "type": "Goodbye",
+        "text": "안녕히 가십시오! (Annyeonghi gasipsio!)",
+        "phonetic": "ahn-nyung-hee ga-sip-si-O",
+        "bcp47": "ko-KP"
+      },
+      {
+        "type": "How are you?",
+        "text": "잘 지내십니까? (Jal jinaesimnikka?)",
+        "phonetic": "jahl jee-nae-sim-ni-KKA",
+        "bcp47": "ko-KP"
+      }
+    ]
+  },
+  "PRY": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Mba'éichapa! / ¡Hola! (Guarani & Spanish)",
+        "phonetic": "mbah-EY-sha-pa / OH-la",
+        "bcp47": "es-PY"
+      },
+      {
+        "type": "Thank You",
+        "text": "Aguyje! / ¡Muchas gracias! (Thank you!)",
+        "phonetic": "a-goo-JEH / GRA-syas",
+        "bcp47": "es-PY"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Jajotopata! / ¡Chao! (Until we meet again!)",
+        "phonetic": "ha-ho-to-PA-ta",
+        "bcp47": "es-PY"
+      },
+      {
+        "type": "How are you?",
+        "text": "Iporãnte! (I'm very well! — Guarani)",
+        "phonetic": "ee-po-RAHN-teh",
+        "bcp47": "es-PY"
+      }
+    ]
+  },
+  "PSE": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "مرحبا! / أهلاً وسهلاً! (Marhaba! / Ahlan!)",
+        "phonetic": "MAR-ha-ba / AH-lan",
+        "bcp47": "ar-PS"
+      },
+      {
+        "type": "Thank You",
+        "text": "يسلمو إيديك / شكراً جزيلاً (Yeslamu!)",
+        "phonetic": "yes-LA-mu ee-DAYK",
+        "bcp47": "ar-PS"
+      },
+      {
+        "type": "Goodbye",
+        "text": "مع السلامة / الله يسهل عليك (Ma'as-salama)",
+        "phonetic": "ma-as-sa-LA-ma",
+        "bcp47": "ar-PS"
+      },
+      {
+        "type": "How are you?",
+        "text": "كيف حالك؟ / شو أخبارك؟ (Keef halak?)",
+        "phonetic": "KEEF HA-lak",
+        "bcp47": "ar-PS"
+      }
+    ],
+    "languages": [
+      {
+        "name": "Arabic (Levantine)",
+        "nativeName": "العربية (فلسطينية)",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Afroasiatic (Semitic)",
+        "script": "Arabic",
+        "bcp47": "ar-PS",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Palestine."
+      }
+    ]
+  },
+  "PYF": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "'Ia ora na! / Bonjour ! (Tahitian & French)",
+        "phonetic": "ee-a o-RA-na / bohn-ZHOOR",
+        "bcp47": "fr-PF"
+      },
+      {
+        "type": "Thank You",
+        "text": "Māuruuru roa! / Merci ! (Thank you very much!)",
+        "phonetic": "ma-oo-roo-oo-roo RO-a",
+        "bcp47": "fr-PF"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Nānā! / Au revoir ! (Goodbye!)",
+        "phonetic": "na-NA / oh ruh-VWAHR",
+        "bcp47": "fr-PF"
+      },
+      {
+        "type": "How are you?",
+        "text": "Maita'i oe? / Maita'i roa! (Are you well?)",
+        "phonetic": "my-TA-ee oh-EH",
+        "bcp47": "fr-PF"
+      }
+    ]
+  },
+  "QAT": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "يا هلا ومرحبا! (Ya hala wa marhaba!)",
+        "phonetic": "ya HA-la wa MAR-ha-ba",
+        "bcp47": "ar-QA"
+      },
+      {
+        "type": "Thank You",
+        "text": "مشكور وما قصرت / شكراً (Mashkoor!)",
+        "phonetic": "mash-KOOR",
+        "bcp47": "ar-QA"
+      },
+      {
+        "type": "Goodbye",
+        "text": "فمان الله / مع السلامة (F'man illah)",
+        "phonetic": "f-man il-LAH",
+        "bcp47": "ar-QA"
+      },
+      {
+        "type": "How are you?",
+        "text": "شحالك؟ / عساك طيب؟ (Shhalak? — Qatari)",
+        "phonetic": "sh-HA-lak / a-SAK TAY-yib",
+        "bcp47": "ar-QA"
+      }
+    ]
+  },
+  "ROU": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Bună ziua! / Salut! (Good day / Hi!)",
+        "phonetic": "BOO-nuh ZEE-wa / sa-LOOT",
+        "bcp47": "ro-RO"
+      },
+      {
+        "type": "Thank You",
+        "text": "Mulțumesc mult! (Thank you very much!)",
+        "phonetic": "mool-tsoo-MESK moolt",
+        "bcp47": "ro-RO"
+      },
+      {
+        "type": "Goodbye",
+        "text": "La revedere! / Pa! (Goodbye!)",
+        "phonetic": "la re-ve-DE-re / pah",
+        "bcp47": "ro-RO"
+      },
+      {
+        "type": "How are you?",
+        "text": "Ce mai faceți? / Ce faci? (How are you?)",
+        "phonetic": "che mai FA-chets",
+        "bcp47": "ro-RO"
+      }
+    ]
+  },
+  "RWA": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Muraho! / Mwaramutse! (Kinyarwanda Hello)",
+        "phonetic": "moo-RA-ho / mwa-ra-MOO-tse",
+        "bcp47": "rw-RW"
+      },
+      {
+        "type": "Thank You",
+        "text": "Murakoze cyane! (Thank you very much!)",
+        "phonetic": "moo-ra-KO-ze CHA-ne",
+        "bcp47": "rw-RW"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Murabeho! / Turabonana! (Goodbye!)",
+        "phonetic": "moo-ra-BE-ho",
+        "bcp47": "rw-RW"
+      },
+      {
+        "type": "How are you?",
+        "text": "Amakuru ki? / Ni meza! (How are you? / Good!)",
+        "phonetic": "a-ma-KOO-roo kee",
+        "bcp47": "rw-RW"
+      }
+    ]
+  },
+  "SDN": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "السلام عليكم! / حبابك عشرة! (Hababak!)",
+        "phonetic": "as-sa-LA-mu a-LAY-kum / ha-BA-bak",
+        "bcp47": "ar-SD"
+      },
+      {
+        "type": "Thank You",
+        "text": "شكراً شديد / كتر خيرك (Shukran shadeed!)",
+        "phonetic": "SHUK-ran sha-DEED",
+        "bcp47": "ar-SD"
+      },
+      {
+        "type": "Goodbye",
+        "text": "في أمان الله / مع السلامة (Fi amanillah)",
+        "phonetic": "fee a-MA-nil-LAH",
+        "bcp47": "ar-SD"
+      },
+      {
+        "type": "How are you?",
+        "text": "كيفنك؟ / عامل شنو؟ (Keefinnak? — Sudanese)",
+        "phonetic": "kay-FIN-nak / A-mil SH-noo",
+        "bcp47": "ar-SD"
+      }
+    ]
+  },
+  "SEN": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Salaam aleekum! / Nanga def! (Wolof)",
+        "phonetic": "sa-LAM a-LAY-kum / nahn-ga DEF",
+        "bcp47": "fr-SN"
+      },
+      {
+        "type": "Thank You",
+        "text": "Jërëjëf! / Merci beaucoup ! (Thank you — Wolof)",
+        "phonetic": "jeh-reh-JEF",
+        "bcp47": "fr-SN"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Ba beneen yoon! / Au revoir ! (See you next time!)",
+        "phonetic": "ba be-NEN yoon",
+        "bcp47": "fr-SN"
+      },
+      {
+        "type": "How are you?",
+        "text": "Mangi fi rekk! (I am here only / Doing fine!)",
+        "phonetic": "MAHN-gee fee rek",
+        "bcp47": "fr-SN"
+      }
+    ]
+  },
+  "SGP": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Hello! / 你好！ / Apa khabar! / வணக்கம்!",
+        "phonetic": "heh-LOH / nee HOW / a-pa KA-bar",
+        "bcp47": "en-SG"
+      },
+      {
+        "type": "Thank You",
+        "text": "Thank you! / 謝謝! / Terima kasih!",
+        "phonetic": "thank yoo / SHYEH-shyeh",
+        "bcp47": "en-SG"
+      },
+      {
+        "type": "Goodbye",
+        "text": "See you later! / 再見! / Jumpa lagi!",
+        "phonetic": "dzai-JYEN / joom-PA la-GEE",
+        "bcp47": "en-SG"
+      },
+      {
+        "type": "How are you?",
+        "text": "Have you eaten? / Makan already, lah?",
+        "phonetic": "MAH-kahn awl-REH-dee lah",
+        "bcp47": "en-SG"
+      }
+    ]
+  },
+  "SGS": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Good morning! / Hello there! (South Atlantic)",
+        "phonetic": "good MOR-ning",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Thank You",
+        "text": "Cheers! / Thank you kindly!",
+        "phonetic": "cheerz",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Cheerio! / Fair winds at Grytviken!",
+        "phonetic": "chee-ree-OH",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "How are you?",
+        "text": "Keeping well in the Southern Ocean?",
+        "phonetic": "KEE-ping wel",
+        "bcp47": "en-GB"
+      }
+    ],
+    "languages": [
+      {
+        "name": "English (British)",
+        "nativeName": "English",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Indo-European (Germanic)",
+        "script": "Latin",
+        "bcp47": "en-GB",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in S. Geo. and the Is.."
+      }
+    ]
+  },
+  "SHN": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Good morning! / Hello there! (Saint Helenian)",
+        "phonetic": "good MOR-ning",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Thank You",
+        "text": "Thank you kindly! / Cheers!",
+        "phonetic": "thank yoo KYND-lee",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Goodbye",
+        "text": "See you around! / Take care!",
+        "phonetic": "tayk KAIR",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "How are you?",
+        "text": "How are things up in Jamestown?",
+        "phonetic": "how ahr thingz",
+        "bcp47": "en-GB"
+      }
+    ],
+    "languages": [
+      {
+        "name": "English (Saint Helenian)",
+        "nativeName": "English",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Indo-European (Germanic)",
+        "script": "Latin",
+        "bcp47": "en-GB",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Saint Helena."
+      }
+    ]
+  },
+  "SLB": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Halo! / Gudfala dei! (Solomons Pijin)",
+        "phonetic": "ha-LO / good-FA-la day",
+        "bcp47": "en-SB"
+      },
+      {
+        "type": "Thank You",
+        "text": "Tanggio tumas! (Thank you very much!)",
+        "phonetic": "tan-GYO too-MAS",
+        "bcp47": "en-SB"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Lukim iu! (See you later! — Solomons Pijin)",
+        "phonetic": "loo-KEEM yoo",
+        "bcp47": "en-SB"
+      },
+      {
+        "type": "How are you?",
+        "text": "Iu oraet nomoa? (Are you doing alright?)",
+        "phonetic": "yoo o-RAET no-MO-a",
+        "bcp47": "en-SB"
+      }
+    ]
+  },
+  "SLE": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Kusheh! / Ow di bodi? (Hello / How are you? — Krio)",
+        "phonetic": "KOO-sheh / ow dee BO-dee",
+        "bcp47": "en-SL"
+      },
+      {
+        "type": "Thank You",
+        "text": "Tenki! / Tenki ya! (Thank you! — Krio)",
+        "phonetic": "TEN-kee ya",
+        "bcp47": "en-SL"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Wi go si bak! (We'll see again / Goodbye!)",
+        "phonetic": "wee go see BAK",
+        "bcp47": "en-SL"
+      },
+      {
+        "type": "How are you?",
+        "text": "A tel God tenki! (I'm doing fine!)",
+        "phonetic": "ah tel god TEN-kee",
+        "bcp47": "en-SL"
+      }
+    ]
+  },
+  "SLV": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "¡Hola! / ¿Qué ondas, vos? (Salvadoran)",
+        "phonetic": "OH-la / keh ON-das vos",
+        "bcp47": "es-SV"
+      },
+      {
+        "type": "Thank You",
+        "text": "¡Muchas gracias! (Thank you very much!)",
+        "phonetic": "MOO-chas GRA-syas",
+        "bcp47": "es-SV"
+      },
+      {
+        "type": "Goodbye",
+        "text": "¡Adiós! / ¡Nos vemos! (Goodbye!)",
+        "phonetic": "ah-DYOS / nos VE-mos",
+        "bcp47": "es-SV"
+      },
+      {
+        "type": "How are you?",
+        "text": "¿Cómo estás? / ¿Todo chivo? (All cool?)",
+        "phonetic": "KO-mo es-TAS / CHEE-vo",
+        "bcp47": "es-SV"
+      }
+    ]
+  },
+  "SMR": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Ciao! / Buongiorno! (Hello / Good morning!)",
+        "phonetic": "chow / bwon-JOR-no",
+        "bcp47": "it-IT"
+      },
+      {
+        "type": "Thank You",
+        "text": "Grazie mille! (Thank you very much!)",
+        "phonetic": "GRAT-syeh MEEL-leh",
+        "bcp47": "it-IT"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Arrivederci! / A presto! (Goodbye!)",
+        "phonetic": "ar-ree-veh-DER-chee",
+        "bcp47": "it-IT"
+      },
+      {
+        "type": "How are you?",
+        "text": "Come sta? / Come va? (How are you?)",
+        "phonetic": "KO-meh sta / KO-meh va",
+        "bcp47": "it-IT"
+      }
+    ]
+  },
+  "SOL": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Iska warran! / Nabad! (Hello / Peace! — Somali)",
+        "phonetic": "is-ka war-RAN / na-BAD",
+        "bcp47": "so-SO"
+      },
+      {
+        "type": "Thank You",
+        "text": "Mahadsanid! (Thank you very much! — Somali)",
+        "phonetic": "ma-had-SA-nid",
+        "bcp47": "so-SO"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Nabad gelyo! (Go in peace / Goodbye!)",
+        "phonetic": "na-BAD gel-YO",
+        "bcp47": "so-SO"
+      },
+      {
+        "type": "How are you?",
+        "text": "Ma nabad baa? (Is there peace? / How are you?)",
+        "phonetic": "ma na-BAD baa",
+        "bcp47": "so-SO"
+      }
+    ],
+    "languages": [
+      {
+        "name": "Somali",
+        "nativeName": "Af-Soomaali",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Afroasiatic (Cushitic)",
+        "script": "Latin (Farfar)",
+        "bcp47": "so-SO",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Somaliland."
+      }
+    ]
+  },
+  "SOM": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Iska warran! / As-salamu alaykum! (Somali)",
+        "phonetic": "is-ka war-RAN / na-BAD",
+        "bcp47": "so-SO"
+      },
+      {
+        "type": "Thank You",
+        "text": "Mahadsanid! / Aadsan u mahadsantahay!",
+        "phonetic": "ma-had-SA-nid",
+        "bcp47": "so-SO"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Nabad gelyo! (Go in peace / Goodbye!)",
+        "phonetic": "na-BAD gel-YO",
+        "bcp47": "so-SO"
+      },
+      {
+        "type": "How are you?",
+        "text": "See tahay? / Waan fiicanahay! (How are you?)",
+        "phonetic": "seh TA-hay",
+        "bcp47": "so-SO"
+      }
+    ]
+  },
+  "SPM": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Bonjour ! / Salut ! (French North Atlantic)",
+        "phonetic": "bohn-ZHOOR / sa-LYOO",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Thank You",
+        "text": "Merci beaucoup ! (Thank you very much!)",
+        "phonetic": "mer-SEE boh-KOO",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Au revoir ! / À bientôt ! (See you soon!)",
+        "phonetic": "oh ruh-VWAHR",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "How are you?",
+        "text": "Comment ça va aujourd'hui ? (How are you?)",
+        "phonetic": "ko-mahn sa VA",
+        "bcp47": "fr-FR"
+      }
+    ],
+    "languages": [
+      {
+        "name": "French",
+        "nativeName": "Français",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Indo-European (Romance)",
+        "script": "Latin",
+        "bcp47": "fr-FR",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in St. Pierre and Miquelon."
+      }
+    ]
+  },
+  "SRB": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Здраво! / Добар дан! (Zdravo / Dobar dan!)",
+        "phonetic": "ZDRA-vo / DO-bar dahn",
+        "bcp47": "sr-RS"
+      },
+      {
+        "type": "Thank You",
+        "text": "Хвала пуно! (Hvala puno! — Thank you very much!)",
+        "phonetic": "HVA-la POO-no",
+        "bcp47": "sr-RS"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Довиђења! / Ћао! (Doviđenja! / Ćao!)",
+        "phonetic": "do-vee-JEN-ya / CHOW",
+        "bcp47": "sr-RS"
+      },
+      {
+        "type": "How are you?",
+        "text": "Како сте? / Како си? (Kako ste?)",
+        "phonetic": "KA-ko ste / KA-ko see",
+        "bcp47": "sr-RS"
+      }
+    ]
+  },
+  "SSD": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Yin ya kech? (Dinka) / Salam! (Juba Arabic)",
+        "phonetic": "yeen ya KECH / sa-LAM",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Thank You",
+        "text": "Yindii! (Dinka) / Shukran! / Thank you!",
+        "phonetic": "yeen-DEE / SHUK-ran",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Baa röt tiing! / Stay well!",
+        "phonetic": "baa rut TEENG",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "How are you?",
+        "text": "Inta kwayis? (How are you? — Juba Arabic)",
+        "phonetic": "IN-ta KWAY-yis",
+        "bcp47": "en-GB"
+      }
+    ]
+  },
+  "STP": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Olá! / Bom dia! / Leve-leve! (Take it easy!)",
+        "phonetic": "oh-LAH / LEH-veh LEH-veh",
+        "bcp47": "pt-PT"
+      },
+      {
+        "type": "Thank You",
+        "text": "Muito obrigado! / Obrigada! (Thank you!)",
+        "phonetic": "MWEEN-too ob-ree-GA-doo",
+        "bcp47": "pt-PT"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Até breve! / Tchau! (See you soon!)",
+        "phonetic": "a-TEH BREH-veh",
+        "bcp47": "pt-PT"
+      },
+      {
+        "type": "How are you?",
+        "text": "Como vai? / Tudo bem? (How are you?)",
+        "phonetic": "KO-moo vai",
+        "bcp47": "pt-PT"
+      }
+    ]
+  },
+  "SUR": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Hallo! / Fa waka? (Dutch & Sranan Tongo)",
+        "phonetic": "ha-LO / fa WA-ka",
+        "bcp47": "nl-NL"
+      },
+      {
+        "type": "Thank You",
+        "text": "Dank je wel! / Grantangi! (Thank you!)",
+        "phonetic": "dahnk yuh VEL / grahn-TAHN-gee",
+        "bcp47": "nl-NL"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Tot ziens! / Adjosi! (Goodbye!)",
+        "phonetic": "tot ZEENS / a-JO-see",
+        "bcp47": "nl-NL"
+      },
+      {
+        "type": "How are you?",
+        "text": "Alles goed? / A e go! (Everything good?)",
+        "phonetic": "AH-lus khood",
+        "bcp47": "nl-NL"
+      }
+    ]
+  },
+  "SVK": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Dobrý deň! / Ahoj! (Good day / Hi!)",
+        "phonetic": "DOB-ree den / a-HOY",
+        "bcp47": "sk-SK"
+      },
+      {
+        "type": "Thank You",
+        "text": "Ďakujem pekne! (Thank you very much!)",
+        "phonetic": "DYA-koo-yem PEK-nye",
+        "bcp47": "sk-SK"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Dovidenia! / Maj sa! (Goodbye!)",
+        "phonetic": "do-vee-DEN-ya",
+        "bcp47": "sk-SK"
+      },
+      {
+        "type": "How are you?",
+        "text": "Ako sa máte? / Ako sa máš? (How are you?)",
+        "phonetic": "AH-ko sa MA-tye",
+        "bcp47": "sk-SK"
+      }
+    ]
+  },
+  "SVN": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Dober dan! / Živjo! (Good day / Hello!)",
+        "phonetic": "DO-ber dahn / ZHEEV-yo",
+        "bcp47": "sl-SI"
+      },
+      {
+        "type": "Thank You",
+        "text": "Hvala lepa! (Thank you very much!)",
+        "phonetic": "HVA-la LEH-pa",
+        "bcp47": "sl-SI"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Nasvidenje! / Adijo! (Goodbye!)",
+        "phonetic": "na-SVEE-den-ye",
+        "bcp47": "sl-SI"
+      },
+      {
+        "type": "How are you?",
+        "text": "Kako ste? / Kako si? (How are you?)",
+        "phonetic": "ka-KO ste / ka-KO see",
+        "bcp47": "sl-SI"
+      }
+    ]
+  },
+  "SWZ": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Sawubona! / Sanibonani! (Hello — siSwati)",
+        "phonetic": "sa-woo-BO-na",
+        "bcp47": "en-ZA"
+      },
+      {
+        "type": "Thank You",
+        "text": "Ngiyabonga kakhulu! (Thank you very much!)",
+        "phonetic": "n-gee-ya-BON-ga ka-KOO-loo",
+        "bcp47": "en-ZA"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Sala kahle! / Hamba kahle! (Stay/Go well!)",
+        "phonetic": "SA-la KAH-leh",
+        "bcp47": "en-ZA"
+      },
+      {
+        "type": "How are you?",
+        "text": "Unjani? / Ngikhona! (How are you? / I'm fine!)",
+        "phonetic": "oon-JA-nee",
+        "bcp47": "en-ZA"
+      }
+    ]
+  },
+  "SXM": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Good morning! / Goedemorgen! (English & Dutch)",
+        "phonetic": "KHOO-duh-mor-khen",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Thank You",
+        "text": "Thank you very much! / Dank u wel!",
+        "phonetic": "dahnk oo VEL",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Goodbye",
+        "text": "See you later! / Tot ziens!",
+        "phonetic": "tot ZEENS",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "How are you?",
+        "text": "How you keeping? / Hoe gaat het?",
+        "phonetic": "hoo KHAAT het",
+        "bcp47": "en-US"
+      }
+    ],
+    "languages": [
+      {
+        "name": "English & Dutch",
+        "nativeName": "English / Nederlands",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Indo-European (Germanic)",
+        "script": "Latin",
+        "bcp47": "en-US",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Sint Maarten."
+      }
+    ]
+  },
+  "SYC": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Bonzour! / Ki mannyer? (Seychellois Creole)",
+        "phonetic": "bohn-ZOOR / kee man-YER",
+        "bcp47": "fr-SC"
+      },
+      {
+        "type": "Thank You",
+        "text": "Mersi bokou! (Thank you very much!)",
+        "phonetic": "mer-SEE bo-KOO",
+        "bcp47": "fr-SC"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Orevwar! / A pli tar! (See you later!)",
+        "phonetic": "o-reh-VWAR / a plee TAR",
+        "bcp47": "fr-SC"
+      },
+      {
+        "type": "How are you?",
+        "text": "Mon byen, mersi! (I am well, thank you!)",
+        "phonetic": "mohn BYEN mer-SEE",
+        "bcp47": "fr-SC"
+      }
+    ]
+  },
+  "SYR": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "مرحبا! / أهلين! (Marhaba! / Ahlein!)",
+        "phonetic": "MAR-ha-ba / ah-LAYN",
+        "bcp47": "ar-SY"
+      },
+      {
+        "type": "Thank You",
+        "text": "شكراً كتير / يسلمو (Shukran kteer!)",
+        "phonetic": "SHUK-ran k-TEER / yes-LA-mu",
+        "bcp47": "ar-SY"
+      },
+      {
+        "type": "Goodbye",
+        "text": "مع السلامة / خاطرك (Ma'as-salama)",
+        "phonetic": "ma-as-sa-LA-ma / KHA-trak",
+        "bcp47": "ar-SY"
+      },
+      {
+        "type": "How are you?",
+        "text": "كيفك؟ / شو أخبارك؟ (Keefak? — Levantine)",
+        "phonetic": "KEE-fak / shoo akh-BA-rak",
+        "bcp47": "ar-SY"
+      }
+    ]
+  },
+  "TCA": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Hey there! / How ya doin'? (Turks & Caicos)",
+        "phonetic": "how ya DOO-in",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Thank You",
+        "text": "Thank you kindly! / Much appreciated!",
+        "phonetic": "thank yoo KYND-lee",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Take care! / Catch you later!",
+        "phonetic": "tayk KAIR",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "How are you?",
+        "text": "Everything good out on the cays?",
+        "phonetic": "ev-ree-thing GOOD",
+        "bcp47": "en-US"
+      }
+    ],
+    "languages": [
+      {
+        "name": "English & Turks-Caicos Creole",
+        "nativeName": "English",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Indo-European (Germanic)",
+        "script": "Latin",
+        "bcp47": "en-US",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Turks and Caicos Is.."
+      }
+    ]
+  },
+  "TCD": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "As-salamu alaykum! / Bonjour ! (Chadian Arabic & French)",
+        "phonetic": "sa-LA-mu a-LAY-kum",
+        "bcp47": "ar-TD"
+      },
+      {
+        "type": "Thank You",
+        "text": "Shukran! / Merci beaucoup ! (Thank you!)",
+        "phonetic": "SHUK-ran / mer-SEE",
+        "bcp47": "ar-TD"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Ma'a salama! / Au revoir ! (Goodbye!)",
+        "phonetic": "ma-a sa-LA-ma",
+        "bcp47": "ar-TD"
+      },
+      {
+        "type": "How are you?",
+        "text": "Afia? / Alhamdulillah! (How are you? / Peace)",
+        "phonetic": "AH-fya",
+        "bcp47": "ar-TD"
+      }
+    ]
+  },
+  "TGO": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Ndi! / Efɔ̃a? (Ewe) / Bonjour ! (French)",
+        "phonetic": "n-DEE / eh-FAW-a",
+        "bcp47": "fr-TG"
+      },
+      {
+        "type": "Thank You",
+        "text": "Akpe kaka! / Merci beaucoup ! (Thank you — Ewe)",
+        "phonetic": "ak-PEH ka-KA",
+        "bcp47": "fr-TG"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Hede nyuie! / Au revoir ! (Go well!)",
+        "phonetic": "HEH-deh nyoo-EH",
+        "bcp47": "fr-TG"
+      },
+      {
+        "type": "How are you?",
+        "text": "Éfɔ̃ nyuie? (Did you wake well? — Ewe)",
+        "phonetic": "eh-FAW nyoo-EH",
+        "bcp47": "fr-TG"
+      }
+    ]
+  },
+  "TJK": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Салом алейкум! / Салом! (Salom!)",
+        "phonetic": "sa-LOM a-ley-KUM",
+        "bcp47": "tg-TJ"
+      },
+      {
+        "type": "Thank You",
+        "text": "Ташаккур! / Раҳмат! (Tashakkur / Rahmat!)",
+        "phonetic": "ta-shak-KOOR / rah-MAT",
+        "bcp47": "tg-TJ"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Хайр! / То боздид! (Khayr! / To bozdid!)",
+        "phonetic": "khayr / to boz-DEED",
+        "bcp47": "tg-TJ"
+      },
+      {
+        "type": "How are you?",
+        "text": "Чӣ хел ҳастед? (Chi khel hasted? — How are you?)",
+        "phonetic": "chee khel has-TED",
+        "bcp47": "tg-TJ"
+      }
+    ]
+  },
+  "TKM": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Salam! / Hoş geldiňiz! (Hello / Welcome!)",
+        "phonetic": "sa-LAM / hosh gel-ding-IZ",
+        "bcp47": "tk-TM"
+      },
+      {
+        "type": "Thank You",
+        "text": "Köp sag boluň! (Thank you very much!)",
+        "phonetic": "kup sahg bo-LOONG",
+        "bcp47": "tk-TM"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Hoş! / Sag boluň! (Goodbye!)",
+        "phonetic": "hosh / sahg bo-LOONG",
+        "bcp47": "tk-TM"
+      },
+      {
+        "type": "How are you?",
+        "text": "Gowumy? / Ýagdaýyňyz nähili? (How are you?)",
+        "phonetic": "go-woo-MY / yag-day-y-NYZ na-hi-LI",
+        "bcp47": "tk-TM"
+      }
+    ]
+  },
+  "TLS": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Bondia! / Diak ka lae? (Tetum & Portuguese)",
+        "phonetic": "bon DEE-a / DEE-ak ka lay",
+        "bcp47": "pt-PT"
+      },
+      {
+        "type": "Thank You",
+        "text": "Obrigadu barak! (m) / Obrigada barak! (f)",
+        "phonetic": "ob-ree-GA-doo ba-RAK",
+        "bcp47": "pt-PT"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Adeus! / Até amanhã! (Goodbye / See you!)",
+        "phonetic": "a-DEH-oos / a-TEH a-man-YAH",
+        "bcp47": "pt-PT"
+      },
+      {
+        "type": "How are you?",
+        "text": "Hau diak! (I am well — Tetum)",
+        "phonetic": "how DEE-ak",
+        "bcp47": "pt-PT"
+      }
+    ]
+  },
+  "TON": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Mālō e lelei! (Hello / Good! — Tongan)",
+        "phonetic": "ma-LO eh leh-LAY",
+        "bcp47": "to-TO"
+      },
+      {
+        "type": "Thank You",
+        "text": "Mālō 'aupito! (Thank you very much!)",
+        "phonetic": "ma-LO ow-PEE-to",
+        "bcp47": "to-TO"
+      },
+      {
+        "type": "Goodbye",
+        "text": "'Alu ā! / Nofo ā! (Goodbye! — Tongan)",
+        "phonetic": "AH-loo ah / NO-fo ah",
+        "bcp47": "to-TO"
+      },
+      {
+        "type": "How are you?",
+        "text": "Fēfē hake? / Sai pē! (How are you? / Fine!)",
+        "phonetic": "feh-FEH HA-keh / sy PEH",
+        "bcp47": "to-TO"
+      }
+    ]
+  },
+  "TTO": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Wha' happening? / How yuh going? (Trini)",
+        "phonetic": "wah HAP-nin / how yuh GO-in",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Thank You",
+        "text": "Thanks plenty! / Much appreciated!",
+        "phonetic": "tanks PLEN-tee",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Later! / Check yuh soon! (See you later!)",
+        "phonetic": "LAY-ta",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "How are you?",
+        "text": "Ah dey, man! / Everything bless!",
+        "phonetic": "ah DEH mahn",
+        "bcp47": "en-US"
+      }
+    ]
+  },
+  "TUN": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "عسلامة! / أهلاً! (Aslama! — Tunisian Derja)",
+        "phonetic": "as-LA-ma / AH-lan",
+        "bcp47": "ar-TN"
+      },
+      {
+        "type": "Thank You",
+        "text": "يعيشك / بارك الله فيك (Yaaychek!)",
+        "phonetic": "ya-AY-shek",
+        "bcp47": "ar-TN"
+      },
+      {
+        "type": "Goodbye",
+        "text": "بالسلامة! (Beslama!)",
+        "phonetic": "bis-SLA-ma",
+        "bcp47": "ar-TN"
+      },
+      {
+        "type": "How are you?",
+        "text": "شنوة أحوالك؟ / لاباس؟ (Shnowa ahwalek?)",
+        "phonetic": "shnoo-wa ah-WA-lek / la-BAS",
+        "bcp47": "ar-TN"
+      }
+    ]
+  },
+  "TUV": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Talofa! / Fakatalofa atu! (Tuvaluan Hello)",
+        "phonetic": "ta-LO-fa",
+        "bcp47": "en-TV"
+      },
+      {
+        "type": "Thank You",
+        "text": "Fakafetai lasi! (Thank you very much!)",
+        "phonetic": "fa-ka-feh-TAI LA-see",
+        "bcp47": "en-TV"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Tofa! (Goodbye! — Tuvaluan)",
+        "phonetic": "TO-fa",
+        "bcp47": "en-TV"
+      },
+      {
+        "type": "How are you?",
+        "text": "E a koe? / E lei! (How are you? / Good!)",
+        "phonetic": "eh a KO-eh",
+        "bcp47": "en-TV"
+      }
+    ]
+  },
+  "TWN": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "你好！ / 哩好！ (Nǐ hǎo! / Lí-hó! — Taiwanese)",
+        "phonetic": "nee HOW / lee-HO",
+        "bcp47": "zh-TW"
+      },
+      {
+        "type": "Thank You",
+        "text": "謝謝！ / 多謝！ (Xièxie! / To-siā!)",
+        "phonetic": "SHYEH-shyeh / to-SYA",
+        "bcp47": "zh-TW"
+      },
+      {
+        "type": "Goodbye",
+        "text": "再見！ / 拜拜！ (Zàijiàn! / Bài-bài!)",
+        "phonetic": "dzai-JYEN / bye-bye",
+        "bcp47": "zh-TW"
+      },
+      {
+        "type": "How are you?",
+        "text": "吃飽未？ / 你好嗎？ (Chia̍h-pá--bē? — Eaten yet?)",
+        "phonetic": "jyah-BA-beh / nee HOW ma",
+        "bcp47": "zh-TW"
+      }
+    ]
+  },
+  "TZA": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Habari! / Shikamoo! (Respectful — Swahili)",
+        "phonetic": "ha-BA-ree / shee-ka-MO",
+        "bcp47": "sw-TZ"
+      },
+      {
+        "type": "Thank You",
+        "text": "Asante sana! (Thank you very much!)",
+        "phonetic": "a-SAN-te SA-na",
+        "bcp47": "sw-TZ"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Kwaheri! / Tutaonana! (Goodbye / See you!)",
+        "phonetic": "kwa-HEH-ree / too-ta-o-NA-na",
+        "bcp47": "sw-TZ"
+      },
+      {
+        "type": "How are you?",
+        "text": "Nzuri sana! / Mambo vipi? (All good!)",
+        "phonetic": "n-ZOO-ree SA-na",
+        "bcp47": "sw-TZ"
+      }
+    ]
+  },
+  "UGA": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Oli otya! (Luganda) / Jambo! (Hello!)",
+        "phonetic": "oh-lee OH-tya / JAM-bo",
+        "bcp47": "en-UG"
+      },
+      {
+        "type": "Thank You",
+        "text": "Webale nnyo! (Thank you very much! — Luganda)",
+        "phonetic": "we-BA-leh n-YO",
+        "bcp47": "en-UG"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Weraba! / See you again! (Goodbye!)",
+        "phonetic": "we-RA-ba",
+        "bcp47": "en-UG"
+      },
+      {
+        "type": "How are you?",
+        "text": "Gyendi! (I am doing well! — Luganda)",
+        "phonetic": "JEN-dee",
+        "bcp47": "en-UG"
+      }
+    ]
+  },
+  "URY": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "¡Hola! / ¿Cómo andás, bo? (Uruguayan)",
+        "phonetic": "OH-la / KO-mo an-DAS bo",
+        "bcp47": "es-UY"
+      },
+      {
+        "type": "Thank You",
+        "text": "¡Muchas gracias! (Thank you very much!)",
+        "phonetic": "MOO-chas GRA-syas",
+        "bcp47": "es-UY"
+      },
+      {
+        "type": "Goodbye",
+        "text": "¡Chau, nos vemos! (Bye, see you!)",
+        "phonetic": "chow nos VE-mos",
+        "bcp47": "es-UY"
+      },
+      {
+        "type": "How are you?",
+        "text": "¿Todo bien? / ¿Cómo anda eso? (How's it going?)",
+        "phonetic": "TO-do BYEN",
+        "bcp47": "es-UY"
+      }
+    ]
+  },
+  "UZB": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Assalomu alaykum! / Salom! (Peace / Hello!)",
+        "phonetic": "as-sa-LO-mu a-lay-KUM",
+        "bcp47": "uz-UZ"
+      },
+      {
+        "type": "Thank You",
+        "text": "Katta rahmat! (Thank you very much!)",
+        "phonetic": "kat-TA rah-MAT",
+        "bcp47": "uz-UZ"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Xayr! / Ko'rishguncha! (Goodbye / See you!)",
+        "phonetic": "khayr / ko-rish-gun-CHA",
+        "bcp47": "uz-UZ"
+      },
+      {
+        "type": "How are you?",
+        "text": "Qalaysiz? / Yaxshimisiz? (How are you?)",
+        "phonetic": "ka-lay-SIZ / yakh-shi-mi-SIZ",
+        "bcp47": "uz-UZ"
+      }
+    ]
+  },
+  "VAT": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Salve! / Pax vobiscum! (Latin Greetings!)",
+        "phonetic": "SAHL-weh / pahks vo-BEES-koom",
+        "bcp47": "it-IT"
+      },
+      {
+        "type": "Thank You",
+        "text": "Gratias tibi ago! / Grazie mille!",
+        "phonetic": "GRA-tyahs TEE-bee AH-go",
+        "bcp47": "it-IT"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Vale! / In pace! (Farewell / Go in peace)",
+        "phonetic": "WAH-leh",
+        "bcp47": "it-IT"
+      },
+      {
+        "type": "How are you?",
+        "text": "Quid agis? / Come va? (How do you do?)",
+        "phonetic": "kwid AH-gis",
+        "bcp47": "it-IT"
+      }
+    ]
+  },
+  "VCT": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "How yuh going? / Good mornin'! (Vincentian)",
+        "phonetic": "how yuh GO-in",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Thank You",
+        "text": "Thank yuh very much! / Respect!",
+        "phonetic": "thank yuh / re-SPEKT",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Check yuh later! / Walk good!",
+        "phonetic": "wawk GOOD",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "How are you?",
+        "text": "Ah dey, friend! (Doing well!)",
+        "phonetic": "ah DEH frend",
+        "bcp47": "en-US"
+      }
+    ]
+  },
+  "VEN": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "¡Hola! / ¿Qué más, pana? (Venezuelan greeting)",
+        "phonetic": "OH-la / keh MAS PA-na",
+        "bcp47": "es-VE"
+      },
+      {
+        "type": "Thank You",
+        "text": "¡Muchas gracias! (Thank you very much!)",
+        "phonetic": "MOO-chas GRA-syas",
+        "bcp47": "es-VE"
+      },
+      {
+        "type": "Goodbye",
+        "text": "¡Chao! / ¡Nos vemos! (Goodbye / See you!)",
+        "phonetic": "chow / nos VE-mos",
+        "bcp47": "es-VE"
+      },
+      {
+        "type": "How are you?",
+        "text": "¿Cómo estás? / ¿Todo chévere? (All great?)",
+        "phonetic": "KO-mo es-TAS / CHE-ve-re",
+        "bcp47": "es-VE"
+      }
+    ]
+  },
+  "VGB": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Good day! / How yuh doing? (BVI English)",
+        "phonetic": "how yuh DOO-in",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Thank You",
+        "text": "Thank you kindly! / Cheers!",
+        "phonetic": "thank yoo KYND-lee",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Safe sailing! / See you soon!",
+        "phonetic": "sayf SAY-lin",
+        "bcp47": "en-GB"
+      },
+      {
+        "type": "How are you?",
+        "text": "All good in Tortola?",
+        "phonetic": "awl GOOD",
+        "bcp47": "en-GB"
+      }
+    ],
+    "languages": [
+      {
+        "name": "English (British Virgin Islands)",
+        "nativeName": "English",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Indo-European (Germanic)",
+        "script": "Latin",
+        "bcp47": "en-GB",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in British Virgin Is.."
+      }
+    ]
+  },
+  "VIR": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Good morning! / Wha' a go on? (Crucian / USVI)",
+        "phonetic": "wah a go ON",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Thank You",
+        "text": "Thank you kindly! / Much tanks!",
+        "phonetic": "much TANKS",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Take care! / See yuh later!",
+        "phonetic": "see yuh LAY-ta",
+        "bcp47": "en-US"
+      },
+      {
+        "type": "How are you?",
+        "text": "Everything irie / Doing alright!",
+        "phonetic": "ev-ree-thing EYE-ree",
+        "bcp47": "en-US"
+      }
+    ],
+    "languages": [
+      {
+        "name": "English & Virgin Islands Creole",
+        "nativeName": "English",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Indo-European (Germanic)",
+        "script": "Latin",
+        "bcp47": "en-US",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in U.S. Virgin Is.."
+      }
+    ]
+  },
+  "VUT": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Halo! / Welkam! (Bislama — Vanuatu)",
+        "phonetic": "ha-LO / WEL-kam",
+        "bcp47": "en-VU"
+      },
+      {
+        "type": "Thank You",
+        "text": "Tangkyu tumas! (Thank you very much!)",
+        "phonetic": "tank-YOO too-MAS",
+        "bcp47": "en-VU"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Lukim yu! / Tata! (See you later!)",
+        "phonetic": "loo-KEEM yoo",
+        "bcp47": "en-VU"
+      },
+      {
+        "type": "How are you?",
+        "text": "Yu oraet? / Mi oraet nomo! (Bislama)",
+        "phonetic": "yoo o-RAET",
+        "bcp47": "en-VU"
+      }
+    ]
+  },
+  "WLF": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Mālō te ma'uli! / Bonjour ! (Wallisian & French)",
+        "phonetic": "ma-LO teh ma-OO-lee",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Thank You",
+        "text": "Mālō te 'ofa! / Merci ! (Thank you!)",
+        "phonetic": "ma-LO teh OH-fa",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Nofo lā! / Au revoir ! (Stay well!)",
+        "phonetic": "NO-fo la",
+        "bcp47": "fr-FR"
+      },
+      {
+        "type": "How are you?",
+        "text": "E lelei pē? (Are things good?)",
+        "phonetic": "eh leh-LAY peh",
+        "bcp47": "fr-FR"
+      }
+    ],
+    "languages": [
+      {
+        "name": "Wallisian, Futunan & French",
+        "nativeName": "Fakaʻuvea / Fakafutuna / Français",
+        "type": "Official State Language",
+        "percentage": "75%",
+        "speakers": "Populous",
+        "family": "Austronesian / Romance",
+        "script": "Latin",
+        "bcp47": "fr-FR",
+        "regions": "Nationwide",
+        "notes": "Principal medium of education, administration, and cultural life in Wallis and Futuna Is.."
+      }
+    ]
+  },
+  "WSM": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Talofa lava! (Hello! — Samoan)",
+        "phonetic": "ta-LO-fa LA-va",
+        "bcp47": "en-WS"
+      },
+      {
+        "type": "Thank You",
+        "text": "Fa'afetai tele lava! (Thank you very much!)",
+        "phonetic": "fa-a-feh-TAI teh-leh LA-va",
+        "bcp47": "en-WS"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Tofa soifua! (Goodbye in good health!)",
+        "phonetic": "TO-fa soy-FOO-a",
+        "bcp47": "en-WS"
+      },
+      {
+        "type": "How are you?",
+        "text": "O a mai oe? / Manuia fa'afetai! (I'm well!)",
+        "phonetic": "o a MY o-eh",
+        "bcp47": "en-WS"
+      }
+    ]
+  },
+  "YEM": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "مرحباً! / حياك الله! (Marhaban! / Hayyak Allah!)",
+        "phonetic": "mar-HA-ban / hay-YAK al-LAH",
+        "bcp47": "ar-YE"
+      },
+      {
+        "type": "Thank You",
+        "text": "شكراً جزيلاً! / جزاك الله خير (Shukran jazilan!)",
+        "phonetic": "SHUK-ran ja-ZEE-lan",
+        "bcp47": "ar-YE"
+      },
+      {
+        "type": "Goodbye",
+        "text": "مع السلامة! / في أمان الله (Ma'as-salama)",
+        "phonetic": "ma-as-sa-LA-ma",
+        "bcp47": "ar-YE"
+      },
+      {
+        "type": "How are you?",
+        "text": "كيف حالك؟ / إيش الأخبار؟ (Kayf halak?)",
+        "phonetic": "KAY-fa HA-lak / aysh al-akh-BAR",
+        "bcp47": "ar-YE"
+      }
+    ]
+  },
+  "ZMB": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Muli shani! (Bemba) / Muli bwanji! (Nyanja)",
+        "phonetic": "MOO-lee SHA-nee",
+        "bcp47": "en-ZM"
+      },
+      {
+        "type": "Thank You",
+        "text": "Natotela sana! / Zikomo! (Thank you!)",
+        "phonetic": "na-to-TEH-la / zee-KO-mo",
+        "bcp47": "en-ZM"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Shalenipo bwino! (Stay well / Goodbye!)",
+        "phonetic": "sha-leh-NEE-po BWEE-no",
+        "bcp47": "en-ZM"
+      },
+      {
+        "type": "How are you?",
+        "text": "Bwino sana! (Very well, thank you!)",
+        "phonetic": "BWEE-no SA-na",
+        "bcp47": "en-ZM"
+      }
+    ]
+  },
+  "ZWE": {
+    "phrases": [
+      {
+        "type": "Greeting",
+        "text": "Mhoro! (Shona) / Sawubona! (Ndebele)",
+        "phonetic": "m-HO-ro / sa-woo-BO-na",
+        "bcp47": "en-ZW"
+      },
+      {
+        "type": "Thank You",
+        "text": "Tatenda! / Ngiyabonga! (Thank you!)",
+        "phonetic": "ta-TEN-da / n-gee-ya-BON-ga",
+        "bcp47": "en-ZW"
+      },
+      {
+        "type": "Goodbye",
+        "text": "Chisarai zvakanaka! (Stay well — Shona)",
+        "phonetic": "chee-sa-RYE zva-ka-NA-ka",
+        "bcp47": "en-ZW"
+      },
+      {
+        "type": "How are you?",
+        "text": "Makadii? / Ndiripo! (How are you? / I'm well!)",
+        "phonetic": "ma-ka-DEE / n-dee-REE-po",
+        "bcp47": "en-ZW"
+      }
+    ]
+  }
+}

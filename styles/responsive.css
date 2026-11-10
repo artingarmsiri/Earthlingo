@@ -287,6 +287,16 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .passport-footer-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .data-io-group {
+    margin-left: 0;
+    justify-content: flex-end;
+  }
+
   .globe-tool-btn.mobile-only-tool {
     display: flex;
   }

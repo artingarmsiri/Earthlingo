@@ -2243,7 +2243,50 @@ body.drawer-is-open .arcs-info-panel {
   padding-top: 14px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.data-io-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.data-io-btn {
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #bae6fd;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.14s ease, border-color 0.14s ease;
+}
+
+.data-io-btn:hover {
+  background: rgba(56, 189, 248, 0.24);
+  border-color: var(--accent-cyan);
+  color: #fff;
+}
+
+.data-io-status {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.data-io-status.is-success {
+  color: #6ee7b7;
+}
+
+.data-io-status.is-error {
+  color: #fda4af;
 }
 
 .passport-reset-btn {
@@ -2255,6 +2298,11 @@ body.drawer-is-open .arcs-info-panel {
   font-size: 0.75rem;
   font-weight: 700;
   cursor: pointer;
+}
+
+.passport-reset-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
 .passport-reset-btn.armed {
@@ -2677,6 +2725,7 @@ body.drawer-is-open .arcs-info-panel {
 
   #tripModal .drawer-close-btn,
   #tripModal .trip-toolbar,
+  #tripModal .trip-footer-actions,
   #tripModal .trip-stop-controls,
   #tripModal .trip-speak-btn {
     display: none !important;

@@ -193,9 +193,13 @@
   border-bottom: none;
 }
 
-.search-result-item:hover,
+.search-result-item:hover {
+  background: rgba(56, 189, 248, 0.14);
+}
+
 .search-result-item.active {
-  background: rgba(56, 189, 248, 0.15);
+  background: rgba(56, 189, 248, 0.22);
+  box-shadow: inset 3px 0 0 var(--accent-cyan);
 }
 
 .result-main {

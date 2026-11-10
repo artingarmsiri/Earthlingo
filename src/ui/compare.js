@@ -470,7 +470,7 @@
         const k = btn.getAttribute('data-fly-country');
         const c = resolveCountryByKey(k);
         if (c) {
-          closeCompareModal({ skipRouter: true });
+          closeCompareModal({ skipRouter: true, skipFocusRestore: true });
           E.drawer.selectCountry(c, true);
         }
       });
@@ -480,7 +480,7 @@
       btn.addEventListener('click', () => {
         const tok = btn.getAttribute('data-spotlight-lang');
         if (tok && E.controls && typeof E.controls.filterBySpokenLanguage === 'function') {
-          closeCompareModal({ skipRouter: true });
+          closeCompareModal({ skipRouter: true, skipFocusRestore: true });
           E.controls.filterBySpokenLanguage(tok, null, { forceOn: true });
         }
       });
@@ -505,13 +505,17 @@
     if (E.state.isQuizActive && E.quiz && typeof E.quiz.stopQuiz === 'function') {
       E.quiz.stopQuiz({ restoreOverlay: true, skipRouter: true });
     }
-    if (el.listModal) {
-      el.listModal.classList.remove('open');
-      el.listModal.setAttribute('aria-hidden', 'true');
+    if (el.listModal && el.listModal.classList.contains('open')) {
+      E.utils.closeModal(el.listModal, { skipFocusRestore: true });
     }
-    if (el.infoModal) {
-      el.infoModal.classList.remove('open');
-      el.infoModal.setAttribute('aria-hidden', 'true');
+    if (el.infoModal && el.infoModal.classList.contains('open')) {
+      E.utils.closeModal(el.infoModal, { skipFocusRestore: true });
+    }
+    if (E.passport && typeof E.passport.closePassportModal === 'function') {
+      E.passport.closePassportModal({ skipFocusRestore: true });
+    }
+    if (E.trip && E.state.tripModalOpen && typeof E.trip.closeTripModal === 'function') {
+      E.trip.closeTripModal({ skipFocusRestore: true, skipRouter: true });
     }
 
     const cA = resolveCountryByKey(isoA) || resolveCountryByKey(E.state.compareIsoA) || resolveCountryByKey('BRA');
@@ -525,8 +529,7 @@
     E.state.isCompareOpen = true;
 
     renderCompareBody();
-    el.compareModal.classList.add('open');
-    el.compareModal.setAttribute('aria-hidden', 'false');
+    E.utils.openModal(el.compareModal, { initialFocus: el.closeCompareModalBtn });
     if (el.openCompareBtn) el.openCompareBtn.classList.add('active');
 
     if (!opts.skipRouter && E.router && typeof E.router.syncUrlHash === 'function') {
@@ -549,15 +552,13 @@
     const el = E.elements;
     if (!el.compareModal || !E.state.isCompareOpen) {
       if (el.compareModal) {
-        el.compareModal.classList.remove('open');
-        el.compareModal.setAttribute('aria-hidden', 'true');
+        E.utils.closeModal(el.compareModal, opts);
       }
       E.state.isCompareOpen = false;
       if (el.openCompareBtn) el.openCompareBtn.classList.remove('active');
       return;
     }
-    el.compareModal.classList.remove('open');
-    el.compareModal.setAttribute('aria-hidden', 'true');
+    E.utils.closeModal(el.compareModal, opts);
     E.state.isCompareOpen = false;
     if (el.openCompareBtn) el.openCompareBtn.classList.remove('active');
 

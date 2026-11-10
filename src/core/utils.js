@@ -162,6 +162,133 @@
     }, 320);
   }
 
+  function downloadJsonFile(filename, dataObj) {
+    const json = JSON.stringify(dataObj, null, 2);
+    const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      if (a.parentNode) a.parentNode.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 250);
+  }
+
+  function isElementVisibleForFocus(el) {
+    if (!el || el.disabled || el.hasAttribute('hidden') || el.closest('[hidden]')) return false;
+    if (typeof window.getComputedStyle === 'function') {
+      const st = window.getComputedStyle(el);
+      if (st && (st.display === 'none' || st.visibility === 'hidden')) return false;
+    }
+    if (typeof el.getClientRects === 'function') {
+      return el.getClientRects().length > 0;
+    }
+    return true;
+  }
+
+  function getFocusableElements(container) {
+    if (!container || typeof container.querySelectorAll !== 'function') return [];
+    const selector = [
+      'a[href]',
+      'area[href]',
+      'button:not([disabled])',
+      'input:not([disabled]):not([type="hidden"])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])'
+    ].join(', ');
+    return Array.from(container.querySelectorAll(selector)).filter(isElementVisibleForFocus);
+  }
+
+  function getTopOpenModal() {
+    if (typeof document === 'undefined' || typeof document.querySelectorAll !== 'function') return null;
+    const openModals = document.querySelectorAll('.modal-overlay.open');
+    return openModals.length > 0 ? openModals[openModals.length - 1] : null;
+  }
+
+  function openModal(modalEl, opts = {}) {
+    if (!modalEl) return;
+    const wasOpen = modalEl.classList.contains('open');
+    if (!wasOpen) {
+      const active = document.activeElement;
+      const inAnyOpenModal = active && typeof active.closest === 'function' && active.closest('.modal-overlay.open');
+      modalEl.__returnFocusEl = (!inAnyOpenModal && active && active !== document.body) ? active : null;
+    }
+
+    modalEl.classList.add('open');
+    modalEl.setAttribute('aria-hidden', 'false');
+
+    const content = modalEl.querySelector('.modal-content') || modalEl;
+    let target = opts.initialFocus && isElementVisibleForFocus(opts.initialFocus) ? opts.initialFocus : null;
+    if (!target) {
+      const focusables = getFocusableElements(content);
+      target = focusables[0] || content;
+    }
+    if (target && typeof target.focus === 'function') {
+      target.focus({ preventScroll: true });
+    }
+  }
+
+  function closeModal(modalEl, opts = {}) {
+    if (!modalEl) return;
+    const returnEl = modalEl.__returnFocusEl;
+    modalEl.__returnFocusEl = null;
+
+    modalEl.classList.remove('open');
+    modalEl.setAttribute('aria-hidden', 'true');
+
+    if (!opts.skipFocusRestore && returnEl && returnEl.isConnected && typeof returnEl.focus === 'function') {
+      if (isElementVisibleForFocus(returnEl)) {
+        returnEl.focus({ preventScroll: true });
+      }
+    }
+  }
+
+  let modalFocusTrapBound = false;
+
+  function initModalFocusTrap() {
+    if (modalFocusTrapBound || typeof document === 'undefined') return;
+    modalFocusTrapBound = true;
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      const activeModal = getTopOpenModal();
+      if (!activeModal) return;
+
+      const content = activeModal.querySelector('.modal-content') || activeModal;
+      const focusables = getFocusableElements(content);
+      if (focusables.length === 0) {
+        e.preventDefault();
+        if (typeof content.focus === 'function') content.focus({ preventScroll: true });
+        return;
+      }
+
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+
+      if (!active || !activeModal.contains(active)) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus({ preventScroll: true });
+        return;
+      }
+
+      if (e.shiftKey) {
+        if (active === first || active === content) {
+          e.preventDefault();
+          last.focus({ preventScroll: true });
+        }
+      } else if (active === last) {
+        e.preventDefault();
+        first.focus({ preventScroll: true });
+      }
+    });
+  }
+
   E.utils = {
     escapeHtml,
     srgbToLinear,
@@ -177,7 +304,13 @@
     getDefaultAltitude,
     getSelectAltitude,
     updateLoadingText,
-    dismissLoadingOverlay
+    dismissLoadingOverlay,
+    downloadJsonFile,
+    getFocusableElements,
+    getTopOpenModal,
+    openModal,
+    closeModal,
+    initModalFocusTrap
   };
 })(window);
 

@@ -28,13 +28,15 @@ Built as a static zero-build web app with **Three.js** and **Globe.gl**, bundled
   - **Daily 5**: Deterministic local-date seeded 5-round daily challenge generating a Wordle-style copyable `🟩🟨🟥` emoji summary grid.
   - **Script Detective**: Strips romanization during play so you identify the nation from raw native glyphs (*Hangul*, *Geʻez*, *Thaana*, *Arabic*, *Mkhedruli*, etc.) before unlocking full phonetics and the interactive Script breakdown.
   - **Dialect Trivia**: Multiple-choice trivia generated live from country regional accent & dialect profiles.
-- **Linguistic Passport (`localStorage`)**: Tracks visited nations (`X / 242`), unlocked writing scripts (`X / 9`), quiz accuracy, streaks, and saved Daily 5 stamps inside the **Passport** modal.
-- **Travel Trip Cheat-Sheet & Offline PWA**: Star countries directly from drawers, search cards, or curated presets (*Spain → Morocco → Italy*, *Japan → Korea → Taiwan*, *Turkey → Iran → Uzbekistan*), reorder itinerary stops, copy plain-text pocket guides, print compact travel cards, and install Earthlingo as an offline **Progressive Web App (PWA)** when hosted over HTTP/HTTPS.
-- **Side-by-Side Country Compare, Search (`/`) & Shareable Hash Deep-Links**: Pin two nations for shared Urheimat/Venn/Phrase Duel comparison, filter all 242 entries in the searchable **2D List Modal**, and share reproducible views via `location.hash` (`#country=PER&overlay=scripts&color=diversity&pins=1&era=1492ce&trip=...`).
+- **Linguistic Passport (`localStorage` + JSON Backup)**: Tracks visited nations (`X / 242`), unlocked writing scripts (`X / 9`), quiz accuracy, streaks, and saved Daily 5 stamps inside the **Passport** modal, with full **Export / Import JSON** and confirmed reset.
+- **Travel Trip Cheat-Sheet & Offline PWA**: Star countries directly from drawers, search cards, or curated presets (*Spain → Morocco → Italy*, *Japan → Korea → Taiwan*, *Turkey → Iran → Uzbekistan*), reorder itinerary stops, copy plain-text pocket guides, print compact travel cards, back up or share routes via **Export / Import JSON**, and install Earthlingo as an offline **Progressive Web App (PWA)** when hosted over HTTP/HTTPS.
+- **Side-by-Side Country Compare, Search (`/`) & Shareable Hash Deep-Links**: Pin two nations for shared Urheimat/Venn/Phrase Duel comparison, filter all 242 entries in the searchable **2D List Modal**, navigate search results with keyboard arrows, and share reproducible views via `location.hash` (`#country=PER&overlay=scripts&color=diversity&pins=1&era=1492ce&trip=...`).
 
 | Shortcut | Action |
 | :--- | :--- |
 | `/` | Focus search bar |
+| `↑` / `↓` / `Enter` | Navigate and select search autocomplete matches |
+| `Tab` / `Shift+Tab` | Trap and cycle keyboard focus within open modals |
 | `Space` | Toggle globe auto-rotation |
 | `R` | Reset camera view |
 | `Esc` | Exit Quiz mode or close active drawer, modal, popover, or search |
@@ -90,14 +92,16 @@ Earthlingo ships with [`manifest.json`](manifest.json), offline [`sw.js`](sw.js)
 ```text
 Earthlingo/
 ├── index.html                      # Semantic HTML5 shell, conditional PWA manifest, controls & modals
+├── package.json                    # Zero-dep npm scripts for validation, reproducible DB checks & builds
 ├── manifest.json                   # Installable PWA web app manifest (HTTP/HTTPS)
 ├── sw.js                           # Offline cache-first Service Worker
 ├── favicon.svg                     # Custom vector globe + migration arc favicon
 ├── start_server.bat                # Windows 1-click local server launcher
+├── .github/workflows/ci.yml        # GitHub Actions workflow running `npm test` and `npm run check:db`
 ├── assets/
 │   ├── icon-192.png                # 192x192 PWA icon
-│   ├── icon-512.png                # 512x512 PWA icon & OpenGraph preview
-│   └── og-preview.png              # 1200x630 social preview card
+│   ├── icon-512.png                # 512x512 PWA icon
+│   └── og-preview.png              # 1200x630 OpenGraph & Twitter social preview card
 ├── styles/                         # Modular CSS stylesheets
 │   ├── tokens.css                  # Design variables, reset & core keyframes
 │   ├── layout.css                  # Header nav, search, legend, color-by toggle & canvas
@@ -109,7 +113,7 @@ Earthlingo/
 │   ├── core/
 │   │   ├── config.js               # Palettes (language/family/script/diversity LDI) & overlays
 │   │   ├── state.js                # Centralized app state, GPU batch & DOM cache
-│   │   ├── utils.js                # Color, geometry, DPR & viewport helpers
+│   │   ├── utils.js                # Color, geometry, DPR, modal focus-trap & JSON download helpers
 │   │   └── router.js               # URL hash deep-linking router & share link copier
 │   ├── data/
 │   │   └── geo-index.js            # Country lookup, spoken-language & diversity index, spatial grid
@@ -124,13 +128,13 @@ Earthlingo/
 │   │   └── map-overlays.js         # Persistent-pool, hysteresis map overlay engine
 │   └── ui/
 │       ├── tooltip.js              # High-frequency desktop hover tooltip
-│       ├── passport.js             # LocalStorage Linguistic Passport mastery tracker & modal
+│       ├── passport.js             # LocalStorage Linguistic Passport, JSON export/import & modal
 │       ├── script-inspector.js     # Interactive "Meet the Script" breakdown modal
-│       ├── trip.js                 # Travel Trip Cheat-Sheet bookmark builder, copy & print exporter
+│       ├── trip.js                 # Travel Trip Cheat-Sheet builder, JSON export/import & print exporter
 │       ├── drawer.js               # Country drawer, mobile pull gestures & Web Speech TTS
 │       ├── compare.js              # Side-by-side country compare mode & Phrase Duel
 │       ├── quiz.js                 # Locate, Daily 5 seeded challenge, Script Detective & Dialect Trivia
-│       └── controls.js             # Legend filters, Color-By, time-scrubber, search & 2D list modal
+│       └── controls.js             # Legend filters, Color-By, time-scrubber, keyboard search & 2D list modal
 ├── libs/
 │   └── globe.gl.min.js             # Bundled Globe.gl + Three.js runtime (CDN fallback in HTML)
 ├── data/
@@ -142,12 +146,33 @@ Earthlingo/
 │   ├── etymology.js                # Wanderwörter word-route datasets (Tea, Coffee, Sugar, Zero, etc.)
 │   ├── scripts_info.js             # Interactive script typology & glyph-by-glyph breakdowns
 │   └── historical_eras.js          # 35 endangered language hotspots & 2000 BCE–1492 CE era atlas
-├── scripts/                        # Database assembly, diversity enrichment & validation utilities
-│   ├── build_full_database.js
+├── scripts/                        # Chained database assembly, overrides, diversity & enrichment pipeline
+│   ├── build_full_database.js      # Builds data/languages.{json,js} & chains color/script/LDI enrichment
+│   ├── localized_overrides.json    # Localized phrasebooks & minority language overrides across 196 ISO3s
+│   ├── update_language_colors.js
 │   ├── enrich_database.js
-│   ├── enrich_multilingual_diversity.js
-│   └── update_language_colors.js
+│   └── enrich_multilingual_diversity.js
+├── tests/                          # Zero-dependency Node.js validation & build-reproducibility tests
+│   ├── validate.js
+│   └── check-db-build.js
 └── README.md
+```
+
+---
+
+## 🧪 Tests & Rebuilding the Database
+
+Zero external `npm install` dependencies required (Node.js ≥ 18):
+
+```bash
+# Run syntax, manifest/asset, dataset invariant (242 ISO3s, 0 placeholders) & VM unit checks
+npm test
+
+# Verify that rebuilding data/languages.json & data/languages.js is 100% lossless
+npm run check:db
+
+# Rebuild and enrich data/languages.json & data/languages.js end-to-end
+npm run build:db
 ```
 
 ---

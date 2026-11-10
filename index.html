@@ -10,11 +10,16 @@
   <meta property="og:title" content="Earthlingo | Interactive 3D World Languages Atlas">
   <meta property="og:description" content="Explore languages, interactive writing scripts, dialects, word etymology routes, endangered hotspots, historical pre-1492 era scrubber & quizzes across 242 nations.">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="./assets/icon-512.png">
+  <meta property="og:url" content="https://artingarmsiri.github.io/Earthlingo/">
+  <meta property="og:image" content="https://artingarmsiri.github.io/Earthlingo/assets/og-preview.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Earthlingo interactive 3D world languages atlas globe">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Earthlingo | Interactive 3D World Languages Atlas">
   <meta name="twitter:description" content="3D linguistic globe mapping languages, scripts, dialects, word routes, diversity hotspots, historical eras & greeting challenges across 242 nations.">
-  <meta name="twitter:image" content="./assets/icon-512.png">
+  <meta name="twitter:image" content="https://artingarmsiri.github.io/Earthlingo/assets/og-preview.png">
+  <meta name="twitter:image:alt" content="Earthlingo interactive 3D world languages atlas globe">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="apple-touch-icon" sizes="192x192" href="./assets/icon-192.png">
   <script>
@@ -24,11 +29,11 @@
   </script>
   <title>Earthlingo | World Languages & Accents Map</title>
   <!-- Modular Design & Component Stylesheets -->
-  <link rel="stylesheet" href="./styles/tokens.css?v=20261110n">
-  <link rel="stylesheet" href="./styles/layout.css?v=20261110n">
-  <link rel="stylesheet" href="./styles/overlays.css?v=20261110n">
-  <link rel="stylesheet" href="./styles/drawer.css?v=20261110n">
-  <link rel="stylesheet" href="./styles/responsive.css?v=20261110n">
+  <link rel="stylesheet" href="./styles/tokens.css?v=20261110o">
+  <link rel="stylesheet" href="./styles/layout.css?v=20261110o">
+  <link rel="stylesheet" href="./styles/overlays.css?v=20261110o">
+  <link rel="stylesheet" href="./styles/drawer.css?v=20261110o">
+  <link rel="stylesheet" href="./styles/responsive.css?v=20261110o">
   <!-- Local Globe.GL library with CDN fallback -->
   <script src="./libs/globe.gl.min.js"></script>
   <script>
@@ -91,6 +96,10 @@
           class="search-input" 
           placeholder="Search country, language, accent..." 
           aria-label="Search countries, languages, or accents"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded="false"
+          aria-controls="searchResultsDropdown"
           autocomplete="off"
         >
         <button id="searchClearBtn" class="search-clear-btn" aria-label="Clear search">
@@ -584,10 +593,10 @@
   </aside>
 
   <!-- Accessible 2D List View Modal -->
-  <div id="listModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
-    <div class="modal-content">
+  <div id="listModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="listModalTitle">
+    <div class="modal-content" tabindex="-1">
       <div class="modal-header">
-        <h3 class="modal-title">All Countries &amp; Languages</h3>
+        <h3 id="listModalTitle" class="modal-title">All Countries &amp; Languages</h3>
         <button id="closeListModalBtn" class="drawer-close-btn" aria-label="Close modal">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -623,10 +632,10 @@
   </div>
 
   <!-- Linguistic Passport Modal -->
-  <div id="passportModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
-    <div class="modal-content" style="max-width: 780px;">
+  <div id="passportModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="passportModalTitle">
+    <div class="modal-content" tabindex="-1" style="max-width: 780px;">
       <div class="modal-header">
-        <h3 class="modal-title">Linguistic Passport &amp; Mastery</h3>
+        <h3 id="passportModalTitle" class="modal-title">Linguistic Passport &amp; Mastery</h3>
         <button type="button" id="closePassportModalBtn" class="drawer-close-btn" aria-label="Close passport modal">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -639,10 +648,10 @@
   </div>
 
   <!-- Travel Trip Cheat-Sheet Builder Modal -->
-  <div id="tripModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
-    <div class="modal-content" style="max-width: 820px;">
+  <div id="tripModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="tripModalTitle">
+    <div class="modal-content" tabindex="-1" style="max-width: 820px;">
       <div class="modal-header">
-        <h3 class="modal-title">Travel Trip Cheat-Sheet</h3>
+        <h3 id="tripModalTitle" class="modal-title">Travel Trip Cheat-Sheet</h3>
         <button type="button" id="closeTripModalBtn" class="drawer-close-btn" aria-label="Close trip modal">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -655,10 +664,10 @@
   </div>
 
   <!-- Interactive "Meet the Script" Breakdown Modal -->
-  <div id="scriptModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
-    <div class="modal-content" style="max-width: 680px;">
+  <div id="scriptModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="scriptModalTitle">
+    <div class="modal-content" tabindex="-1" style="max-width: 680px;">
       <div class="modal-header">
-        <h3 class="modal-title">Meet the Writing Script</h3>
+        <h3 id="scriptModalTitle" class="modal-title">Meet the Writing Script</h3>
         <button type="button" id="closeScriptModalBtn" class="drawer-close-btn" aria-label="Close script modal">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -671,10 +680,10 @@
   </div>
 
   <!-- Side-by-Side Country Compare Modal -->
-  <div id="compareModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
-    <div class="modal-content compare-modal-content">
+  <div id="compareModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="compareModalTitle">
+    <div class="modal-content compare-modal-content" tabindex="-1">
       <div class="modal-header">
-        <h3 class="modal-title">Compare Countries &amp; Languages</h3>
+        <h3 id="compareModalTitle" class="modal-title">Compare Countries &amp; Languages</h3>
         <button type="button" id="closeCompareModalBtn" class="drawer-close-btn" aria-label="Close comparison modal">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -700,10 +709,10 @@
   </div>
 
   <!-- About / Help Modal -->
-  <div id="infoModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
-    <div class="modal-content" style="max-width: 620px;">
+  <div id="infoModal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="infoModalTitle">
+    <div class="modal-content" tabindex="-1" style="max-width: 620px;">
       <div class="modal-header">
-        <h3 class="modal-title">About Earthlingo</h3>
+        <h3 id="infoModalTitle" class="modal-title">About Earthlingo</h3>
         <button id="closeInfoModalBtn" class="drawer-close-btn" aria-label="Close modal">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -728,26 +737,26 @@
   </div>
 
   <!-- Modular Application Architecture (file:// & static hosting compatible) -->
-  <script defer src="./src/core/config.js?v=20261110n"></script>
-  <script defer src="./src/core/utils.js?v=20261110n"></script>
-  <script defer src="./src/core/state.js?v=20261110n"></script>
-  <script defer src="./src/overlays/label-formatter.js?v=20261110n"></script>
-  <script defer src="./src/data/geo-index.js?v=20261110n"></script>
-  <script defer src="./src/core/router.js?v=20261110n"></script>
-  <script defer src="./src/globe/bathymetry.js?v=20261110n"></script>
-  <script defer src="./src/globe/pins.js?v=20261110n"></script>
-  <script defer src="./src/globe/polygon-batcher.js?v=20261110n"></script>
-  <script defer src="./src/globe/arcs.js?v=20261110n"></script>
-  <script defer src="./src/overlays/map-overlays.js?v=20261110n"></script>
-  <script defer src="./src/ui/tooltip.js?v=20261110n"></script>
-  <script defer src="./src/ui/passport.js?v=20261110n"></script>
-  <script defer src="./src/ui/script-inspector.js?v=20261110n"></script>
-  <script defer src="./src/ui/trip.js?v=20261110n"></script>
-  <script defer src="./src/ui/drawer.js?v=20261110n"></script>
-  <script defer src="./src/ui/compare.js?v=20261110n"></script>
-  <script defer src="./src/ui/quiz.js?v=20261110n"></script>
-  <script defer src="./src/ui/controls.js?v=20261110n"></script>
-  <script defer src="./src/globe/scene.js?v=20261110n"></script>
-  <script defer src="./src/main.js?v=20261110n"></script>
+  <script defer src="./src/core/config.js?v=20261110o"></script>
+  <script defer src="./src/core/utils.js?v=20261110o"></script>
+  <script defer src="./src/core/state.js?v=20261110o"></script>
+  <script defer src="./src/overlays/label-formatter.js?v=20261110o"></script>
+  <script defer src="./src/data/geo-index.js?v=20261110o"></script>
+  <script defer src="./src/core/router.js?v=20261110o"></script>
+  <script defer src="./src/globe/bathymetry.js?v=20261110o"></script>
+  <script defer src="./src/globe/pins.js?v=20261110o"></script>
+  <script defer src="./src/globe/polygon-batcher.js?v=20261110o"></script>
+  <script defer src="./src/globe/arcs.js?v=20261110o"></script>
+  <script defer src="./src/overlays/map-overlays.js?v=20261110o"></script>
+  <script defer src="./src/ui/tooltip.js?v=20261110o"></script>
+  <script defer src="./src/ui/passport.js?v=20261110o"></script>
+  <script defer src="./src/ui/script-inspector.js?v=20261110o"></script>
+  <script defer src="./src/ui/trip.js?v=20261110o"></script>
+  <script defer src="./src/ui/drawer.js?v=20261110o"></script>
+  <script defer src="./src/ui/compare.js?v=20261110o"></script>
+  <script defer src="./src/ui/quiz.js?v=20261110o"></script>
+  <script defer src="./src/ui/controls.js?v=20261110o"></script>
+  <script defer src="./src/globe/scene.js?v=20261110o"></script>
+  <script defer src="./src/main.js?v=20261110o"></script>
 </body>
 </html>

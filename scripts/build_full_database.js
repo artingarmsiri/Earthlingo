@@ -485,6 +485,7 @@ function getLanguageDefaults(name, iso3, iso2) {
   const cont = d.cont || "Global";
 
   function inferBuildScript(iso, b, langLabel) {
+    if (langLabel && langLabel.toLowerCase().includes('arabic')) return 'Arabic';
     if (['SAU','EGY','IRQ','SYR','JOR','LBN','PSE','YEM','OMN','ARE','QAT','BHR','KWT','LBY','TUN','DZA','ESH'].includes(iso) || b.startsWith('ar')) return 'Arabic';
     if (b.startsWith('ru') || b.startsWith('bg') || b.startsWith('sr') || b.startsWith('be') || b.startsWith('mk') || b.startsWith('ky') || b.startsWith('tg') || iso === 'KAZ' || iso === 'MNG') return 'Cyrillic';
     if (b.startsWith('zh') || iso === 'TWN') return 'Hanzi';
@@ -534,6 +535,12 @@ function getLanguageDefaults(name, iso3, iso2) {
   };
 }
 
+// Optional curated localized phrasebooks & territory language cards preserved across full rebuilds
+const overridesPath = path.join(__dirname, 'localized_overrides.json');
+const localizedOverrides = fs.existsSync(overridesPath)
+  ? JSON.parse(fs.readFileSync(overridesPath, 'utf8'))
+  : {};
+
 // Compile the comprehensive dictionary
 const compiled = {};
 const nameToIsoMap = {};
@@ -556,6 +563,19 @@ for (const f of geoData.features) {
 
   if (!countryObj) {
     countryObj = getLanguageDefaults(name, iso3, iso2);
+  }
+
+  // Clone mutable nested arrays before applying overrides so shared objects never collide
+  countryObj = JSON.parse(JSON.stringify(countryObj));
+
+  const ov = localizedOverrides[iso3];
+  if (ov) {
+    if (Array.isArray(ov.phrases) && ov.phrases.length > 0) {
+      countryObj.phrases = JSON.parse(JSON.stringify(ov.phrases));
+    }
+    if (Array.isArray(ov.languages) && ov.languages.length > 0) {
+      countryObj.languages = JSON.parse(JSON.stringify(ov.languages));
+    }
   }
 
   // Assign centroid coordinates
@@ -591,3 +611,19 @@ console.log('Successfully wrote', jsLangPath, 'size:', fs.statSync(jsLangPath).s
 const jsGeoPath = path.join(__dirname, '../data/world_countries.js');
 fs.writeFileSync(jsGeoPath, 'window.WORLD_GEOJSON = ' + JSON.stringify(geoData) + ';\n');
 console.log('Successfully wrote', jsGeoPath, 'size:', fs.statSync(jsGeoPath).size, 'bytes');
+
+// 4. Chain post-build color mapping, script/family refinement, and LDI diversity enrichment
+const skipChain = process.argv.includes('--skip-chain') || process.env.EARTHLINGO_SKIP_DB_CHAIN === '1';
+if (!skipChain) {
+  const { execFileSync } = require('child_process');
+  const postSteps = [
+    'update_language_colors.js',
+    'enrich_database.js',
+    'enrich_multilingual_diversity.js'
+  ];
+  for (const step of postSteps) {
+    const stepPath = path.join(__dirname, step);
+    console.log(`\n---> Running post-build step: ${step}`);
+    execFileSync(process.execPath, [stepPath], { stdio: 'inherit' });
+  }
+}

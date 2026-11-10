@@ -1,5 +1,5 @@
 /* sw.js - Zero-Build Offline Service Worker for Earthlingo */
-const CACHE_NAME = 'earthlingo-v12-pwa';
+const CACHE_NAME = 'earthlingo-v13-pwa';
 
 const CORE_ASSETS = [
   './',

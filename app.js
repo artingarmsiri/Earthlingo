@@ -616,13 +616,17 @@
     const sampleLineMat = sampleLine.material;
     const parentGroup = sampleGrp.parent;
 
+    const R_GLOBE = 100;
+    const CAP_SCALE = 1.0025;
+    const LINE_SCALE = 1.0028;
+    const R_CAP = R_GLOBE * CAP_SCALE;
+    const R_LINE = R_GLOBE * LINE_SCALE;
+    const MAX_SEG_DEG = 2.4; // Keep all chords >= ~100.228 (well above R=100 ocean sphere)
+    const MAX_CAP_CHORD_SQ = Math.pow(2 * R_CAP * Math.sin((MAX_SEG_DEG * Math.PI / 180) * 0.5), 2);
+    const MAX_LINE_CHORD_SQ = Math.pow(2 * R_LINE * Math.sin((MAX_SEG_DEG * Math.PI / 180) * 0.5), 2);
+
     // Group polygon chunks by canonical country key so each country forms 1 contiguous GPU buffer slice
     const byKey = new Map();
-    let totalCapVerts = 0;
-    let totalCapIndices = 0;
-    let totalLineVerts = 0;
-    let totalLineIndices = 0;
-
     for (let gIdx = 0; gIdx < polygonGroups.length; gIdx++) {
       const grp = polygonGroups[gIdx];
       const f = grp.__data.data;
@@ -633,54 +637,41 @@
         byKey.set(key, list);
       }
       list.push(grp);
-
-      const mGeo = grp.children[0].geometry;
-      totalCapVerts += mGeo.attributes.position.count;
-      totalCapIndices += mGeo.index ? mGeo.index.count : mGeo.attributes.position.count;
-
-      const lGeo = grp.children[1] ? grp.children[1].geometry : null;
-      if (lGeo && lGeo.attributes.position && lGeo.index && lGeo.index.count > 0) {
-        totalLineVerts += lGeo.attributes.position.count;
-        totalLineIndices += lGeo.index.count;
-      }
     }
 
-    // Verify triangle winding against outward surface normal
-    let frontOrBack = 0;
-    outerWinding: for (const grp of polygonGroups) {
-      const mGeo = grp.children[0].geometry;
-      const pos = mGeo.attributes.position.array;
-      const idx = mGeo.index ? mGeo.index.array : null;
-      const triCount = idx ? idx.length : pos.length / 3;
-      for (let t = 0; t + 2 < triCount; t += 3) {
-        const i0 = (idx ? idx[t] : t) * 3;
-        const i1 = (idx ? idx[t + 1] : t + 1) * 3;
-        const i2 = (idx ? idx[t + 2] : t + 2) * 3;
-        const ax = pos[i1] - pos[i0], ay = pos[i1 + 1] - pos[i0 + 1], az = pos[i1 + 2] - pos[i0 + 2];
-        const bx = pos[i2] - pos[i0], by = pos[i2 + 1] - pos[i0 + 1], bz = pos[i2 + 2] - pos[i0 + 2];
-        const cx = ay * bz - az * by;
-        const cy = az * bx - ax * bz;
-        const cz = ax * by - ay * bx;
-        const lenSq = cx * cx + cy * cy + cz * cz;
-        if (lenSq > 1e-6) {
-          const dot = cx * pos[i0] + cy * pos[i0 + 1] + cz * pos[i0 + 2];
-          frontOrBack = dot >= 0 ? 0 : 1;
-          break outerWinding;
-        }
-      }
-    }
-
-    const capPositions = new Float32Array(totalCapVerts * 3);
-    const capColors = new Float32Array(totalCapVerts * 3);
-    const capIndices = new Uint32Array(totalCapIndices);
-    const linePositions = new Float32Array(totalLineVerts * 3);
-    const lineIndices = new Uint32Array(totalLineIndices);
-
-    const CAP_SCALE = 1.0025;
-    const LINE_SCALE = 1.0028;
+    const capVertChunks = [];
+    const capIdxChunks = [];
+    const lineVertChunks = [];
+    const lineIdxChunks = [];
 
     let curV = 0, curI = 0, curLV = 0, curLI = 0;
     let maxV = 1, maxI = 1, maxLV = 1, maxLI = 1;
+
+    const projectToRadius = (verts, idx3, radius) => {
+      const x = verts[idx3], y = verts[idx3 + 1], z = verts[idx3 + 2];
+      const len = Math.hypot(x, y, z);
+      if (len > 1e-8) {
+        const s = radius / len;
+        verts[idx3] = x * s;
+        verts[idx3 + 1] = y * s;
+        verts[idx3 + 2] = z * s;
+      }
+    };
+
+    const ensureOutwardTri = (verts, tri) => {
+      const i0 = tri[0] * 3, i1 = tri[1] * 3, i2 = tri[2] * 3;
+      const x0 = verts[i0], y0 = verts[i0 + 1], z0 = verts[i0 + 2];
+      const ax = verts[i1] - x0, ay = verts[i1 + 1] - y0, az = verts[i1 + 2] - z0;
+      const bx = verts[i2] - x0, by = verts[i2 + 1] - y0, bz = verts[i2 + 2] - z0;
+      const cx = ay * bz - az * by;
+      const cy = az * bx - ax * bz;
+      const cz = ax * by - ay * bx;
+      if (cx * x0 + cy * y0 + cz * z0 < 0) {
+        const tmp = tri[1];
+        tri[1] = tri[2];
+        tri[2] = tmp;
+      }
+    };
 
     for (const [key, grpList] of byKey.entries()) {
       const f = grpList[0].__data.data;
@@ -689,43 +680,185 @@
       const lvStart = curLV;
       const liStart = curLI;
 
+      const sVerts = [];
+      let sTris = [];
+      const sLineVerts = [];
+      const sLineIdx = [];
+
       for (let g = 0; g < grpList.length; g++) {
         const grp = grpList[g];
         const mGeo = grp.children[0].geometry;
         const mPos = mGeo.attributes.position.array;
         const vCount = mGeo.attributes.position.count;
-        const vBase = curV * 3;
-        for (let k = 0; k < vCount * 3; k++) {
-          capPositions[vBase + k] = mPos[k] * CAP_SCALE;
+        const baseV = sVerts.length / 3;
+        for (let k = 0; k < vCount; k++) {
+          const p = k * 3;
+          const vx = mPos[p] * CAP_SCALE;
+          const vy = mPos[p + 1] * CAP_SCALE;
+          const vz = mPos[p + 2] * CAP_SCALE;
+          const len = Math.hypot(vx, vy, vz);
+          if (len > 1e-8) {
+            const s = R_CAP / len;
+            sVerts.push(vx * s, vy * s, vz * s);
+          } else {
+            sVerts.push(vx, vy, vz);
+          }
         }
         if (mGeo.index) {
           const mIdx = mGeo.index.array;
           const mIdxCount = mGeo.index.count;
-          for (let k = 0; k < mIdxCount; k++) {
-            capIndices[curI++] = mIdx[k] + curV;
+          for (let k = 0; k + 2 < mIdxCount; k += 3) {
+            const tri = [baseV + mIdx[k], baseV + mIdx[k + 1], baseV + mIdx[k + 2]];
+            ensureOutwardTri(sVerts, tri);
+            sTris.push(tri);
           }
         } else {
-          for (let k = 0; k < vCount; k++) {
-            capIndices[curI++] = curV + k;
+          for (let k = 0; k + 2 < vCount; k += 3) {
+            const tri = [baseV + k, baseV + k + 1, baseV + k + 2];
+            ensureOutwardTri(sVerts, tri);
+            sTris.push(tri);
           }
         }
-        curV += vCount;
 
         const lGeo = grp.children[1] ? grp.children[1].geometry : null;
         if (lGeo && lGeo.attributes.position && lGeo.index && lGeo.index.count > 0) {
           const lPos = lGeo.attributes.position.array;
           const lvCount = lGeo.attributes.position.count;
-          const lvBase = curLV * 3;
-          for (let k = 0; k < lvCount * 3; k++) {
-            linePositions[lvBase + k] = lPos[k] * LINE_SCALE;
+          const baseLV = sLineVerts.length / 3;
+          for (let k = 0; k < lvCount; k++) {
+            const p = k * 3;
+            const lx = lPos[p] * LINE_SCALE;
+            const ly = lPos[p + 1] * LINE_SCALE;
+            const lz = lPos[p + 2] * LINE_SCALE;
+            const len = Math.hypot(lx, ly, lz);
+            if (len > 1e-8) {
+              const s = R_LINE / len;
+              sLineVerts.push(lx * s, ly * s, lz * s);
+            } else {
+              sLineVerts.push(lx, ly, lz);
+            }
           }
           const lIdx = lGeo.index.array;
           const lIdxCount = lGeo.index.count;
-          for (let k = 0; k < lIdxCount; k++) {
-            lineIndices[curLI++] = lIdx[k] + curLV;
+          const appendLineSeg = (ia, ib, depth) => {
+            const ax = sLineVerts[ia * 3], ay = sLineVerts[ia * 3 + 1], az = sLineVerts[ia * 3 + 2];
+            const bx = sLineVerts[ib * 3], by = sLineVerts[ib * 3 + 1], bz = sLineVerts[ib * 3 + 2];
+            const dx = bx - ax, dy = by - ay, dz = bz - az;
+            if (depth < 4 && (dx * dx + dy * dy + dz * dz) > MAX_LINE_CHORD_SQ) {
+              const im = sLineVerts.length / 3;
+              sLineVerts.push((ax + bx) * 0.5, (ay + by) * 0.5, (az + bz) * 0.5);
+              projectToRadius(sLineVerts, im * 3, R_LINE);
+              appendLineSeg(ia, im, depth + 1);
+              appendLineSeg(im, ib, depth + 1);
+            } else {
+              sLineIdx.push(ia, ib);
+            }
+          };
+          for (let k = 0; k + 1 < lIdxCount; k += 2) {
+            appendLineSeg(baseLV + lIdx[k], baseLV + lIdx[k + 1], 0);
           }
-          curLV += lvCount;
         }
+      }
+
+      // Conforming crack-free spherical edge-midpoint subdivision for large triangles (fixes Greenland/Somalia chord sagitta)
+      for (let pass = 0; pass < 4; pass++) {
+        let splitCount = 0;
+        const splitEdgeMap = new Map();
+        const getEdgeKey = (ia, ib) => {
+          const ax = Math.round(sVerts[ia * 3] * 1e4);
+          const ay = Math.round(sVerts[ia * 3 + 1] * 1e4);
+          const az = Math.round(sVerts[ia * 3 + 2] * 1e4);
+          const bx = Math.round(sVerts[ib * 3] * 1e4);
+          const by = Math.round(sVerts[ib * 3 + 1] * 1e4);
+          const bz = Math.round(sVerts[ib * 3 + 2] * 1e4);
+          const k0 = `${ax},${ay},${az}`;
+          const k1 = `${bx},${by},${bz}`;
+          return k0 < k1 ? `${k0}|${k1}` : `${k1}|${k0}`;
+        };
+        const getOrSplit = (ia, ib) => {
+          const dx = sVerts[ia * 3] - sVerts[ib * 3];
+          const dy = sVerts[ia * 3 + 1] - sVerts[ib * 3 + 1];
+          const dz = sVerts[ia * 3 + 2] - sVerts[ib * 3 + 2];
+          if (dx * dx + dy * dy + dz * dz <= MAX_CAP_CHORD_SQ) return -1;
+          const ek = getEdgeKey(ia, ib);
+          const cached = splitEdgeMap.get(ek);
+          if (cached !== undefined) return cached;
+          const im = sVerts.length / 3;
+          sVerts.push(
+            (sVerts[ia * 3] + sVerts[ib * 3]) * 0.5,
+            (sVerts[ia * 3 + 1] + sVerts[ib * 3 + 1]) * 0.5,
+            (sVerts[ia * 3 + 2] + sVerts[ib * 3 + 2]) * 0.5
+          );
+          projectToRadius(sVerts, im * 3, R_CAP);
+          splitEdgeMap.set(ek, im);
+          return im;
+        };
+
+        const nextTris = [];
+        for (let t = 0; t < sTris.length; t++) {
+          const tri = sTris[t];
+          const a = tri[0], b = tri[1], c = tri[2];
+          const mab = getOrSplit(a, b);
+          const mbc = getOrSplit(b, c);
+          const mca = getOrSplit(c, a);
+          const cnt = (mab >= 0 ? 1 : 0) + (mbc >= 0 ? 1 : 0) + (mca >= 0 ? 1 : 0);
+          if (cnt === 0) {
+            nextTris.push(tri);
+            continue;
+          }
+          splitCount++;
+          if (cnt === 3) {
+            const sub = [[a, mab, mca], [mab, b, mbc], [mca, mbc, c], [mab, mbc, mca]];
+            for (let k = 0; k < 4; k++) { ensureOutwardTri(sVerts, sub[k]); nextTris.push(sub[k]); }
+          } else if (cnt === 1) {
+            const sub = mab >= 0
+              ? [[a, mab, c], [mab, b, c]]
+              : (mbc >= 0 ? [[b, mbc, a], [mbc, c, a]] : [[c, mca, b], [mca, a, b]]);
+            for (let k = 0; k < 2; k++) { ensureOutwardTri(sVerts, sub[k]); nextTris.push(sub[k]); }
+          } else {
+            let p0 = a, p1 = b, p2 = c, m01 = mab, m20 = mca;
+            if (mab < 0) { p0 = c; p1 = a; p2 = b; m01 = mca; m20 = mbc; }
+            else if (mca < 0) { p0 = b; p1 = c; p2 = a; m01 = mbc; m20 = mab; }
+            const t0 = [p0, m01, m20];
+            const d1x = sVerts[m01 * 3] - sVerts[p2 * 3], d1y = sVerts[m01 * 3 + 1] - sVerts[p2 * 3 + 1], d1z = sVerts[m01 * 3 + 2] - sVerts[p2 * 3 + 2];
+            const d2x = sVerts[p1 * 3] - sVerts[m20 * 3], d2y = sVerts[p1 * 3 + 1] - sVerts[m20 * 3 + 1], d2z = sVerts[p1 * 3 + 2] - sVerts[m20 * 3 + 2];
+            const q = (d1x * d1x + d1y * d1y + d1z * d1z <= d2x * d2x + d2y * d2y + d2z * d2z)
+              ? [[m01, p1, p2], [m01, p2, m20]]
+              : [[m01, p1, m20], [p1, p2, m20]];
+            ensureOutwardTri(sVerts, t0);
+            ensureOutwardTri(sVerts, q[0]);
+            ensureOutwardTri(sVerts, q[1]);
+            nextTris.push(t0, q[0], q[1]);
+          }
+        }
+        sTris = nextTris;
+        if (splitCount === 0) break;
+      }
+
+      const sliceVCount = sVerts.length / 3;
+      const sliceICount = sTris.length * 3;
+      const flatSliceIdx = new Uint32Array(sliceICount);
+      for (let t = 0; t < sTris.length; t++) {
+        const tri = sTris[t];
+        const o = t * 3;
+        flatSliceIdx[o] = curV + tri[0];
+        flatSliceIdx[o + 1] = curV + tri[1];
+        flatSliceIdx[o + 2] = curV + tri[2];
+      }
+      capVertChunks.push(sVerts);
+      capIdxChunks.push(flatSliceIdx);
+      curV += sliceVCount;
+      curI += sliceICount;
+
+      const sliceLVCount = sLineVerts.length / 3;
+      const sliceLICount = sLineIdx.length;
+      if (sliceLICount > 0) {
+        const flatLineIdx = new Uint32Array(sliceLICount);
+        for (let k = 0; k < sliceLICount; k++) flatLineIdx[k] = curLV + sLineIdx[k];
+        lineVertChunks.push(sLineVerts);
+        lineIdxChunks.push(flatLineIdx);
+        curLV += sliceLVCount;
+        curLI += sliceLICount;
       }
 
       const slice = {
@@ -736,13 +869,13 @@
         family: f.__family,
         rgb: hexToLinearRgb(f.__color),
         vStart,
-        vCount: curV - vStart,
+        vCount: sliceVCount,
         iStart,
-        iCount: curI - iStart,
+        iCount: sliceICount,
         lvStart,
-        lvCount: curLV - lvStart,
+        lvCount: sliceLVCount,
         liStart,
-        liCount: curLI - liStart
+        liCount: sliceLICount
       };
       if (slice.vCount > maxV) maxV = slice.vCount;
       if (slice.iCount > maxI) maxI = slice.iCount;
@@ -752,6 +885,39 @@
       renderBatch.countrySlices.push(slice);
       renderBatch.sliceByKey.set(key, slice);
     }
+
+    const capPositions = new Float32Array(curV * 3);
+    const capColors = new Float32Array(curV * 3);
+    const capIndices = new Uint32Array(curI);
+    let pWrite = 0;
+    for (let c = 0; c < capVertChunks.length; c++) {
+      const ch = capVertChunks[c];
+      capPositions.set(ch, pWrite);
+      pWrite += ch.length;
+    }
+    let iWrite = 0;
+    for (let c = 0; c < capIdxChunks.length; c++) {
+      const ch = capIdxChunks[c];
+      capIndices.set(ch, iWrite);
+      iWrite += ch.length;
+    }
+
+    const linePositions = new Float32Array(curLV * 3);
+    const lineIndices = new Uint32Array(curLI);
+    let lpWrite = 0;
+    for (let c = 0; c < lineVertChunks.length; c++) {
+      const ch = lineVertChunks[c];
+      linePositions.set(ch, lpWrite);
+      lpWrite += ch.length;
+    }
+    let liWrite = 0;
+    for (let c = 0; c < lineIdxChunks.length; c++) {
+      const ch = lineIdxChunks[c];
+      lineIndices.set(ch, liWrite);
+      liWrite += ch.length;
+    }
+
+    const frontOrBack = 0; // All triangles normalized outward above
 
     // Remove and dispose all 1,620 individual meshes & line objects
     for (let i = 0; i < polygonGroups.length; i++) {
@@ -1322,15 +1488,20 @@
     }
 
     // WebGL Camera and Renderer Configuration
+    const MIN_CAM_DIST = 132;
+    const MAX_CAM_DIST = 850;
+    const MIN_CAM_ALT = (MIN_CAM_DIST - 100) / 100; // 0.32
+    const MAX_CAM_ALT = (MAX_CAM_DIST - 100) / 100; // 7.5
+    let camera = null;
     try {
       const renderer = state.globe.renderer();
       if (renderer) {
         renderer.setPixelRatio(getTargetPixelRatio());
         renderer.powerPreference = 'high-performance';
       }
-      const camera = state.globe.camera();
+      camera = state.globe.camera();
       if (camera) {
-        camera.near = 10;
+        camera.near = 1.5;
         camera.far = 4000;
         camera.updateProjectionMatrix();
       }
@@ -1338,15 +1509,61 @@
       console.warn('Renderer configuration:', e);
     }
 
-    // OrbitControls (Auto-rotation disabled by default)
+    // OrbitControls (Auto-rotation disabled by default) with strict radial guard
     const controls = state.globe.controls();
     controls.autoRotate = false;
     controls.autoRotateSpeed = 0.6;
     controls.enableDamping = true;
     controls.dampingFactor = 0.12;
     controls.enablePan = false;
-    controls.minDistance = 120;
-    controls.maxDistance = 850;
+    controls.minDistance = MIN_CAM_DIST;
+    controls.maxDistance = MAX_CAM_DIST;
+
+    const lastValidCamPos = camera ? camera.position.clone() : null;
+    const clampCameraBounds = () => {
+      if (!camera) return;
+      controls.target.set(0, 0, 0);
+      const x = camera.position.x;
+      const y = camera.position.y;
+      const z = camera.position.z;
+      if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) {
+        if (lastValidCamPos) camera.position.copy(lastValidCamPos);
+        else camera.position.set(0, 0, 350);
+        camera.lookAt(0, 0, 0);
+        return;
+      }
+      const dist = Math.hypot(x, y, z);
+      if (dist < 1e-3) {
+        if (lastValidCamPos) camera.position.copy(lastValidCamPos);
+        else camera.position.set(0, 0, 350);
+        camera.lookAt(0, 0, 0);
+        return;
+      }
+      if (dist < MIN_CAM_DIST || dist > MAX_CAM_DIST) {
+        const clamped = Math.max(MIN_CAM_DIST, Math.min(MAX_CAM_DIST, dist));
+        const s = clamped / dist;
+        camera.position.set(x * s, y * s, z * s);
+        camera.lookAt(0, 0, 0);
+      }
+      if (lastValidCamPos) lastValidCamPos.copy(camera.position);
+    };
+
+    const origControlsUpdate = controls.update.bind(controls);
+    controls.update = (dt) => {
+      const updated = origControlsUpdate(dt);
+      clampCameraBounds();
+      return updated;
+    };
+
+    const origPointOfView = state.globe.pointOfView.bind(state.globe);
+    state.globe.pointOfView = (pov, ms) => {
+      if (!pov) return origPointOfView();
+      const clampedPov = Object.assign({}, pov);
+      if (clampedPov.altitude != null && Number.isFinite(+clampedPov.altitude)) {
+        clampedPov.altitude = Math.max(MIN_CAM_ALT, Math.min(MAX_CAM_ALT, +clampedPov.altitude));
+      }
+      return origPointOfView(clampedPov, ms);
+    };
 
     // Fit full globe cleanly on narrow portrait screens at startup
     const initialAlt = getDefaultAltitude();
@@ -1361,13 +1578,20 @@
       }
     });
 
+    controls.addEventListener('change', clampCameraBounds);
+
     controls.addEventListener('end', () => {
+      clampCameraBounds();
       if (state.isRotating) {
         controls.autoRotate = true;
       }
     });
 
-    // Block native iOS/mobile long-press text selection, callout loupe, and context menu on globe
+    // Block native iOS/mobile long-press text selection, callout loupe, pinch-zoom & context menu on globe
+    elements.globeViz.addEventListener('wheel', (e) => {
+      if (e.ctrlKey && e.cancelable) e.preventDefault();
+    }, { passive: false });
+
     elements.globeViz.addEventListener('touchstart', (e) => {
       if (document.activeElement === elements.searchInput) {
         elements.searchInput.blur();
@@ -1378,6 +1602,14 @@
     }, { passive: false });
 
     elements.globeViz.addEventListener('gesturestart', (e) => {
+      if (e.cancelable) e.preventDefault();
+    }, { passive: false });
+
+    elements.globeViz.addEventListener('gesturechange', (e) => {
+      if (e.cancelable) e.preventDefault();
+    }, { passive: false });
+
+    elements.globeViz.addEventListener('gestureend', (e) => {
       if (e.cancelable) e.preventDefault();
     }, { passive: false });
 
@@ -3031,7 +3263,7 @@
     // Zoom buttons (Snappy 240ms duration)
     elements.zoomInBtn.addEventListener('click', () => {
       const pov = state.globe.pointOfView();
-      state.globe.pointOfView({ altitude: Math.max(0.4, pov.altitude - 0.5) }, 240);
+      state.globe.pointOfView({ altitude: Math.max(0.32, pov.altitude - 0.5) }, 240);
     });
 
     elements.zoomOutBtn.addEventListener('click', () => {

@@ -1,5 +1,5 @@
 /* sw.js - Zero-Build Offline Service Worker for Earthlingo */
-const CACHE_NAME = 'earthlingo-v15-pwa';
+const CACHE_NAME = 'earthlingo-v16-pwa';
 
 const CORE_ASSETS = [
   './',
@@ -73,19 +73,35 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  // Navigation & local asset cache-first with background refresh (ignores ?v= query string!)
+  const isStaticVendor = url.pathname.includes('/libs/') || url.pathname.includes('/assets/');
+
+  if (isStaticVendor) {
+    event.respondWith(
+      caches.match(req, { ignoreSearch: true }).then((cached) => {
+        if (cached) return cached;
+        return fetch(req).then((res) => {
+          if (res && res.status === 200 && res.type === 'basic') {
+            const clone = res.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
+          }
+          return res;
+        });
+      })
+    );
+    return;
+  }
+
+  // Network-first with offline cache fallback so code updates always apply on reload
   event.respondWith(
-    caches.match(req, { ignoreSearch: true }).then((cached) => {
-      const networkFetch = fetch(req).then((res) => {
+    fetch(req)
+      .then((res) => {
         if (res && res.status === 200 && res.type === 'basic') {
           const clone = res.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
         }
         return res;
-      }).catch(() => cached);
-
-      return cached || networkFetch;
-    })
+      })
+      .catch(() => caches.match(req, { ignoreSearch: true }))
   );
 });
 

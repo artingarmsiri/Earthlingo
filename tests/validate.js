@@ -461,7 +461,7 @@ test('Core modules (config, utils, geo-index, label-formatter, legend, quiz, com
 });
 
 // 7. Arcs Layer Render-Sync & Layering Invariants
-test('Arcs module configures BackSide casings before render without race or shader churn', () => {
+test('Arcs module emits non-black rail/pulse pairs and configures render state before draw', () => {
   const sb = createSandboxWindow();
   const noop = () => {};
   const rafQueue = [];
@@ -489,7 +489,7 @@ test('Arcs module configures BackSide casings before render without race or shad
 
   const mockArcObjects = [];
   let queuedArcData = [];
-  let observedSideInsideRender = null;
+  let observedOrdersInsideRender = null;
   let resumeCalls = 0;
 
   const mockScene = {
@@ -499,8 +499,11 @@ test('Arcs module configures BackSide casings before render without race or shad
   };
   const mockRenderer = {
     render() {
-      const casings = mockArcObjects.filter(o => o.__data && o.__data._arcRole === 'casing');
-      observedSideInsideRender = casings.map(o => o.children[0].material.side);
+      observedOrdersInsideRender = mockArcObjects.map(o => ({
+        role: o.__data._arcRole,
+        order: o.children[0].renderOrder,
+        transparent: o.children[0].material.transparent
+      }));
     }
   };
   E.state.globe = {
@@ -516,10 +519,11 @@ test('Arcs module configures BackSide casings before render without race or shad
   E.state.activeOriginCorridor = 'all';
   E.arcs.updateArcs();
 
-  assert(queuedArcData.length > 0 && queuedArcData.length % 3 === 0, 'updateArcs must emit casing/rail/pulse triples');
+  assert(queuedArcData.length > 0 && queuedArcData.length % 2 === 0, 'updateArcs must emit rail/pulse pairs');
+  assert(!queuedArcData.some(d => d._arcRole === 'casing'), 'Arcs must not emit pitch-black casing meshes');
   assert(resumeCalls >= 1, 'updateArcs must ensure globe animation ticker is resumed');
 
-  // Simulate RAF1 firing BEFORE globe.gl digests queuedArcData (the boot race condition)
+  // Simulate RAF1 firing BEFORE globe.gl digests queuedArcData
   assert.strictEqual(mockArcObjects.length, 0);
   while (rafQueue.length) {
     const fn = rafQueue.shift();
@@ -527,7 +531,7 @@ test('Arcs module configures BackSide casings before render without race or shad
     break;
   }
 
-  // Now simulate globe.gl asynchronously materializing meshes with default FrontSide (0) & transparent: true
+  // Now simulate globe.gl asynchronously materializing meshes with default transparent: true
   for (const d of queuedArcData) {
     mockArcObjects.push({
       __globeObjType: 'arc',
@@ -540,28 +544,26 @@ test('Arcs module configures BackSide casings before render without race or shad
     });
   }
 
-  // Render hook MUST fix all casings BEFORE mockRenderer.render observes them!
+  // Render hook MUST configure all rails/pulses BEFORE mockRenderer.render observes them!
   mockRenderer.render(mockScene, {});
   assert(
-    Array.isArray(observedSideInsideRender) &&
-    observedSideInsideRender.length === queuedArcData.length / 3 &&
-    observedSideInsideRender.every(s => s === 1),
-    'Render hook must convert all casings to BackSide (1) before the very first draw call'
+    Array.isArray(observedOrdersInsideRender) &&
+    observedOrdersInsideRender.length === queuedArcData.length &&
+    observedOrdersInsideRender.every(x => !x.transparent && x.order === (x.role === 'rail' ? 6 : 7)),
+    'Render hook must configure rail (order 6) & pulse (order 7) before the very first draw call'
   );
 
   for (const obj of mockArcObjects) {
     const mesh = obj.children[0];
     const role = obj.__data._arcRole;
-    assert.strictEqual(mesh.material.needsUpdate, false, 'Changing side/transparent must not set needsUpdate=true');
+    assert.strictEqual(mesh.material.needsUpdate, false, 'Updating render flags must not set needsUpdate=true');
     assert.strictEqual(mesh.material.transparent, false, `${role} must have transparent=false`);
     assert.strictEqual(mesh.material.depthWrite, true, `${role} must have depthWrite=true`);
-    if (role === 'casing') assert.strictEqual(mesh.renderOrder, 5);
+    assert.strictEqual(mesh.material.side, 0);
     if (role === 'rail') {
-      assert.strictEqual(mesh.material.side, 0);
       assert.strictEqual(mesh.renderOrder, 6);
     }
     if (role === 'pulse') {
-      assert.strictEqual(mesh.material.side, 0);
       assert.strictEqual(mesh.renderOrder, 7);
       assert(obj.__data.animateTime > 0, 'Pulse arc must have animateTime > 0');
     }

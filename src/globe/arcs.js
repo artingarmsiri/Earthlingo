@@ -47,8 +47,8 @@
         const role = obj.__data._arcRole;
         if (!mat) return;
         totalArcMeshes++;
-        const desiredSide = role === 'casing' ? 1 : 0; // BackSide ink outline vs FrontSide core
-        const desiredOrder = role === 'casing' ? 5 : (role === 'rail' ? 6 : 7);
+        const desiredSide = 0;
+        const desiredOrder = role === 'rail' ? 6 : 7;
         if (
           mat.side !== desiredSide ||
           mat.transparent !== false ||
@@ -150,28 +150,9 @@
       ? Math.max(0.115, Math.min(0.56, distRad * 0.45 * altScale + 0.07))
       : Math.max(0.115, Math.min(0.56, distRad * 0.25 + 0.068 + stagger * 0.55));
 
-    // 1. Dark BackSide ink casing separates arc silhouettes cleanly from land fills and overlaps
-    arcs.push({
-      _arcRole: 'casing',
-      _arcBatchId: arcBatchId,
-      startLat,
-      startLng,
-      endLat,
-      endLng,
-      startAlt: 0.0085,
-      endAlt: 0.0085,
-      colors: ['#02050c', '#02050c'],
-      stroke: isPrimary ? 1.32 : 0.96,
-      arcAlt: baseApex,
-      dashLength: 1,
-      dashGap: 0,
-      initialGap: 0,
-      animateTime: 0
-    });
-
-    // 2. Crisp continuous inner guide rail keeping full trajectory legible inside dark framing
-    const railOrigin = mixColorHex(originColor, '#0b1222', 0.22);
-    const railDest = mixColorHex(destColor, '#0b1222', 0.16);
+    // 1. Richly tinted continuous inner guide rail keeping full trajectory clearly colored & legible
+    const railOrigin = mixColorHex(originColor, '#0f172a', 0.34);
+    const railDest = mixColorHex(destColor, '#0f172a', 0.28);
     arcs.push({
       _arcRole: 'rail',
       _arcBatchId: arcBatchId,
@@ -182,7 +163,7 @@
       startAlt: 0.0085,
       endAlt: 0.0085,
       colors: [railOrigin, railDest],
-      stroke: isPrimary ? 0.44 : 0.30,
+      stroke: isPrimary ? 0.50 : 0.34,
       arcAlt: baseApex,
       dashLength: 1,
       dashGap: 0,
@@ -190,9 +171,9 @@
       animateTime: 0
     });
 
-    // 3. Bolder luminous animated pulse flowing Homeland -> Destination inside dark casing
-    const pulseOrigin = mixColorHex(originColor, '#ffffff', 0.26);
-    const pulseDest = mixColorHex(destColor, '#ffffff', 0.28);
+    // 2. Bolder luminous animated pulse flowing Homeland -> Destination along the guide rail
+    const pulseOrigin = mixColorHex(originColor, '#ffffff', 0.34);
+    const pulseDest = mixColorHex(destColor, '#ffffff', 0.36);
     arcs.push({
       _arcRole: 'pulse',
       _arcBatchId: arcBatchId,
@@ -203,12 +184,12 @@
       startAlt: 0.0085,
       endAlt: 0.0085,
       colors: [pulseOrigin, pulseDest],
-      stroke: isPrimary ? 0.88 : 0.62,
+      stroke: isPrimary ? 0.94 : 0.66,
       arcAlt: baseApex,
-      dashLength: isPrimary ? 0.38 : 0.30,
-      dashGap: isPrimary ? 0.28 : 0.34,
+      dashLength: isPrimary ? 0.36 : 0.28,
+      dashGap: isPrimary ? 0.24 : 0.30,
       initialGap: ((w - 1) * 0.16 + (index % 5) * 0.10) % 0.52,
-      animateTime: 1850 + (w - 1) * 280 + (index % 4) * 140
+      animateTime: 1650 + (w - 1) * 260 + (index % 4) * 120
     });
   }
 

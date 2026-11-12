@@ -128,7 +128,7 @@ module.exports = {
     summary: "Brazil is the only Portuguese-speaking nation in the Americas. Brazilian Portuguese is renowned for its open, musical vowels, palatalization, and incorporation of Tupi-Guarani and African loanwords.",
     languages: [
       { name: "Portuguese (Brazilian)", nativeName: "Português brasileiro", type: "Official Sole Language", percentage: "98.5%", speakers: "214M", family: "Indo-European (Romance)", script: "Latin", bcp47: "pt-BR", regions: "Nationwide", notes: "Grammatically and phonetically distinct from European Portuguese; official language since colonial times." },
-      { name: "Indigenous Languages (Guarani, Yanomami, Tikuna)", nativeName: "Tupi-Guarani / Nheengatu", type: "Recognized Co-official Municipally", percentage: "0.4%", speakers: "300K", family: "Tupian / Macro-Jê / Arawakan", script: "Latin", bcp47: "pt-BR", regions: "Amazon Basin, São Gabriel da Cachoeira", notes: "São Gabriel da Cachoeira in Amazonas co-recognizes Nheengatu, Tukano, and Baniwa as official." },
+      { name: "Indigenous Languages (Guarani, Yanomami, Tikuna)", nativeName: "Tupi-Guarani / Nheengatu", type: "Recognized Co-official Municipally", percentage: "0.4%", speakers: "300K", family: "Tupian / Macro-Jê / Arawakan", script: "Latin", bcp47: "gn-BR", regions: "Amazon Basin, São Gabriel da Cachoeira", notes: "São Gabriel da Cachoeira in Amazonas co-recognizes Nheengatu, Tukano, and Baniwa as official." },
       { name: "Hunsrik & Venetian (Talian)", nativeName: "Riograndenser Hunsrückisch / Talian", type: "Co-official Regional Immigrant Languages", percentage: "0.8%", speakers: "1.5M", family: "Indo-European (Germanic / Romance)", script: "Latin", bcp47: "pt-BR", regions: "Rio Grande do Sul, Santa Catarina", notes: "German and Venetian dialect communities recognized as intangible cultural heritage." }
     ],
     accents: [
@@ -221,6 +221,7 @@ module.exports = {
   },
 
   FRA: {
+    iso2: "FR",
     name: "France",
     officialName: "French Republic",
     nativeName: "France",
@@ -235,11 +236,11 @@ module.exports = {
     summary: "French is the sole official language of the Republic under Article 2 of the French Constitution. However, historic regional languages like Occitan, Breton, Alsatian, Corsican, and Basque persist proudly.",
     languages: [
       { name: "French", nativeName: "Français", type: "Sole Constitutional Official", percentage: "96.2%", speakers: "65M", family: "Indo-European (Romance)", script: "Latin", bcp47: "fr-FR", regions: "Nationwide & Overseas Territories", notes: "Regulated by the Académie Française since 1635 to maintain linguistic standards." },
-      { name: "Occitan (Langue d'Oc)", nativeName: "Occitan / Lenga d'òc", type: "Recognized Regional Language", percentage: "1.2%", speakers: "800K", family: "Indo-European (Romance)", script: "Latin", bcp47: "fr-FR", regions: "Southern France (Occitanie, Provence, Gascony)", notes: "The historical language of the medieval Troubadours; distinct from French Langue d'Oïl." },
+      { name: "Occitan (Langue d'Oc)", nativeName: "Occitan / Lenga d'òc", type: "Recognized Regional Language", percentage: "1.2%", speakers: "800K", family: "Indo-European (Romance)", script: "Latin", bcp47: "oc-FR", regions: "Southern France (Occitanie, Provence, Gascony)", notes: "The historical language of the medieval Troubadours; distinct from French Langue d'Oïl." },
       { name: "Alsatian", nativeName: "Elsässerditsch", type: "Regional Germanic Language", percentage: "0.9%", speakers: "600K", family: "Indo-European (Germanic / Alemannic)", script: "Latin", bcp47: "de-DE", regions: "Alsace (Strasbourg, Colmar)", notes: "Alemannic German dialect close to Swiss German, deeply rooted in Alsatian border culture." },
       { name: "Breton (Brezhoneg)", nativeName: "Brezhoneg", type: "Regional Celtic Language", percentage: "0.3%", speakers: "210K", family: "Indo-European (Celtic / Brythonic)", script: "Latin", bcp47: "br-FR", regions: "Brittany (Bretagne)", notes: "The only Celtic language spoken on the European mainland; taught in immersive Diwan schools." },
       { name: "Corsican (Corsu)", nativeName: "Corsu", type: "Regional Romance Language", percentage: "0.2%", speakers: "130K", family: "Indo-European (Romance / Italo-Dalmatian)", script: "Latin", bcp47: "co-FR", regions: "Island of Corsica", notes: "Closely related to medieval Tuscan and central Italian dialects." },
-      { name: "Basque (Euskara)", nativeName: "Euskara", type: "Language Isolate", percentage: "0.1%", speakers: "70K", family: "Language Isolate", script: "Latin", bcp47: "eu-ES", regions: "French Basque Country (Pyrénées-Atlantiques)", notes: "Oldest living language in Europe; has zero demonstrated genetic relationship to any other language family." }
+      { name: "Basque (Euskara)", nativeName: "Euskara", type: "Language Isolate", percentage: "0.1%", speakers: "70K", family: "Language Isolate", script: "Latin", bcp47: "eu-FR", regions: "French Basque Country (Pyrénées-Atlantiques)", notes: "Oldest living language in Europe; has zero demonstrated genetic relationship to any other language family." }
     ],
     accents: [
       { name: "Parisièn Standard", region: "Paris & Île-de-France", description: "Fast cadence, uvular trill 'r', neutral vowels; standard pronunciation heard on French television and radio.", sample: "C'est nickel, on se retrouve au bistrot tout à l'heure." },

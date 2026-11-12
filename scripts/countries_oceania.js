@@ -33,7 +33,7 @@ module.exports = {
     diversityLevel: "Constitutional Trilingual",
     summary: "Under Fiji's 2013 Constitution, iTaukei (Fijian), English, and Fiji Hindi have equal status in parliament and education, reflecting the islands' rich indigenous Polynesian/Melanesian and Indian diaspora heritage.",
     languages: [
-      { name: "Fijian (iTaukei)", nativeName: "Na Vosa Vakaviti", type: "Official Constitutional Language", percentage: "54.0%", speakers: "500K", family: "Austronesian (Oceanic / Fijian)", script: "Latin", bcp47: "en-FJ", regions: "Viti Levu, Vanua Levu & Maritime Islands", notes: "Bauan dialect chosen as standard; famous for prenasalized consonants (Bula is pronounced 'mBula')." },
+      { name: "Fijian (iTaukei)", nativeName: "Na Vosa Vakaviti", type: "Official Constitutional Language", percentage: "54.0%", speakers: "500K", family: "Austronesian (Oceanic / Fijian)", script: "Latin", bcp47: "fj-FJ", regions: "Viti Levu, Vanua Levu & Maritime Islands", notes: "Bauan dialect chosen as standard; famous for prenasalized consonants (Bula is pronounced 'mBula')." },
       { name: "English (Fiji)", nativeName: "Fiji English", type: "Official Constitutional Language", percentage: "90.0%", speakers: "800K", family: "Indo-European (Germanic)", script: "Latin", bcp47: "en-FJ", regions: "Nationwide (Administration, Commerce, Schools)", notes: "Common lingua franca bridging indigenous Fijian and Indo-Fijian communities." },
       { name: "Fiji Hindi (Fiji Baat)", nativeName: "फ़िजी बात (Fiji Baat)", type: "Official Constitutional Language", percentage: "37.0%", speakers: "350K", family: "Indo-European (Indo-Aryan)", script: "Devanagari / Latin", bcp47: "hi-IN", regions: "Western & Northern Divisions (Nadi, Lautoka, Labasa)", notes: "Derived from Awadhi and Bhojpuri dialects brought by indentured laborers in the late 19th century." }
     ],
@@ -41,9 +41,9 @@ module.exports = {
       { name: "Fiji English", region: "Suva & Urban Centers", description: "Melodic cadence, lengthened vowels, incorporation of 'Bula' and 'Vinaka' into English speech.", sample: "Bula bro! No worries man, we go down to the kava club tonight." }
     ],
     phrases: [
-      { type: "Greeting (Fijian)", text: "Bula! / Bula Vinaka! (Life / Good health / Hello!)", phonetic: "m-BOO-lah vee-NAH-kah", bcp47: "en-FJ" },
-      { type: "Thank You (Fijian)", text: "Vinaka vaka levu! (Thank you very much!)", phonetic: "vee-NAH-kah VAH-kah LEH-voo", bcp47: "en-FJ" },
-      { type: "Goodbye (Fijian)", text: "Moce! (Sleep well / Goodbye)", phonetic: "MO-theh", bcp47: "en-FJ" }
+      { type: "Greeting (Fijian)", text: "Bula! / Bula Vinaka! (Life / Good health / Hello!)", phonetic: "m-BOO-lah vee-NAH-kah", bcp47: "fj-FJ" },
+      { type: "Thank You (Fijian)", text: "Vinaka vaka levu! (Thank you very much!)", phonetic: "vee-NAH-kah VAH-kah LEH-voo", bcp47: "fj-FJ" },
+      { type: "Goodbye (Fijian)", text: "Moce! (Sleep well / Goodbye)", phonetic: "MO-theh", bcp47: "fj-FJ" }
     ],
     funFact: "In the Fijian alphabet, the letter 'c' is always pronounced as a soft 'th' (like in 'this'), so the famous resort town of Mamanuca is actually pronounced 'Mama-noo-tha'!"
   }

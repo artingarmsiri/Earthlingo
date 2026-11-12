@@ -29,14 +29,14 @@ const EXTRA_LANGUAGES = {
     {
       name: 'Mehri', nativeName: 'مهرية (Məhriyə)', type: 'Indigenous Minority',
       percentage: '1.0%', speakers: '180K', family: 'Afroasiatic (Modern South Arabian)',
-      script: 'Arabic Alphabet (Oral & Written)', bcp47: 'ar-YE',
+      script: 'Arabic Alphabet (Oral & Written)', bcp47: 'gdq-YE',
       regions: 'Al-Mahrah Governorate (Eastern Yemen)',
       notes: 'Non-Arabic Semitic language descending from ancient South Arabian tongues.'
     },
     {
       name: 'Soqotri', nativeName: 'سقطرية (Méthel d-Saqátri)', type: 'Indigenous Minority',
       percentage: '0.3%', speakers: '70K', family: 'Afroasiatic (Modern South Arabian)',
-      script: 'Arabic Alphabet', bcp47: 'ar-YE',
+      script: 'Arabic Alphabet', bcp47: 'sqt-YE',
       regions: 'Socotra Archipelago',
       notes: 'Endemic Modern South Arabian language spoken exclusively on the Socotra islands.'
     }
@@ -52,7 +52,7 @@ const EXTRA_LANGUAGES = {
     {
       name: 'Karakalpak', nativeName: 'Qaraqalpaq tili', type: 'Autonomous Republic Official',
       percentage: '2.5%', speakers: '850K', family: 'Turkic (Kipchak)',
-      script: 'Latin (Turkic)', bcp47: 'uz-UZ',
+      script: 'Latin (Turkic)', bcp47: 'kaa-UZ',
       regions: 'Republic of Karakalpakstan',
       notes: 'Closely related to Kazakh; co-official inside autonomous Karakalpakstan.'
     },
@@ -84,14 +84,14 @@ const EXTRA_LANGUAGES = {
     {
       name: 'Chamorro', nativeName: 'Finuʼ CHamoru', type: 'Co-Official Indigenous',
       percentage: '24.0%', speakers: '12K', family: 'Austronesian (Malayo-Polynesian)',
-      script: 'Latin (with å, ñ)', bcp47: 'en-US',
+      script: 'Latin (with å, ñ)', bcp47: 'ch-MP',
       regions: 'Saipan, Tinian, Rota',
       notes: 'Native Micronesian/Austronesian language with rich Spanish lexical borrowings.'
     },
     {
       name: 'Carolinian', nativeName: 'Refaluwasch', type: 'Co-Official Indigenous',
       percentage: '6.0%', speakers: '3.1K', family: 'Austronesian (Micronesian)',
-      script: 'Latin', bcp47: 'en-US',
+      script: 'Latin', bcp47: 'cal-MP',
       regions: 'Saipan',
       notes: 'Brought by 19th-century settlers from the Caroline Islands; co-official in CNMI.'
     }
@@ -133,10 +133,10 @@ const EXTRA_LANGUAGES = {
   IOT: [
     {
       name: 'Chagossian Creole', nativeName: 'Kreol Sagos', type: 'Historic Heritage Language',
-      percentage: 'Heritage Diaspora', speakers: '10K (Diaspora)', family: 'French-based Creole',
+      percentage: '1.0%', speakers: '10K (Diaspora)', family: 'French-based Creole',
       script: 'Latin', bcp47: 'fr-MU',
       regions: 'Historic Diego Garcia & Peros Banhos Heritage',
-      notes: 'French-based creole spoken by the Chagossian Ilois community in UK and Mauritian diaspora.'
+      notes: 'Heritage Diaspora: French-based creole spoken by the Chagossian Ilois community in UK and Mauritian diaspora.'
     }
   ],
   SHN: [
@@ -215,7 +215,7 @@ const EXTRA_LANGUAGES = {
     {
       name: 'Jèrriais (Jersey Norman)', nativeName: 'Jèrriais', type: 'Recognized Heritage Language',
       percentage: '2.0%', speakers: '2.2K', family: 'Indo-European (Romance / Oïl)',
-      script: 'Latin', bcp47: 'fr-FR',
+      script: 'Latin', bcp47: 'nrf-JE',
       regions: 'Rural Parishes of Jersey',
       notes: 'Endangered Norman-French language descended from medieval Duchy of Normandy speech.'
     }
@@ -224,7 +224,7 @@ const EXTRA_LANGUAGES = {
     {
       name: 'Guernésiais (Dgèrnésiais)', nativeName: 'Dgèrnésiais', type: 'Recognized Heritage Language',
       percentage: '1.5%', speakers: '1.0K', family: 'Indo-European (Romance / Oïl)',
-      script: 'Latin', bcp47: 'fr-FR',
+      script: 'Latin', bcp47: 'nrf-GG',
       regions: 'Western Parishes of Guernsey',
       notes: 'Endangered Channel Island Norman language actively taught in cultural revival programs.'
     }
@@ -233,7 +233,7 @@ const EXTRA_LANGUAGES = {
     {
       name: 'Manx Gaelic', nativeName: 'Gaelg / Gailck', type: 'Co-Official Revival Language',
       percentage: '3.2%', speakers: '2.2K', family: 'Indo-European (Celtic)',
-      script: 'Latin', bcp47: 'en-GB',
+      script: 'Latin', bcp47: 'gv-IM',
       regions: 'Isle of Man (Bunscoill Ghaelgagh)',
       notes: 'Celebrated UNESCO language-revival success story; taught in immersion primary schools.'
     }
@@ -288,7 +288,7 @@ const EXTRA_LANGUAGES = {
     {
       name: 'Tunisian Tamazight (Shelha)', nativeName: 'ⵜⴰⵎⴰⵣⵉⵖⵜ (Tachelhit)', type: 'Indigenous Minority',
       percentage: '1.0%', speakers: '120K', family: 'Afroasiatic (Berber)',
-      script: 'Tifinagh & Arabic', bcp47: 'ar-TN',
+      script: 'Tifinagh & Arabic', bcp47: 'zgh-TN',
       regions: 'Matmata, Tataouine, Djerba',
       notes: 'Preserved in southern hilltop villages and parts of Djerba Island.'
     }
@@ -297,7 +297,7 @@ const EXTRA_LANGUAGES = {
     {
       name: 'Kurdish (Kurmanji)', nativeName: 'Kurdî (Kurmancî)', type: 'Major Regional Language',
       percentage: '10.0%', speakers: '2.1M', family: 'Indo-European (Indo-Iranian)',
-      script: 'Latin (Hawar)', bcp47: 'tr-TR',
+      script: 'Latin (Hawar)', bcp47: 'kmr-SY',
       regions: 'Afrin, Kobanî, Qamishli, Hasakah',
       notes: 'Primary language across northern Syria alongside Arabic and Syriac.'
     },
@@ -452,7 +452,7 @@ const EXTRA_LANGUAGES = {
     {
       name: 'Cook Islands Māori', nativeName: 'Te Reo Māori Kūki ʻĀirani', type: 'Co-Official Indigenous',
       percentage: '75.0%', speakers: '11K', family: 'Austronesian (Polynesian)',
-      script: 'Latin (with ʻokina & macrons)', bcp47: 'en-NZ',
+      script: 'Latin (with ʻokina & macrons)', bcp47: 'rar-CK',
       regions: 'Rarotonga, Aitutaki, Outer Islands',
       notes: 'Closely related to New Zealand Māori and Tahitian; made co-official under the 2003 Act.'
     }
@@ -609,7 +609,7 @@ const EXTRA_LANGUAGES = {
     {
       name: 'Tamazight (Nafusi, Tuareg & Awjila)', nativeName: 'ⵜⴰⵎⴰⵣⵉⵖⵜ (Tamaheq / Tanfusit)', type: 'Indigenous Amazigh Languages',
       percentage: '8.5%', speakers: '600K', family: 'Afroasiatic (Berber)',
-      script: 'Tifinagh & Arabic', bcp47: 'ar-LY',
+      script: 'Tifinagh & Arabic', bcp47: 'ber-LY',
       regions: 'Nafusa Mountains, Zuwarah, Ghat & Oasis Towns',
       notes: 'Several Berber languages preserved across western coastal towns, Nafusa hills, and southern Sahara.'
     },
@@ -761,10 +761,10 @@ const EXTRA_LANGUAGES = {
   SPM: [
     {
       name: 'Basque & Breton Heritage', nativeName: 'Euskara / Brezhoneg', type: 'Historic Maritime Heritage',
-      percentage: 'Cultural Heritage', speakers: 'Cultural Events', family: 'Language Isolate & Celtic',
-      script: 'Latin', bcp47: 'fr-FR',
+      percentage: '1.0%', speakers: 'Cultural Events', family: 'Language Isolate & Celtic',
+      script: 'Latin', bcp47: 'eu-PM',
       regions: 'Saint-Pierre Harbor',
-      notes: 'Basque pelota festivals and Breton sailor surnames testify to centuries of North Atlantic cod-fishing heritage.'
+      notes: 'Cultural Heritage: Basque pelota festivals and Breton sailor surnames testify to centuries of North Atlantic cod-fishing heritage.'
     }
   ],
   WLF: [
@@ -866,7 +866,7 @@ const EXTRA_LANGUAGES = {
     {
       name: 'Greenlandic & Faroese', nativeName: 'Kalaallisut / Føroyskt', type: 'Realm Languages',
       percentage: '0.5%', speakers: '30K', family: 'Eskimo-Aleut & Germanic',
-      script: 'Latin', bcp47: 'da-DK',
+      script: 'Latin', bcp47: 'kl-GL',
       regions: 'Realm Diaspora in Copenhagen & Aarhus',
       notes: 'Languages of the autonomous Realm nations; German also holds recognized minority status in South Jutland.'
     },
@@ -1068,17 +1068,17 @@ const EXTRA_LANGUAGES = {
   HMD: [
     {
       name: 'Scientific Terms (Sub-Antarctic Survey)', nativeName: 'English / Latin Taxonomy', type: 'Research Designation Only',
-      percentage: '100% Uninhabited', speakers: 'Expedition Teams Only', family: 'Indo-European (Germanic)',
+      percentage: '100.0%', speakers: 'Expedition Teams Only', family: 'Indo-European (Germanic)',
       script: 'Latin', bcp47: 'en-AU',
       regions: 'Big Ben Volcano & Atlas Cove',
-      notes: 'Permanently uninhabited Australian territory visited solely by scientific and conservation vessels.'
+      notes: '100% Uninhabited: Permanently uninhabited Australian territory visited solely by scientific and conservation vessels.'
     }
   ],
   NFK: [
     {
       name: 'Norf’k (Norfolk Pitcairnese)', nativeName: 'Norf’k', type: 'Co-Official Heritage Language',
       percentage: '45.0%', speakers: '950', family: 'English–Tahitian Contact Creole',
-      script: 'Latin', bcp47: 'en-AU',
+      script: 'Latin', bcp47: 'pih-NF',
       regions: 'Kingston & Burnt Pine',
       notes: 'Descended from the 18th-century HMS Bounty mutineers and Tahitian settlers relocated from Pitcairn.'
     },
@@ -1093,10 +1093,10 @@ const EXTRA_LANGUAGES = {
   ATC: [
     {
       name: 'Indonesian (Maritime Trade Heritage)', nativeName: 'Bahasa Indonesia', type: 'Historic Maritime Fishing Heritage',
-      percentage: 'Treaty Heritage', speakers: 'Seasonal Fisherfolk', family: 'Austronesian',
+      percentage: '1.0%', speakers: 'Seasonal Fisherfolk', family: 'Austronesian',
       script: 'Latin', bcp47: 'id-ID',
       regions: 'Timor Sea Reefs',
-      notes: 'Uninhabited reefs where traditional Rote and Makassar fishermen retain ancestral access under MOU.'
+      notes: 'Treaty Heritage: Uninhabited reefs where traditional Rote and Makassar fishermen retain ancestral access under MOU.'
     }
   ],
   ARM: [

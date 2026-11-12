@@ -100,7 +100,7 @@ module.exports = {
     summary: "Brazil is the only Portuguese-speaking nation in the Americas. Brazilian Portuguese is renowned for its open, musical vowels, palatalization, and incorporation of Tupi-Guarani and African loanwords.",
     languages: [
       { name: "Portuguese (Brazilian)", nativeName: "Português brasileiro", type: "Official Sole Language", percentage: "98.5%", speakers: "214M", family: "Indo-European (Romance)", script: "Latin", bcp47: "pt-BR", regions: "Nationwide", notes: "Grammatically and phonetically distinct from European Portuguese; official language since colonial times." },
-      { name: "Indigenous Languages (Guarani, Yanomami, Tikuna)", nativeName: "Tupi-Guarani / Nheengatu", type: "Recognized Co-official Municipally", percentage: "0.4%", speakers: "300K", family: "Tupian / Macro-Jê / Arawakan", script: "Latin", bcp47: "pt-BR", regions: "Amazon Basin, São Gabriel da Cachoeira", notes: "São Gabriel da Cachoeira in Amazonas co-recognizes Nheengatu, Tukano, and Baniwa as official." },
+      { name: "Indigenous Languages (Guarani, Yanomami, Tikuna)", nativeName: "Tupi-Guarani / Nheengatu", type: "Recognized Co-official Municipally", percentage: "0.4%", speakers: "300K", family: "Tupian / Macro-Jê / Arawakan", script: "Latin", bcp47: "gn-BR", regions: "Amazon Basin, São Gabriel da Cachoeira", notes: "São Gabriel da Cachoeira in Amazonas co-recognizes Nheengatu, Tukano, and Baniwa as official." },
       { name: "Hunsrik & Venetian (Talian)", nativeName: "Riograndenser Hunsrückisch / Talian", type: "Co-official Regional Immigrant Languages", percentage: "0.8%", speakers: "1.5M", family: "Indo-European (Germanic / Romance)", script: "Latin", bcp47: "pt-BR", regions: "Rio Grande do Sul, Santa Catarina", notes: "German and Venetian dialect communities recognized as intangible cultural heritage." }
     ],
     accents: [
@@ -128,8 +128,8 @@ module.exports = {
     summary: "Argentine Spanish is world-famous for 'yeísmo rehilado' (pronouncing 'll' and 'y' as 'sh' or 'zh') and 'voseo' (using 'vos' instead of 'tú'). Heavily shaped by 19th/20th-century Italian immigration.",
     languages: [
       { name: "Spanish (Rioplatense)", nativeName: "Español rioplatense", type: "National De Facto", percentage: "96.5%", speakers: "44M", family: "Indo-European (Romance)", script: "Latin", bcp47: "es-AR", regions: "Buenos Aires, Pampas, Patagonia", notes: "Uses Lunfardo slang, Italian intonation curves, and universal voseo ('vos tenés', 'vos sos')." },
-      { name: "Guarani", nativeName: "Avañe'ẽ", type: "Co-official Provincial (Corrientes)", percentage: "0.8%", speakers: "350K", family: "Tupi-Guarani", script: "Latin", bcp47: "es-AR", regions: "Corrientes, Misiones, Chaco", notes: "Co-official language in the province of Corrientes alongside Spanish since 2004." },
-      { name: "Quechua", nativeName: "Runa Simi", type: "Indigenous Recognized", percentage: "0.4%", speakers: "180K", family: "Quechuan", script: "Latin", bcp47: "es-AR", regions: "Santiago del Estero, Jujuy, Salta", notes: "Santiagueño Quechua has been spoken in northern Argentina for hundreds of years." },
+      { name: "Guarani", nativeName: "Avañe'ẽ", type: "Co-official Provincial (Corrientes)", percentage: "0.8%", speakers: "350K", family: "Tupi-Guarani", script: "Latin", bcp47: "gn-AR", regions: "Corrientes, Misiones, Chaco", notes: "Co-official language in the province of Corrientes alongside Spanish since 2004." },
+      { name: "Quechua", nativeName: "Runa Simi", type: "Indigenous Recognized", percentage: "0.4%", speakers: "180K", family: "Quechuan", script: "Latin", bcp47: "qu-AR", regions: "Santiago del Estero, Jujuy, Salta", notes: "Santiagueño Quechua has been spoken in northern Argentina for hundreds of years." },
       { name: "Welsh (Cymraeg)", nativeName: "Cymraeg y Wladfa", type: "Recognized Minority Language", percentage: "0.02%", speakers: "5K", family: "Indo-European (Celtic)", script: "Latin", bcp47: "cy-GB", regions: "Chubut Valley (Patagonia)", notes: "Spoken by descendants of Welsh settlers who established Y Wladfa in Patagonia in 1865." }
     ],
     accents: [
@@ -183,8 +183,8 @@ module.exports = {
     summary: "Peru is constitutionally plurilingual: Spanish is official alongside Quechua, Aymara, and indigenous Amazonian languages where they predominate. Quechua was the imperial language of the Inca civilization.",
     languages: [
       { name: "Spanish (Peruvian)", nativeName: "Español peruano", type: "Official Constitutional", percentage: "82.6%", speakers: "28M", family: "Indo-European (Romance)", script: "Latin", bcp47: "es-PE", regions: "Coast and Urban Centers nationwide", notes: "Coastal Limeño Spanish is noted for clear diction and lack of strong regional melody." },
-      { name: "Quechua (Runa Simi)", nativeName: "Runa Simi", type: "Official Constitutional Language", percentage: "13.9%", speakers: "3.8M", family: "Quechuan", script: "Latin", bcp47: "es-PE", regions: "Andean Highlands (Cusco, Ayacucho, Puno, Apurímac)", notes: "The state language of the Inca Empire (Tawantinsuyu); the most spoken indigenous language family in the Americas." },
-      { name: "Aymara", nativeName: "Aymar aru", type: "Official Constitutional Language", percentage: "1.7%", speakers: "500K", family: "Aymaran", script: "Latin", bcp47: "es-PE", regions: "Lake Titicaca Region (Puno, Moquegua, Tacna)", notes: "Unique for its trivalent logic system and conceiving the past as 'in front of us' (since we can see it)." },
+      { name: "Quechua (Runa Simi)", nativeName: "Runa Simi", type: "Official Constitutional Language", percentage: "13.9%", speakers: "3.8M", family: "Quechuan", script: "Latin", bcp47: "qu-PE", regions: "Andean Highlands (Cusco, Ayacucho, Puno, Apurímac)", notes: "The state language of the Inca Empire (Tawantinsuyu); the most spoken indigenous language family in the Americas." },
+      { name: "Aymara", nativeName: "Aymar aru", type: "Official Constitutional Language", percentage: "1.7%", speakers: "500K", family: "Aymaran", script: "Latin", bcp47: "ay-PE", regions: "Lake Titicaca Region (Puno, Moquegua, Tacna)", notes: "Unique for its trivalent logic system and conceiving the past as 'in front of us' (since we can see it)." },
       { name: "Amazonian Languages (Asháninka, Awajún, Shipibo)", nativeName: "Asháninka / Awajún", type: "Official Indigenous Regional", percentage: "0.8%", speakers: "220K", family: "Arawakan / Jivaroan / Panoan", script: "Latin", bcp47: "es-PE", regions: "Peruvian Amazon Rainforest", notes: "Over 40 indigenous languages flourish along the tributaries of the Amazon river." }
     ],
     accents: [
@@ -194,9 +194,9 @@ module.exports = {
     ],
     phrases: [
       { type: "Greeting (Spanish)", text: "¡Hola! / ¿Qué tal?", phonetic: "OH-lah / kay TAHL", bcp47: "es-PE" },
-      { type: "Greeting (Quechua)", text: "Allillanchu! (Are you well?)", phonetic: "ah-yee-yahn-CHOO", bcp47: "es-PE" },
-      { type: "Thank You (Quechua)", text: "Sulpayki! / Añay! (Thank you)", phonetic: "sool-PYE-kee / ah-NYE", bcp47: "es-PE" },
-      { type: "Goodbye (Quechua)", text: "Tupananchiskama! (Until we meet again)", phonetic: "too-pah-nahn-chees-KAH-mah", bcp47: "es-PE" }
+      { type: "Greeting (Quechua)", text: "Allillanchu! (Are you well?)", phonetic: "ah-yee-yahn-CHOO", bcp47: "qu-PE" },
+      { type: "Thank You (Quechua)", text: "Sulpayki! / Añay! (Thank you)", phonetic: "sool-PYE-kee / ah-NYE", bcp47: "qu-PE" },
+      { type: "Goodbye (Quechua)", text: "Tupananchiskama! (Until we meet again)", phonetic: "too-pah-nahn-chees-KAH-mah", bcp47: "qu-PE" }
     ],
     funFact: "In the Aymara language of Peru and Bolivia, the future is described as being BEHIND you (because it is unknown and unseen), while the past is in FRONT of you (because you can already see and remember it)!"
   },
@@ -235,19 +235,19 @@ module.exports = {
     summary: "Bolivia's 2009 Constitution officially recognizes 37 languages: Spanish alongside 36 distinct indigenous languages, making it one of the most constitutionally plurilingual states in world history.",
     languages: [
       { name: "Spanish (Bolivian)", nativeName: "Español boliviano", type: "Official Constitutional", percentage: "70.0%", speakers: "8.5M", family: "Indo-European (Romance)", script: "Latin", bcp47: "es-BO", regions: "Nationwide", notes: "Rich in Andean and Guaraní regionalisms; distinct highland and lowland varieties." },
-      { name: "Quechua", nativeName: "Qhichwa simi", type: "Official Constitutional", percentage: "18.0%", speakers: "2.1M", family: "Quechuan", script: "Latin", bcp47: "es-BO", regions: "Cochabamba, Chuquisaca, Potosí", notes: "Widely spoken in valleys and mining communities; preserves ancient Incan poetry." },
-      { name: "Aymara", nativeName: "Aymar aru", type: "Official Constitutional", percentage: "12.0%", speakers: "1.5M", family: "Aymaran", script: "Latin", bcp47: "es-BO", regions: "Altiplano, La Paz, Oruro", notes: "Dominant indigenous language of the high Andean plateau surrounding Lake Titicaca." },
-      { name: "Guarani", nativeName: "Avañe'ẽ", type: "Official Constitutional", percentage: "0.8%", speakers: "80K", family: "Tupi-Guarani", script: "Latin", bcp47: "es-BO", regions: "Chaco Region (Santa Cruz, Tarija)", notes: "Spoken by the Guaraní people of the southeastern lowlands." }
+      { name: "Quechua", nativeName: "Qhichwa simi", type: "Official Constitutional", percentage: "18.0%", speakers: "2.1M", family: "Quechuan", script: "Latin", bcp47: "qu-BO", regions: "Cochabamba, Chuquisaca, Potosí", notes: "Widely spoken in valleys and mining communities; preserves ancient Incan poetry." },
+      { name: "Aymara", nativeName: "Aymar aru", type: "Official Constitutional", percentage: "12.0%", speakers: "1.5M", family: "Aymaran", script: "Latin", bcp47: "ay-BO", regions: "Altiplano, La Paz, Oruro", notes: "Dominant indigenous language of the high Andean plateau surrounding Lake Titicaca." },
+      { name: "Guarani", nativeName: "Avañe'ẽ", type: "Official Constitutional", percentage: "0.8%", speakers: "80K", family: "Tupi-Guarani", script: "Latin", bcp47: "gn-BO", regions: "Chaco Region (Santa Cruz, Tarija)", notes: "Spoken by the Guaraní people of the southeastern lowlands." }
     ],
     accents: [
       { name: "Paceño (Altiplano)", region: "La Paz & High Andes", description: "Polite, soft intonation, influenced by Aymara phonology, frequent use of diminutive '-ito' and 'pues'.", sample: "Buenas tardes caserita, ¿a cuánto me va a dar las papitas pues?" },
       { name: "Camba (Santa Cruz & Lowlands)", region: "Santa Cruz de la Sierra, Beni", description: "Tropical cadence, aspiration of 's', voseo, friendly and festive spirit.", sample: "¿Qué fue pariente? ¡Vamos a comer un buen churrasco, che!" }
     ],
     phrases: [
-      { type: "Greeting (Aymara)", text: "Kamisaraki! (How are you?)", phonetic: "kah-mee-sah-RAH-kee", bcp47: "es-BO" },
-      { type: "Response (Aymara)", text: "Walikipuniwa! (I am very well!)", phonetic: "wah-lee-kee-poo-NEE-wah", bcp47: "es-BO" },
-      { type: "Thank You (Quechua)", text: "Yuspagarasunki! (God reward you / Thank you)", phonetic: "yoos-pah-gah-rah-SOON-kee", bcp47: "es-BO" },
-      { type: "Goodbye (Aymara)", text: "Jikisiñkama! (Until we meet again)", phonetic: "hee-kee-seen-KAH-mah", bcp47: "es-BO" }
+      { type: "Greeting (Aymara)", text: "Kamisaraki! (How are you?)", phonetic: "kah-mee-sah-RAH-kee", bcp47: "ay-BO" },
+      { type: "Response (Aymara)", text: "Walikipuniwa! (I am very well!)", phonetic: "wah-lee-kee-poo-NEE-wah", bcp47: "ay-BO" },
+      { type: "Thank You (Quechua)", text: "Yuspagarasunki! (God reward you / Thank you)", phonetic: "yoos-pah-gah-rah-SOON-kee", bcp47: "qu-BO" },
+      { type: "Goodbye (Aymara)", text: "Jikisiñkama! (Until we meet again)", phonetic: "hee-kee-seen-KAH-mah", bcp47: "ay-BO" }
     ],
     funFact: "Bolivia holds the Guinness World Record for the largest number of official languages of any country in the world, with a staggering 37 official languages recognized in its constitution!"
   }

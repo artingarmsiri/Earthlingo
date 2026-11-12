@@ -153,7 +153,7 @@ const additionalCountries = {
     summary: "Swedish is a North Germanic language renowned for its musical pitch accent (tonal word distinctions). Sweden constitutionally recognizes five national minority languages: Finnish, Meänkieli, Sami, Romani, and Yiddish.",
     languages: [
       { name: "Swedish", nativeName: "Svenska", type: "Principal Language (Main Official)", percentage: "90.0%", speakers: "9.5M", family: "Indo-European (Germanic / North Germanic)", script: "Latin (with å, ä, ö)", bcp47: "sv-SE", regions: "Nationwide", notes: "Tonal pitch accent: 'anden' with accent 1 means 'the duck', while with accent 2 it means 'the spirit'." },
-      { name: "Sami Languages (Northern, Lule, Southern)", nativeName: "Davvisámegiella", type: "Recognized Indigenous Minority", percentage: "0.3%", speakers: "25K", family: "Uralic (Finno-Ugric)", script: "Latin", bcp47: "sv-SE", regions: "Sápmi (Northern Sweden / Norrland)", notes: "Indigenous reindeer-herding culture with protected language rights in northern municipalities." },
+      { name: "Sami Languages (Northern, Lule, Southern)", nativeName: "Davvisámegiella", type: "Recognized Indigenous Minority", percentage: "0.3%", speakers: "25K", family: "Uralic (Finno-Ugric)", script: "Latin", bcp47: "se-SE", regions: "Sápmi (Northern Sweden / Norrland)", notes: "Indigenous reindeer-herding culture with protected language rights in northern municipalities." },
       { name: "Finnish & Meänkieli", nativeName: "Suomi / Meänkieli", type: "Recognized National Minorities", percentage: "4.5%", speakers: "450K", family: "Uralic (Finno-Ugric)", script: "Latin", bcp47: "fi-FI", regions: "Torne Valley (Tornedalen) & Stockholm", notes: "Historically established minority languages protected under Swedish law." }
     ],
     accents: [
@@ -180,7 +180,7 @@ const additionalCountries = {
     languages: [
       { name: "Norwegian (Bokmål)", nativeName: "Norsk (Bokmål)", type: "Official Written Standard", percentage: "85.0%", speakers: "4.7M", family: "Indo-European (Germanic / North Germanic)", script: "Latin (with æ, ø, å)", bcp47: "no-NO", regions: "Nationwide (Urban centers, Eastern Norway)", notes: "Evolved from Dano-Norwegian; dominant standard in media, publishing, and business." },
       { name: "Norwegian (Nynorsk)", nativeName: "Norsk (Nynorsk)", type: "Official Written Standard", percentage: "15.0%", speakers: "800K", family: "Indo-European (Germanic / North Germanic)", script: "Latin (with æ, ø, å)", bcp47: "nn-NO", regions: "Western Norway (Vestlandet), Fjord regions", notes: "Created by linguist Ivar Aasen in the 19th century from rural Norwegian dialects." },
-      { name: "Sami (North, Lule, South)", nativeName: "Sámegiella", type: "Co-official Indigenous Language", percentage: "0.5%", speakers: "30K", family: "Uralic (Finno-Ugric)", script: "Latin", bcp47: "no-NO", regions: "Northern Norway (Finnmark, Troms, Trøndelag)", notes: "Co-official with Norwegian under the Sami Act; operates its own Sami Parliament (Sametinget)." }
+      { name: "Sami (North, Lule, South)", nativeName: "Sámegiella", type: "Co-official Indigenous Language", percentage: "0.5%", speakers: "30K", family: "Uralic (Finno-Ugric)", script: "Latin", bcp47: "se-NO", regions: "Northern Norway (Finnmark, Troms, Trøndelag)", notes: "Co-official with Norwegian under the Sami Act; operates its own Sami Parliament (Sametinget)." }
     ],
     accents: [
       { name: "Østnorsk (Eastern / Oslo)", region: "Oslo & Eastern Valleys", description: "Retroflex consonants, tonal pitch accent 1 and 2, musical rising intonation at phrase ends.", sample: "Hei! Koselig å se deg, skal vi ta en kaffe?" },
@@ -314,7 +314,7 @@ function getLanguageDefaults(name, iso3, iso2) {
     KHM: { lang: "Khmer", fam: "Austroasiatic", flag: "🇰🇭", cap: "Phnom Penh", pop: "17M", cont: "Asia", bcp: "km-KH" },
     CYP: { lang: "Greek & Turkish", fam: "Indo-European (Hellenic)", flag: "🇨🇾", cap: "Nicosia", pop: "1.2M", cont: "Europe", bcp: "el-CY" },
     GEO: { lang: "Georgian", fam: "Kartvelian", flag: "🇬🇪", cap: "Tbilisi", pop: "3.7M", cont: "Asia", bcp: "ka-GE" },
-    IRQ: { lang: "Arabic & Kurdish", fam: "Afroasiatic (Semitic)", flag: "🇮🇶", cap: "Baghdad", pop: "43M", cont: "Asia", bcp: "ar-IQ" },
+    IRQ: { lang: "Arabic & Kurdish", fam: "Afroasiatic (Semitic)", flag: "🇮🇶", cap: "Baghdad", pop: "43M", cont: "Asia", bcp: "ar-IQ", bcp2: "ckb-IQ" },
     ISR: { lang: "Hebrew & Arabic", fam: "Afroasiatic (Semitic)", flag: "🇮🇱", cap: "Jerusalem", pop: "9.5M", cont: "Asia", bcp: "he-IL" },
     JOR: { lang: "Arabic", fam: "Afroasiatic (Semitic)", flag: "🇯🇴", cap: "Amman", pop: "11M", cont: "Asia", bcp: "ar-JO" },
     KAZ: { lang: "Kazakh & Russian", fam: "Turkic", flag: "🇰🇿", cap: "Astana", pop: "20M", cont: "Asia", bcp: "kk-KZ" },
@@ -334,7 +334,7 @@ function getLanguageDefaults(name, iso3, iso2) {
     SGP: { lang: "English, Malay, Mandarin & Tamil", fam: "Austronesian", flag: "🇸🇬", cap: "Singapore", pop: "5.9M", cont: "Asia", bcp: "en-SG" },
     LKA: { lang: "Sinhala & Tamil", fam: "Indo-European (Indo-Iranian)", flag: "🇱🇰", cap: "Colombo", pop: "22M", cont: "Asia", bcp: "si-LK" },
     SYR: { lang: "Arabic", fam: "Afroasiatic (Semitic)", flag: "🇸🇾", cap: "Damascus", pop: "22M", cont: "Asia", bcp: "ar-SY" },
-    TWN: { lang: "Mandarin, Taiwanese & Hakka", fam: "Sino-Tibetan", flag: "🇹🇼", cap: "Taipei", pop: "23.5M", cont: "Asia", bcp: "zh-TW" },
+    TWN: { iso2: "TW", lang: "Mandarin, Taiwanese & Hakka", fam: "Sino-Tibetan", flag: "🇹🇼", cap: "Taipei", pop: "23.5M", cont: "Asia", bcp: "zh-TW" },
     TJK: { lang: "Tajik & Russian", fam: "Indo-European (Indo-Iranian)", flag: "🇹🇯", cap: "Dushanbe", pop: "10M", cont: "Asia", bcp: "tg-TJ" },
     THA: { lang: "Thai", fam: "Kra-Dai (Tai-Kadai)", flag: "🇹🇭", cap: "Bangkok", pop: "71M", cont: "Asia", bcp: "th-TH" },
     TLS: { lang: "Tetum & Portuguese", fam: "Austronesian", flag: "🇹🇱", cap: "Dili", pop: "1.3M", cont: "Asia", bcp: "pt-TL" },
@@ -356,7 +356,8 @@ function getLanguageDefaults(name, iso3, iso2) {
     FIN: { lang: "Finnish & Swedish", fam: "Uralic (Finno-Ugric)", flag: "🇫🇮", cap: "Helsinki", pop: "5.5M", cont: "Europe", bcp: "fi-FI" },
     HUN: { lang: "Hungarian (Magyar)", fam: "Uralic (Finno-Ugric)", flag: "🇭🇺", cap: "Budapest", pop: "9.7M", cont: "Europe", bcp: "hu-HU" },
     ISL: { lang: "Icelandic", fam: "Indo-European (Germanic)", flag: "🇮🇸", cap: "Reykjavik", pop: "380K", cont: "Europe", bcp: "is-IS" },
-    XKX: { lang: "Albanian & Serbian", fam: "Indo-European (Other)", flag: "🇽🇰", cap: "Pristina", pop: "1.8M", cont: "Europe", bcp: "sq-XK" },
+    XKX: { iso2: "XK", lang: "Albanian & Serbian", fam: "Indo-European (Other)", flag: "🇽🇰", cap: "Pristina", pop: "1.8M", cont: "Europe", bcp: "sq-XK" },
+    KOS: { iso2: "XK", lang: "Albanian & Serbian", fam: "Indo-European (Other)", flag: "🇽🇰", cap: "Pristina", pop: "1.8M", cont: "Europe", bcp: "sq-XK" },
     LVA: { lang: "Latvian", fam: "Indo-European (Baltic)", flag: "🇱🇻", cap: "Riga", pop: "1.9M", cont: "Europe", bcp: "lv-LV" },
     LIE: { lang: "German", fam: "Indo-European (Germanic)", flag: "🇱🇮", cap: "Vaduz", pop: "39K", cont: "Europe", bcp: "de-LI" },
     LTU: { lang: "Lithuanian", fam: "Indo-European (Baltic)", flag: "🇱🇹", cap: "Vilnius", pop: "2.8M", cont: "Europe", bcp: "lt-LT" },
@@ -365,7 +366,7 @@ function getLanguageDefaults(name, iso3, iso2) {
     MDA: { lang: "Romanian", fam: "Indo-European (Romance)", flag: "🇲🇩", cap: "Chișinău", pop: "2.6M", cont: "Europe", bcp: "ro-MD" },
     MCO: { lang: "French & Monégasque", fam: "Indo-European (Romance)", flag: "🇲🇨", cap: "Monaco", pop: "39K", cont: "Europe", bcp: "fr-MC" },
     MNE: { lang: "Montenegrin", fam: "Indo-European (Slavic)", flag: "🇲🇪", cap: "Podgorica", pop: "620K", cont: "Europe", bcp: "sr-ME" },
-    MKD: { lang: "Macedonian & Albanian", fam: "Indo-European (Slavic)", flag: "🇲🇰", cap: "Skopje", pop: "2.1M", cont: "Europe", bcp: "mk-MK" },
+    MKD: { lang: "Macedonian & Albanian", fam: "Indo-European (Slavic)", flag: "🇲🇰", cap: "Skopje", pop: "2.1M", cont: "Europe", bcp: "mk-MK", bcp2: "sq-MK" },
     ROU: { lang: "Romanian", fam: "Indo-European (Romance)", flag: "🇷🇴", cap: "Bucharest", pop: "19M", cont: "Europe", bcp: "ro-RO" },
     SMR: { lang: "Italian", fam: "Indo-European (Romance)", flag: "🇸🇲", cap: "San Marino", pop: "34K", cont: "Europe", bcp: "it-SM" },
     SRB: { lang: "Serbian", fam: "Indo-European (Slavic)", flag: "🇷🇸", cap: "Belgrade", pop: "6.8M", cont: "Europe", bcp: "sr-RS" },
@@ -374,7 +375,7 @@ function getLanguageDefaults(name, iso3, iso2) {
     VAT: { lang: "Latin & Italian", fam: "Indo-European (Romance)", flag: "🇻🇦", cap: "Vatican City", pop: "800", cont: "Europe", bcp: "la-VA" },
 
     // AFRICA
-    DZA: { lang: "Arabic & Berber (Tamazight)", fam: "Afroasiatic (Semitic)", flag: "🇩🇿", cap: "Algiers", pop: "45M", cont: "Africa", bcp: "ar-DZ" },
+    DZA: { lang: "Arabic & Berber (Tamazight)", fam: "Afroasiatic (Semitic)", flag: "🇩🇿", cap: "Algiers", pop: "45M", cont: "Africa", bcp: "ar-DZ", bcp2: "zgh-DZ" },
     AGO: { lang: "Portuguese", fam: "Indo-European (Romance)", flag: "🇦🇴", cap: "Luanda", pop: "35M", cont: "Africa", bcp: "pt-AO" },
     BEN: { lang: "French, Fon & Yoruba", fam: "Niger-Congo", flag: "🇧🇯", cap: "Porto-Novo", pop: "13M", cont: "Africa", bcp: "fr-BJ" },
     BWA: { lang: "Setswana & English", fam: "Niger-Congo (Bantu)", flag: "🇧🇼", cap: "Gaborone", pop: "2.6M", cont: "Africa", bcp: "tn-BW" },
@@ -443,7 +444,7 @@ function getLanguageDefaults(name, iso3, iso2) {
     JAM: { lang: "English & Jamaican Patois", fam: "Indo-European (Germanic)", flag: "🇯🇲", cap: "Kingston", pop: "2.8M", cont: "North America", bcp: "en-JM" },
     NIC: { lang: "Spanish & Miskito", fam: "Indo-European (Romance)", flag: "🇳🇮", cap: "Managua", pop: "7M", cont: "North America", bcp: "es-NI" },
     PAN: { lang: "Spanish & Ngäbere", fam: "Indo-European (Romance)", flag: "🇵🇦", cap: "Panama City", pop: "4.4M", cont: "North America", bcp: "es-PA" },
-    PRY: { lang: "Guarani & Spanish", fam: "Indigenous American", flag: "🇵🇾", cap: "Asunción", pop: "6.8M", cont: "South America", bcp: "es-PY" },
+    PRY: { lang: "Guarani & Spanish", fam: "Indigenous American", flag: "🇵🇾", cap: "Asunción", pop: "6.8M", cont: "South America", bcp: "gn-PY", bcp2: "es-PY" },
     KNA: { lang: "English & Kittitian Creole", fam: "Indo-European (Germanic)", flag: "🇰🇳", cap: "Basseterre", pop: "48K", cont: "North America", bcp: "en-KN" },
     LCA: { lang: "English & Saint Lucian Creole", fam: "Indo-European (Germanic)", flag: "🇱🇨", cap: "Castries", pop: "180K", cont: "North America", bcp: "en-LC" },
     VCT: { lang: "English & Vincentian Creole", fam: "Indo-European (Germanic)", flag: "🇻🇨", cap: "Kingstown", pop: "104K", cont: "North America", bcp: "en-VC" },
@@ -453,15 +454,15 @@ function getLanguageDefaults(name, iso3, iso2) {
     VEN: { lang: "Spanish (Venezuelan) & Wayuu", fam: "Indo-European (Romance)", flag: "🇻🇪", cap: "Caracas", pop: "29M", cont: "South America", bcp: "es-VE" },
 
     // OCEANIA
-    KIR: { lang: "Gilbertese (Taetae ni Kiribati) & English", fam: "Austronesian", flag: "🇰🇮", cap: "South Tarawa", pop: "130K", cont: "Oceania", bcp: "en-KI" },
-    MHL: { lang: "Marshallese & English", fam: "Austronesian", flag: "🇲🇭", cap: "Majuro", pop: "42K", cont: "Oceania", bcp: "en-MH" },
+    KIR: { lang: "Gilbertese (Taetae ni Kiribati) & English", fam: "Austronesian", flag: "🇰🇮", cap: "South Tarawa", pop: "130K", cont: "Oceania", bcp: "gil-KI", bcp2: "en-KI" },
+    MHL: { lang: "Marshallese & English", fam: "Austronesian", flag: "🇲🇭", cap: "Majuro", pop: "42K", cont: "Oceania", bcp: "mh-MH", bcp2: "en-MH" },
     FSM: { lang: "English, Chuukese, Pohnpeian & Yapese", fam: "Austronesian", flag: "🇫🇲", cap: "Palikir", pop: "115K", cont: "Oceania", bcp: "en-FM" },
-    NRU: { lang: "Nauruan & English", fam: "Austronesian", flag: "🇳🇷", cap: "Yaren", pop: "12K", cont: "Oceania", bcp: "en-NR" },
-    PLW: { lang: "Palauan & English", fam: "Austronesian", flag: "🇵🇼", cap: "Ngerulmud", pop: "18K", cont: "Oceania", bcp: "en-PW" },
-    WSM: { lang: "Samoan & English", fam: "Austronesian", flag: "🇼🇸", cap: "Apia", pop: "220K", cont: "Oceania", bcp: "sm-WS" },
+    NRU: { lang: "Nauruan & English", fam: "Austronesian", flag: "🇳🇷", cap: "Yaren", pop: "12K", cont: "Oceania", bcp: "na-NR", bcp2: "en-NR" },
+    PLW: { lang: "Palauan & English", fam: "Austronesian", flag: "🇵🇼", cap: "Ngerulmud", pop: "18K", cont: "Oceania", bcp: "pau-PW", bcp2: "en-PW" },
+    WSM: { lang: "Samoan & English", fam: "Austronesian", flag: "🇼🇸", cap: "Apia", pop: "220K", cont: "Oceania", bcp: "sm-WS", bcp2: "en-WS" },
     SLB: { lang: "Pijin & English", fam: "English-based Creole", flag: "🇸🇧", cap: "Honiara", pop: "720K", cont: "Oceania", bcp: "en-SB" },
-    TON: { lang: "Tongan & English", fam: "Austronesian", flag: "🇹🇴", cap: "Nuku'alofa", pop: "105K", cont: "Oceania", bcp: "to-TO" },
-    TUV: { lang: "Tuvaluan & English", fam: "Austronesian", flag: "🇹🇻", cap: "Funafuti", pop: "11K", cont: "Oceania", bcp: "en-TV" },
+    TON: { lang: "Tongan & English", fam: "Austronesian", flag: "🇹🇴", cap: "Nuku'alofa", pop: "105K", cont: "Oceania", bcp: "to-TO", bcp2: "en-TO" },
+    TUV: { lang: "Tuvaluan & English", fam: "Austronesian", flag: "🇹🇻", cap: "Funafuti", pop: "11K", cont: "Oceania", bcp: "tvl-TV", bcp2: "en-TV" },
     VUT: { lang: "Bislama, English & French", fam: "English-based Creole", flag: "🇻🇺", cap: "Port Vila", pop: "320K", cont: "Oceania", bcp: "bi-VU" },
 
     // TERRITORIES & OTHER
@@ -470,19 +471,61 @@ function getLanguageDefaults(name, iso3, iso2) {
     HKG: { lang: "Cantonese & English", fam: "Sino-Tibetan", flag: "🇭🇰", cap: "Hong Kong", pop: "7.5M", cont: "Asia", bcp: "zh-HK" },
     MAC: { lang: "Cantonese & Portuguese", fam: "Sino-Tibetan", flag: "🇲🇴", cap: "Macau", pop: "680K", cont: "Asia", bcp: "zh-MO" },
     NCL: { lang: "French & Kanak Languages", fam: "Indo-European (Romance)", flag: "🇳🇨", cap: "Nouméa", pop: "270K", cont: "Oceania", bcp: "fr-NC" },
-    PYF: { lang: "French & Tahitian", fam: "Indo-European (Romance)", flag: "🇵🇫", cap: "Papeete", pop: "280K", cont: "Oceania", bcp: "fr-PF" },
-    GUM: { lang: "English & Chamorro", fam: "Austronesian", flag: "🇬🇺", cap: "Hagåtña", pop: "170K", cont: "Oceania", bcp: "en-GU" },
-    BMU: { lang: "English & Bermudian English", fam: "Indo-European (Germanic)", flag: "🇧🇲", cap: "Hamilton", pop: "64K", cont: "North America", bcp: "en-BM" }
+    PYF: { lang: "French & Tahitian", fam: "Indo-European (Romance)", flag: "🇵🇫", cap: "Papeete", pop: "280K", cont: "Oceania", bcp: "fr-PF", bcp2: "ty-PF" },
+    GUM: { lang: "English & Chamorro", fam: "Austronesian", flag: "🇬🇺", cap: "Hagåtña", pop: "170K", cont: "Oceania", bcp: "en-GU", bcp2: "ch-GU" },
+    BMU: { lang: "English & Bermudian English", fam: "Indo-European (Germanic)", flag: "🇧🇲", cap: "Hamilton", pop: "64K", cont: "North America", bcp: "en-BM" },
+
+    // 39 TERRITORIES & DISPUTED REGIONS
+    ABW: { iso2: "AW", lang: "Papiamento & Dutch", fam: "Iberian Creole / Germanic", flag: "🇦🇼", cap: "Oranjestad", pop: "107K", cont: "North America", bcp: "pap-AW", bcp2: "nl-AW" },
+    AIA: { iso2: "AI", lang: "English & Anguillian Creole", fam: "Indo-European (Germanic)", flag: "🇦🇮", cap: "The Valley", pop: "15K", cont: "North America", bcp: "en-AI" },
+    ALA: { iso2: "AX", lang: "Swedish", fam: "Indo-European (Germanic)", flag: "🇦🇽", cap: "Mariehamn", pop: "30K", cont: "Europe", bcp: "sv-AX" },
+    ASM: { iso2: "AS", lang: "Samoan & English", fam: "Austronesian (Polynesian)", flag: "🇦🇸", cap: "Pago Pago", pop: "45K", cont: "Oceania", bcp: "sm-AS", bcp2: "en-US" },
+    ATA: { iso2: "AQ", lang: "English & International Research Tongues", fam: "Multilingual Outposts", flag: "🇦🇶", cap: "None (Antarctic Treaty)", pop: "1K–5K", cont: "Antarctica", bcp: "en-AQ" },
+    ATC: { iso2: "AU", lang: "English & Indonesian Heritage", fam: "Indo-European (Germanic)", flag: "🇦🇺", cap: "None (Administered from Canberra)", pop: "Uninhabited (0)", cont: "Oceania", bcp: "en-AU" },
+    ATF: { iso2: "TF", lang: "French", fam: "Indo-European (Romance)", flag: "🇹🇫", cap: "Saint-Pierre (Admin seat)", pop: "~400", cont: "Antarctica", bcp: "fr-TF" },
+    BLM: { iso2: "BL", lang: "French & Saint-Barth Patois", fam: "Indo-European (Romance)", flag: "🇧🇱", cap: "Gustavia", pop: "10K", cont: "North America", bcp: "fr-BL" },
+    COK: { iso2: "CK", lang: "Cook Islands Māori & English", fam: "Austronesian (Polynesian)", flag: "🇨🇰", cap: "Avarua", pop: "15K", cont: "Oceania", bcp: "rar-CK", bcp2: "en-CK" },
+    CUW: { iso2: "CW", lang: "Papiamentu, Dutch & English", fam: "Iberian Creole / Germanic", flag: "🇨🇼", cap: "Willemstad", pop: "155K", cont: "North America", bcp: "pap-CW", bcp2: "nl-CW" },
+    CYM: { iso2: "KY", lang: "English & Caymanian English", fam: "Indo-European (Germanic)", flag: "🇰🇾", cap: "George Town", pop: "80K", cont: "North America", bcp: "en-KY" },
+    CYN: { iso2: "CY", lang: "Turkish", fam: "Turkic (Oghuz)", flag: "🇹🇷", cap: "North Nicosia", pop: "380K", cont: "Europe", bcp: "tr-CY" },
+    ESH: { iso2: "EH", lang: "Hassaniya Arabic & Moroccan Amazigh", fam: "Afroasiatic (Semitic)", flag: "🇪🇭", cap: "Laayoune (El Aaiún)", pop: "600K", cont: "Africa", bcp: "ar-EH", bcp2: "zgh-MA" },
+    FLK: { iso2: "FK", lang: "English", fam: "Indo-European (Germanic)", flag: "🇫🇰", cap: "Stanley", pop: "3.7K", cont: "South America", bcp: "en-FK" },
+    FRO: { iso2: "FO", lang: "Faroese & Danish", fam: "Indo-European (Germanic)", flag: "🇫🇴", cap: "Tórshavn", pop: "54K", cont: "Europe", bcp: "fo-FO", bcp2: "da-DK" },
+    GGY: { iso2: "GG", lang: "English & Guernésiais", fam: "Indo-European (Germanic)", flag: "🇬🇬", cap: "Saint Peter Port", pop: "64K", cont: "Europe", bcp: "en-GG" },
+    HMD: { iso2: "HM", lang: "English", fam: "Indo-European (Germanic)", flag: "🇦🇺", cap: "None (Administered from Hobart)", pop: "Uninhabited (0)", cont: "Antarctica", bcp: "en-HM" },
+    IMN: { iso2: "IM", lang: "English & Manx Gaelic", fam: "Indo-European (Germanic)", flag: "🇮🇲", cap: "Douglas", pop: "84K", cont: "Europe", bcp: "gv-IM", bcp2: "en-IM" },
+    IOA: { iso2: "AU", lang: "English, Cocos Malay & Chinese", fam: "Indo-European (Germanic)", flag: "🇦🇺", cap: "Flying Fish Cove", pop: "2.2K", cont: "Oceania", bcp: "en-AU" },
+    IOT: { iso2: "IO", lang: "English & Chagossian Creole", fam: "Indo-European (Germanic)", flag: "🇮🇴", cap: "Camp Justice (Diego Garcia)", pop: "~3,000", cont: "Africa", bcp: "en-IO" },
+    JEY: { iso2: "JE", lang: "English & Jèrriais", fam: "Indo-European (Germanic)", flag: "🇯🇪", cap: "Saint Helier", pop: "103K", cont: "Europe", bcp: "nrf-JE", bcp2: "en-JE" },
+    KAS: { iso2: "IN", lang: "Urdu, Balti & Hindi", fam: "Indo-European (Indo-Iranian)", flag: "🏔️", cap: "None (Military Sector)", pop: "~3K", cont: "Asia", bcp: "ur-PK" },
+    KOS: { iso2: "XK", lang: "Albanian & Serbian", fam: "Indo-European (Other)", flag: "🇽🇰", cap: "Pristina", pop: "1.8M", cont: "Europe", bcp: "sq-XK", bcp2: "sr-Cyrl-XK" },
+    MAF: { iso2: "MF", lang: "French & English", fam: "Indo-European (Romance)", flag: "🇲🇫", cap: "Marigot", pop: "32K", cont: "North America", bcp: "fr-MF", bcp2: "en-MF" },
+    MNP: { iso2: "MP", lang: "English, Chamorro & Carolinian", fam: "Austronesian (Micronesian)", flag: "🇲🇵", cap: "Saipan", pop: "47K", cont: "Oceania", bcp: "ch-MP", bcp2: "cal-MP" },
+    MSR: { iso2: "MS", lang: "English & Montserrat Creole", fam: "Indo-European (Germanic)", flag: "🇲🇸", cap: "Brades", pop: "4.5K", cont: "North America", bcp: "en-MS" },
+    NFK: { iso2: "NF", lang: "English & Norfuk", fam: "Indo-European (Germanic)", flag: "🇳🇫", cap: "Kingston", pop: "2.2K", cont: "Oceania", bcp: "en-NF" },
+    NIU: { iso2: "NU", lang: "Niuean & English", fam: "Austronesian (Polynesian)", flag: "🇳🇺", cap: "Alofi", pop: "1.9K", cont: "Oceania", bcp: "niu-NU", bcp2: "en-NU" },
+    PCN: { iso2: "PN", lang: "Pitkern & English", fam: "English-Tahitian Creole", flag: "🇵🇳", cap: "Adamstown", pop: "~50", cont: "Oceania", bcp: "en-PN" },
+    PSE: { iso2: "PS", lang: "Arabic", fam: "Afroasiatic (Semitic)", flag: "🇵🇸", cap: "Ramallah", pop: "5.4M", cont: "Asia", bcp: "ar-PS" },
+    SGS: { iso2: "GS", lang: "English", fam: "Indo-European (Germanic)", flag: "🇬🇸", cap: "King Edward Point", pop: "~30", cont: "Antarctica", bcp: "en-GS" },
+    SHN: { iso2: "SH", lang: "English", fam: "Indo-European (Germanic)", flag: "🇸🇭", cap: "Jamestown", pop: "5.4K", cont: "Africa", bcp: "en-SH" },
+    SOL: { iso2: "SO", lang: "Somali & Arabic", fam: "Afroasiatic (Cushitic)", flag: "🇸🇴", cap: "Hargeisa", pop: "5.7M", cont: "Africa", bcp: "so-SO", bcp2: "ar-SO" },
+    SPM: { iso2: "PM", lang: "French", fam: "Indo-European (Romance)", flag: "🇵🇲", cap: "Saint-Pierre", pop: "6K", cont: "North America", bcp: "fr-PM" },
+    SXM: { iso2: "SX", lang: "English & Dutch", fam: "Indo-European (Germanic)", flag: "🇸🇽", cap: "Philipsburg", pop: "44K", cont: "North America", bcp: "en-SX", bcp2: "nl-SX" },
+    TCA: { iso2: "TC", lang: "English & Turks and Caicos Creole", fam: "Indo-European (Germanic)", flag: "🇹🇨", cap: "Cockburn Town", pop: "45K", cont: "North America", bcp: "en-TC" },
+    VIR: { iso2: "VI", lang: "English & Virgin Islands Creole", fam: "Indo-European (Germanic)", flag: "🇻🇮", cap: "Charlotte Amalie", pop: "105K", cont: "North America", bcp: "en-VI" },
+    VGB: { iso2: "VG", lang: "English & Virgin Islands Creole", fam: "Indo-European (Germanic)", flag: "🇻🇬", cap: "Road Town", pop: "31K", cont: "North America", bcp: "en-VG" },
+    WLF: { iso2: "WF", lang: "Wallisian, Futunan & French", fam: "Austronesian (Polynesian)", flag: "🇼🇫", cap: "Mata-Utu", pop: "11K", cont: "Oceania", bcp: "fr-WF" }
   };
 
-  const d = defaults[iso3] || {};
+  const d = defaults[iso3] || (iso3 === 'KOS' ? defaults.XKX : null) || {};
   const langName = d.lang || "Official Language";
-  const fam = d.fam || "Indo-European";
+  const fam = d.fam || "Indo-European (Other)";
   const bcp = d.bcp || "en-US";
   const flag = d.flag || "🌐";
   const cap = d.cap || "Capital City";
   const pop = d.pop || "Populous";
   const cont = d.cont || "Global";
+  const resolvedIso2 = d.iso2 || ((iso2 && iso2 !== '-99' && iso2 !== 'CN-TW') ? iso2 : '');
 
   function inferBuildScript(iso, b, langLabel) {
     if (langLabel && langLabel.toLowerCase().includes('arabic')) return 'Arabic';
@@ -509,9 +552,10 @@ function getLanguageDefaults(name, iso3, iso2) {
   const parts = langName.split('&');
   const primaryPart = parts[0].trim();
   const secondaryPart = parts[1] ? parts[1].trim() : '';
+  const bcp2 = d.bcp2 || bcp;
 
   return {
-    iso3: iso3, iso2: iso2, geoName: name, commonName: name,
+    iso3: iso3, iso2: resolvedIso2, geoName: name, commonName: name,
     officialName: name, nativeName: name, flag: flag,
     capital: cap, population: pop, continent: cont,
     primaryLanguage: langName, languageFamily: fam,
@@ -519,7 +563,7 @@ function getLanguageDefaults(name, iso3, iso2) {
     summary: `${name} has a rich linguistic tapestry centered around ${langName}, reflecting its cultural heritage, historical migrations, and regional identity.`,
     languages: [
       { name: primaryPart, nativeName: primaryPart, type: "Official State Language", percentage: "75%", speakers: pop, family: fam, script: inferBuildScript(iso3, bcp, primaryPart), bcp47: bcp, regions: "Nationwide", notes: `Principal medium of education, administration, and cultural life in ${name}.` },
-      ...(secondaryPart ? [{ name: secondaryPart, nativeName: secondaryPart, type: "Recognized Co-official / National", percentage: "25%", speakers: "Substantial", family: fam, script: inferBuildScript(iso3, bcp, secondaryPart), bcp47: bcp, regions: "Regional & Urban Centers", notes: `Widely spoken alongside the principal language.` }] : [])
+      ...(secondaryPart ? [{ name: secondaryPart, nativeName: secondaryPart, type: "Recognized Co-official / National", percentage: "25%", speakers: "Substantial", family: fam, script: inferBuildScript(iso3, bcp2, secondaryPart), bcp47: bcp2, regions: "Regional & Urban Centers", notes: `Widely spoken alongside the principal language.` }] : [])
     ],
     accents: [
       { name: `Standard ${name}`, region: "Capital & Major Cities", description: "Clear enunciation, national broadcast cadence, formal administrative register.", sample: `Official greeting and standard expressions heard across ${name}.` },
@@ -548,7 +592,8 @@ const nameToIsoMap = {};
 for (const f of geoData.features) {
   const p = f.properties;
   const iso3 = (p.iso_a3 && p.iso_a3 !== '-99') ? p.iso_a3 : p.name;
-  const iso2 = p.iso_a2 || '';
+  let iso2 = p.iso_a2 || '';
+  if (iso2 === '-99' || iso2 === 'CN-TW') iso2 = '';
   const name = p.name;
 
   let countryObj = master[iso3] || master[p.iso_a3];
@@ -584,6 +629,7 @@ for (const f of geoData.features) {
   countryObj.commonName = countryObj.name;
   countryObj.geoName = name;
   countryObj.iso3 = iso3;
+  if (countryObj.iso2 === '-99' || countryObj.iso2 === 'CN-TW') countryObj.iso2 = '';
   if (!countryObj.iso2 && iso2) countryObj.iso2 = iso2;
 
   // Resolve color from languageFamily

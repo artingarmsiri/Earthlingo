@@ -35,7 +35,7 @@
         "speakers": "Populous",
         "family": "Iberian Creole / Germanic",
         "script": "Latin",
-        "bcp47": "nl-NL",
+        "bcp47": "pap-AW",
         "regions": "Nationwide",
         "notes": "Principal medium of education, administration, and cultural life in Aruba."
       }
@@ -299,25 +299,25 @@
         "type": "Greeting",
         "text": "Talofa lava! / Hello! (Samoan & English)",
         "phonetic": "ta-LO-fa LA-va",
-        "bcp47": "en-US"
+        "bcp47": "sm-AS"
       },
       {
         "type": "Thank You",
         "text": "Fa'afetai lava! (Thank you! — Samoan)",
         "phonetic": "fa-a-feh-TAI LA-va",
-        "bcp47": "en-US"
+        "bcp47": "sm-AS"
       },
       {
         "type": "Goodbye",
         "text": "Tofa soifua! (Farewell! — Samoan)",
         "phonetic": "TO-fa soy-FOO-a",
-        "bcp47": "en-US"
+        "bcp47": "sm-AS"
       },
       {
         "type": "How are you?",
         "text": "O a mai oe? (How are you? — Samoan)",
         "phonetic": "o a MY o-eh",
-        "bcp47": "en-US"
+        "bcp47": "sm-AS"
       }
     ],
     "languages": [
@@ -329,7 +329,7 @@
         "speakers": "Populous",
         "family": "Austronesian / Germanic",
         "script": "Latin",
-        "bcp47": "en-US",
+        "bcp47": "sm-AS",
         "regions": "Nationwide",
         "notes": "Principal medium of education, administration, and cultural life in American Samoa."
       }
@@ -1183,7 +1183,7 @@
         "speakers": "Populous",
         "family": "Austronesian (Polynesian)",
         "script": "Latin",
-        "bcp47": "en-NZ",
+        "bcp47": "rar-CK",
         "regions": "Nationwide",
         "notes": "Principal medium of education, administration, and cultural life in Cook Is.."
       }
@@ -1337,7 +1337,7 @@
         "speakers": "Populous",
         "family": "Iberian Creole / Germanic",
         "script": "Latin",
-        "bcp47": "nl-NL",
+        "bcp47": "pap-CW",
         "regions": "Nationwide",
         "notes": "Principal medium of education, administration, and cultural life in Curaçao."
       }
@@ -1601,7 +1601,7 @@
         "type": "Greeting",
         "text": "سلام! / أزول! (Salam! / Azul! — Tamazight)",
         "phonetic": "sa-LAM / a-ZOOL",
-        "bcp47": "ar-DZ"
+        "bcp47": "zgh-DZ"
       },
       {
         "type": "Thank You",
@@ -1951,25 +1951,25 @@
         "type": "Greeting",
         "text": "Banjaour! / Hello! (Guernésiais & English)",
         "phonetic": "bahn-JOOR / heh-LOH",
-        "bcp47": "en-GB"
+        "bcp47": "nrf-GG"
       },
       {
         "type": "Thank You",
         "text": "Mèrci bian! / Thank you kindly!",
         "phonetic": "mer-SEE byahn",
-        "bcp47": "en-GB"
+        "bcp47": "nrf-GG"
       },
       {
         "type": "Goodbye",
         "text": "À la perchoine! / See you soon!",
         "phonetic": "ah la pair-SHWAN",
-        "bcp47": "en-GB"
+        "bcp47": "nrf-GG"
       },
       {
         "type": "How are you?",
         "text": "Coumme est qu'tu vas? / All good?",
         "phonetic": "koom eh k-too VA",
-        "bcp47": "en-GB"
+        "bcp47": "nrf-GG"
       }
     ],
     "languages": [
@@ -2217,25 +2217,25 @@
         "type": "Greeting",
         "text": "Håfa adai! (Hello / What's up? — CHamoru)",
         "phonetic": "HA-fa a-DAI",
-        "bcp47": "en-US"
+        "bcp47": "ch-GU"
       },
       {
         "type": "Thank You",
         "text": "Si Yu'os ma'åse'! (Thank you! — CHamoru)",
         "phonetic": "see dzoo-OS ma-AH-seh",
-        "bcp47": "en-US"
+        "bcp47": "ch-GU"
       },
       {
         "type": "Goodbye",
         "text": "Adios! / Esta agupa'! (Until tomorrow!)",
         "phonetic": "ah-DYOS / ES-ta a-GOO-pa",
-        "bcp47": "en-US"
+        "bcp47": "ch-GU"
       },
       {
         "type": "How are you?",
         "text": "Håfa tatatmanu hao? (How are you?)",
         "phonetic": "HA-fa ta-tat-MA-noo how",
-        "bcp47": "en-US"
+        "bcp47": "ch-GU"
       }
     ]
   },
@@ -2455,25 +2455,25 @@
         "type": "Greeting",
         "text": "Moghrey mie! / Hello! (Good morning in Manx)",
         "phonetic": "MAW-ree my / heh-LOH",
-        "bcp47": "en-GB"
+        "bcp47": "gv-IM"
       },
       {
         "type": "Thank You",
         "text": "Gura mie ayd! / Thank you very much!",
         "phonetic": "goo-ra MY ayd",
-        "bcp47": "en-GB"
+        "bcp47": "gv-IM"
       },
       {
         "type": "Goodbye",
         "text": "Slane lhiat! / Cheerio! (Go safe!)",
         "phonetic": "slahn LYAT",
-        "bcp47": "en-GB"
+        "bcp47": "gv-IM"
       },
       {
         "type": "How are you?",
         "text": "Kys t'ou? / How are you keeping?",
         "phonetic": "kiss TOW",
-        "bcp47": "en-GB"
+        "bcp47": "gv-IM"
       }
     ],
     "languages": [
@@ -2485,7 +2485,7 @@
         "speakers": "Populous",
         "family": "Germanic / Celtic",
         "script": "Latin",
-        "bcp47": "en-GB",
+        "bcp47": "gv-IM",
         "regions": "Nationwide",
         "notes": "Principal medium of education, administration, and cultural life in Isle of Man."
       }
@@ -2581,7 +2581,7 @@
         "type": "Greeting",
         "text": "هلو! / السلام عليكم / سڵاو! (Hala! / Slaw! Kurdish)",
         "phonetic": "HA-la / s-LAW",
-        "bcp47": "ar-IQ"
+        "bcp47": "ckb-IQ"
       },
       {
         "type": "Thank You",
@@ -2693,25 +2693,25 @@
         "type": "Greeting",
         "text": "Bouônjour! / Hello! (Jèrriais & English)",
         "phonetic": "bwan-JOOR / heh-LOH",
-        "bcp47": "en-GB"
+        "bcp47": "nrf-JE"
       },
       {
         "type": "Thank You",
         "text": "Mèrci bein des fais! / Thank you!",
         "phonetic": "mer-SEE bay day fay",
-        "bcp47": "en-GB"
+        "bcp47": "nrf-JE"
       },
       {
         "type": "Goodbye",
         "text": "À bétôt! / Cheerio for now!",
         "phonetic": "ah bay-TOH",
-        "bcp47": "en-GB"
+        "bcp47": "nrf-JE"
       },
       {
         "type": "How are you?",
         "text": "Coumme tchi qu'tu'es? / Doing alright?",
         "phonetic": "koom chee k-too eh",
-        "bcp47": "en-GB"
+        "bcp47": "nrf-JE"
       }
     ],
     "languages": [
@@ -2723,7 +2723,7 @@
         "speakers": "Populous",
         "family": "Germanic / Norman-Romance",
         "script": "Latin",
-        "bcp47": "en-GB",
+        "bcp47": "nrf-JE",
         "regions": "Nationwide",
         "notes": "Principal medium of education, administration, and cultural life in Jersey."
       }
@@ -2889,25 +2889,25 @@
         "type": "Greeting",
         "text": "Mauri! (Blessings / Hello! — Gilbertese)",
         "phonetic": "MOW-ree",
-        "bcp47": "en-GB"
+        "bcp47": "gil-KI"
       },
       {
         "type": "Thank You",
         "text": "Ko rabwa! (Thank you! — Gilbertese)",
         "phonetic": "ko RAH-bwa",
-        "bcp47": "en-GB"
+        "bcp47": "gil-KI"
       },
       {
         "type": "Goodbye",
         "text": "Ti a boo! (We'll meet again / Goodbye!)",
         "phonetic": "tee ah BO",
-        "bcp47": "en-GB"
+        "bcp47": "gil-KI"
       },
       {
         "type": "How are you?",
         "text": "Ko uara? (How are you?)",
         "phonetic": "ko wa-RA",
-        "bcp47": "en-GB"
+        "bcp47": "gil-KI"
       }
     ]
   },
@@ -2975,7 +2975,7 @@
         "speakers": "Populous",
         "family": "Indo-European (Albanian)",
         "script": "Latin",
-        "bcp47": "sq-AL",
+        "bcp47": "sq-XK",
         "regions": "Nationwide",
         "notes": "Principal medium of education, administration, and cultural life in Kosovo."
       }
@@ -3505,25 +3505,25 @@
         "type": "Greeting",
         "text": "Iokwe! (Hello / Love / Peace — Marshallese)",
         "phonetic": "yok-WEH",
-        "bcp47": "en-US"
+        "bcp47": "mh-MH"
       },
       {
         "type": "Thank You",
         "text": "Kommol tata! (Thank you very much!)",
         "phonetic": "kom-MOL ta-TA",
-        "bcp47": "en-US"
+        "bcp47": "mh-MH"
       },
       {
         "type": "Goodbye",
         "text": "Bar lo eok! (See you again!)",
         "phonetic": "bar LO yok",
-        "bcp47": "en-US"
+        "bcp47": "mh-MH"
       },
       {
         "type": "How are you?",
         "text": "Ej et am mour? (How is your life?)",
         "phonetic": "ej et am MOUR",
-        "bcp47": "en-US"
+        "bcp47": "mh-MH"
       }
     ]
   },
@@ -3701,25 +3701,25 @@
         "type": "Greeting",
         "text": "Håfa adai! (CHamoru) / Tirow! (Carolinian)",
         "phonetic": "HA-fa a-DAI / tee-ROW",
-        "bcp47": "en-US"
+        "bcp47": "ch-MP"
       },
       {
         "type": "Thank You",
         "text": "Si Yu'os ma'åse'! / Ghilisou! (Thank you!)",
         "phonetic": "see dzoo-OS ma-AH-seh",
-        "bcp47": "en-US"
+        "bcp47": "ch-MP"
       },
       {
         "type": "Goodbye",
         "text": "Esta! / Adios! (See you later!)",
         "phonetic": "ES-ta",
-        "bcp47": "en-US"
+        "bcp47": "ch-MP"
       },
       {
         "type": "How are you?",
         "text": "Maolek ha'! (Everything's good!)",
         "phonetic": "MOW-lek ha",
-        "bcp47": "en-US"
+        "bcp47": "ch-MP"
       }
     ],
     "languages": [
@@ -3731,7 +3731,7 @@
         "speakers": "Populous",
         "family": "Austronesian / Germanic",
         "script": "Latin",
-        "bcp47": "en-US",
+        "bcp47": "ch-MP",
         "regions": "Nationwide",
         "notes": "Principal medium of education, administration, and cultural life in N. Mariana Is.."
       }
@@ -4009,25 +4009,25 @@
         "type": "Greeting",
         "text": "Watawieh yorlye! (How are you all? — Norf'k)",
         "phonetic": "wa-ta-WEE YOR-lee",
-        "bcp47": "en-AU"
+        "bcp47": "pih-NF"
       },
       {
         "type": "Thank You",
         "text": "Thank yorlye! / Cheers! (Norf'k)",
         "phonetic": "thank YOR-lee",
-        "bcp47": "en-AU"
+        "bcp47": "pih-NF"
       },
       {
         "type": "Goodbye",
         "text": "Morla! / See yorlye! (See you tomorrow!)",
         "phonetic": "MOR-la",
-        "bcp47": "en-AU"
+        "bcp47": "pih-NF"
       },
       {
         "type": "How are you?",
         "text": "S'good? / Kush! (Everything's great!)",
         "phonetic": "s-good / KOOSH",
-        "bcp47": "en-AU"
+        "bcp47": "pih-NF"
       }
     ],
     "languages": [
@@ -4039,7 +4039,7 @@
         "speakers": "Populous",
         "family": "English-Tahitian Creole / Germanic",
         "script": "Latin",
-        "bcp47": "en-AU",
+        "bcp47": "pih-NF",
         "regions": "Nationwide",
         "notes": "Principal medium of education, administration, and cultural life in Norfolk Island."
       }
@@ -4109,7 +4109,7 @@
         "speakers": "Populous",
         "family": "Austronesian (Polynesian)",
         "script": "Latin",
-        "bcp47": "en-NZ",
+        "bcp47": "niu-NU",
         "regions": "Nationwide",
         "notes": "Principal medium of education, administration, and cultural life in Niue."
       }
@@ -4149,25 +4149,25 @@
         "type": "Greeting",
         "text": "Ekamowir omo! (Hello! — Nauruan)",
         "phonetic": "e-ka-MO-weer O-mo",
-        "bcp47": "en-AU"
+        "bcp47": "na-NR"
       },
       {
         "type": "Thank You",
         "text": "Tubwa kor! (Thank you very much! — Nauruan)",
         "phonetic": "TOOB-wa kor",
-        "bcp47": "en-AU"
+        "bcp47": "na-NR"
       },
       {
         "type": "Goodbye",
         "text": "Aran! / See you again! (Goodbye!)",
         "phonetic": "a-RAHN",
-        "bcp47": "en-AU"
+        "bcp47": "na-NR"
       },
       {
         "type": "How are you?",
         "text": "Wo ranga? (How are you? — Nauruan)",
         "phonetic": "wo RAHN-ga",
-        "bcp47": "en-AU"
+        "bcp47": "na-NR"
       }
     ]
   },
@@ -4263,7 +4263,7 @@
         "speakers": "Populous",
         "family": "English-Tahitian Creole",
         "script": "Latin",
-        "bcp47": "en-GB",
+        "bcp47": "pih-PN",
         "regions": "Nationwide",
         "notes": "Principal medium of education, administration, and cultural life in Pitcairn Is.."
       }
@@ -4275,25 +4275,25 @@
         "type": "Greeting",
         "text": "Alii! (Hello! — Palauan)",
         "phonetic": "ah-LEE",
-        "bcp47": "en-US"
+        "bcp47": "pau-PW"
       },
       {
         "type": "Thank You",
         "text": "Ke kmal mesaul! (Thank you very much!)",
         "phonetic": "keh k-mahl me-SOWL",
-        "bcp47": "en-US"
+        "bcp47": "pau-PW"
       },
       {
         "type": "Goodbye",
         "text": "Mechikung! (Goodbye! — Palauan)",
         "phonetic": "me-chee-KOONG",
-        "bcp47": "en-US"
+        "bcp47": "pau-PW"
       },
       {
         "type": "How are you?",
         "text": "Ke ua ngerang? / Ak mesisiich!",
         "phonetic": "keh wa nge-RANG",
-        "bcp47": "en-US"
+        "bcp47": "pau-PW"
       }
     ]
   },
@@ -4307,7 +4307,7 @@
         "speakers": "6M",
         "family": "English-based Creole",
         "script": "Latin",
-        "bcp47": "en-PG",
+        "bcp47": "tpi-PG",
         "regions": "Nationwide (Northern regions & Highlands)",
         "notes": "Highly expressive creole developed on Pacific plantations; official language in parliament."
       },
@@ -4331,7 +4331,7 @@
         "speakers": "120K",
         "family": "Motu-based Pidgin",
         "script": "Latin",
-        "bcp47": "en-PG",
+        "bcp47": "ho-PG",
         "regions": "Southern coastal regions around Port Moresby",
         "notes": "Historic trading pidgin of the Motu sea expeditions (Hiri voyages)."
       },
@@ -4411,25 +4411,25 @@
         "type": "Greeting",
         "text": "Mba'éichapa! / ¡Hola! (Guarani & Spanish)",
         "phonetic": "mbah-EY-sha-pa / OH-la",
-        "bcp47": "es-PY"
+        "bcp47": "gn-PY"
       },
       {
         "type": "Thank You",
         "text": "Aguyje! / ¡Muchas gracias! (Thank you!)",
         "phonetic": "a-goo-JEH / GRA-syas",
-        "bcp47": "es-PY"
+        "bcp47": "gn-PY"
       },
       {
         "type": "Goodbye",
         "text": "Jajotopata! / ¡Chao! (Until we meet again!)",
         "phonetic": "ha-ho-to-PA-ta",
-        "bcp47": "es-PY"
+        "bcp47": "gn-PY"
       },
       {
         "type": "How are you?",
         "text": "Iporãnte! (I'm very well! — Guarani)",
         "phonetic": "ee-po-RAHN-teh",
-        "bcp47": "es-PY"
+        "bcp47": "gn-PY"
       }
     ]
   },
@@ -4481,25 +4481,25 @@
         "type": "Greeting",
         "text": "'Ia ora na! / Bonjour ! (Tahitian & French)",
         "phonetic": "ee-a o-RA-na / bohn-ZHOOR",
-        "bcp47": "fr-PF"
+        "bcp47": "ty-PF"
       },
       {
         "type": "Thank You",
         "text": "Māuruuru roa! / Merci ! (Thank you very much!)",
         "phonetic": "ma-oo-roo-oo-roo RO-a",
-        "bcp47": "fr-PF"
+        "bcp47": "ty-PF"
       },
       {
         "type": "Goodbye",
         "text": "Nānā! / Au revoir ! (Goodbye!)",
         "phonetic": "na-NA / oh ruh-VWAHR",
-        "bcp47": "fr-PF"
+        "bcp47": "ty-PF"
       },
       {
         "type": "How are you?",
         "text": "Maita'i oe? / Maita'i roa! (Are you well?)",
         "phonetic": "my-TA-ee oh-EH",
-        "bcp47": "fr-PF"
+        "bcp47": "ty-PF"
       }
     ]
   },
@@ -5545,25 +5545,25 @@
         "type": "Greeting",
         "text": "Talofa! / Fakatalofa atu! (Tuvaluan Hello)",
         "phonetic": "ta-LO-fa",
-        "bcp47": "en-TV"
+        "bcp47": "tvl-TV"
       },
       {
         "type": "Thank You",
         "text": "Fakafetai lasi! (Thank you very much!)",
         "phonetic": "fa-ka-feh-TAI LA-see",
-        "bcp47": "en-TV"
+        "bcp47": "tvl-TV"
       },
       {
         "type": "Goodbye",
         "text": "Tofa! (Goodbye! — Tuvaluan)",
         "phonetic": "TO-fa",
-        "bcp47": "en-TV"
+        "bcp47": "tvl-TV"
       },
       {
         "type": "How are you?",
         "text": "E a koe? / E lei! (How are you? / Good!)",
         "phonetic": "eh a KO-eh",
-        "bcp47": "en-TV"
+        "bcp47": "tvl-TV"
       }
     ]
   },
@@ -5881,25 +5881,25 @@
         "type": "Greeting",
         "text": "Halo! / Welkam! (Bislama — Vanuatu)",
         "phonetic": "ha-LO / WEL-kam",
-        "bcp47": "en-VU"
+        "bcp47": "bi-VU"
       },
       {
         "type": "Thank You",
         "text": "Tangkyu tumas! (Thank you very much!)",
         "phonetic": "tank-YOO too-MAS",
-        "bcp47": "en-VU"
+        "bcp47": "bi-VU"
       },
       {
         "type": "Goodbye",
         "text": "Lukim yu! / Tata! (See you later!)",
         "phonetic": "loo-KEEM yoo",
-        "bcp47": "en-VU"
+        "bcp47": "bi-VU"
       },
       {
         "type": "How are you?",
         "text": "Yu oraet? / Mi oraet nomo! (Bislama)",
         "phonetic": "yoo o-RAET",
-        "bcp47": "en-VU"
+        "bcp47": "bi-VU"
       }
     ]
   },
@@ -5939,7 +5939,7 @@
         "speakers": "Populous",
         "family": "Austronesian / Romance",
         "script": "Latin",
-        "bcp47": "fr-FR",
+        "bcp47": "wls-WF",
         "regions": "Nationwide",
         "notes": "Principal medium of education, administration, and cultural life in Wallis and Futuna Is.."
       }
@@ -5951,25 +5951,25 @@
         "type": "Greeting",
         "text": "Talofa lava! (Hello! — Samoan)",
         "phonetic": "ta-LO-fa LA-va",
-        "bcp47": "en-WS"
+        "bcp47": "sm-WS"
       },
       {
         "type": "Thank You",
         "text": "Fa'afetai tele lava! (Thank you very much!)",
         "phonetic": "fa-a-feh-TAI teh-leh LA-va",
-        "bcp47": "en-WS"
+        "bcp47": "sm-WS"
       },
       {
         "type": "Goodbye",
         "text": "Tofa soifua! (Goodbye in good health!)",
         "phonetic": "TO-fa soy-FOO-a",
-        "bcp47": "en-WS"
+        "bcp47": "sm-WS"
       },
       {
         "type": "How are you?",
         "text": "O a mai oe? / Manuia fa'afetai! (I'm well!)",
         "phonetic": "o a MY o-eh",
-        "bcp47": "en-WS"
+        "bcp47": "sm-WS"
       }
     ]
   },

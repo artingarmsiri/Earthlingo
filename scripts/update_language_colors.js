@@ -25,7 +25,7 @@ const LANGUAGE_COLORS = {
   'Danish': '#67e8f9',             // Ice Blue (Denmark, Greenland)
   'Afrikaans': '#0369a1',          // Cobalt Blue (South Africa)
   'Icelandic': '#93c5fd',          // Arctic Glacier Blue (Iceland)
-  'Luxembourgish': '#38bdf8',      // Sky Blue (Luxembourg)
+  'Luxembourgish': '#06b6d4',      // Vibrant Cyan (Luxembourg)
 
   // === SLAVIC BRANCH (Purples, Violets, Indigos) ===
   'Russian': '#4f46e5',            // Deep Indigo (Russia, Belarus, Kazakhstan, Kyrgyzstan)
@@ -126,75 +126,142 @@ const LANGUAGE_COLORS = {
   'Aymara': '#fb923c',             // Altiplano Amber (Bolivia)
   'Inuktitut': '#38bdf8',          // Arctic Blue (Greenland)
   'Haitian Creole': '#c026d3',      // Creole Magenta (Haiti)
-  'Tok Pisin': '#10b981'           // Melanesian Green (Papua New Guinea)
+  'Tok Pisin': '#10b981',          // Melanesian Green (Papua New Guinea)
+  'Pijin': '#10b981',              // Melanesian Creole (Solomon Islands)
+  'Seychellois Creole': '#c026d3', // Creole Magenta (Seychelles)
+  'Mauritian Creole': '#c026d3',   // Creole Magenta (Mauritius)
+
+  // === PACIFIC, AFRICAN & OTHER CANONICAL TONGUES ===
+  'Comorian': '#16a34a',           // Sabaki Bantu (Comoros)
+  'Maltese': '#d97706',            // Semitic Latin Amber (Malta)
+  'Kinyarwanda': '#10b981',        // Great Lakes Emerald (Rwanda)
+  'Setswana': '#10b981',           // Kalahari Emerald (Botswana)
+  'Sesotho': '#10b981',            // Maloti Mountain Green (Lesotho)
+  'siSwati': '#10b981',            // Swazi Green (Eswatini)
+  'Faroese': '#38bdf8',            // North Atlantic Azure (Faroe Islands)
+  'Bislama': '#10b981',            // Island Melanesian Green (Vanuatu)
+  'Tongan': '#14b8a6',             // Polynesian Teal (Tonga)
+  'Gilbertese': '#14b8a6',         // Micronesian Teal (Kiribati)
+  'Tuvaluan': '#14b8a6',           // Polynesian Teal (Tuvalu)
+  'Marshallese': '#14b8a6',        // Atoll Teal (Marshall Islands)
+  'Palauan': '#14b8a6',            // Micronesian Teal (Palau)
+  'Nauruan': '#14b8a6',            // Island Teal (Nauru)
+  'Tetum': '#059669',              // Timor Emerald (Timor-Leste)
+  'Bambara': '#4d7c0f',            // Sahelian Green (Mali)
+  'Kirundi': '#10b981',            // Great Lakes Green (Burundi)
+  'Sango': '#16a34a',              // Central African Green (CAR)
+  'Montenegrin': '#818cf8'         // Adriatic Indigo (Montenegro)
 };
 
-// Clean and normalize a language string into its canonical primary language
-function getCanonicalLanguage(langString) {
-  if (!langString) return 'English';
-  const str = langString.toLowerCase();
+function resolveToken(token) {
+  if (!token) return null;
+  const str = token.toLowerCase();
 
-  if (str.includes('spanish')) return 'Spanish';
-  if (str.includes('english')) return 'English';
-  if (str.includes('french')) return 'French';
-  if (str.includes('portuguese')) return 'Portuguese';
-  if (str.includes('arabic')) return 'Arabic';
-  if (str.includes('german')) return 'German';
-  if (str.includes('russian')) return 'Russian';
-  if (str.includes('mandarin') || str.includes('chinese')) return 'Mandarin';
-  if (str.includes('cantonese')) return 'Cantonese';
-  if (str.includes('japanese')) return 'Japanese';
-  if (str.includes('korean')) return 'Korean';
+  // Distinct Montenegrin
+  if (str.includes('montenegrin')) return 'Montenegrin';
+
+  // Creoles and national vernaculars
+  if (str.includes('pijin')) return 'Pijin';
+  if (str.includes('comorian') || str.includes('shikomori')) return 'Comorian';
+  if (str.includes('seychellois')) return 'Seychellois Creole';
+  if (str.includes('mauritian')) return 'Mauritian Creole';
+
+  // Prioritize national & indigenous languages over secondary lingua francas
+  if (str.includes('macedonian')) return 'Macedonian';
+  if (str.includes('luxembourgish')) return 'Luxembourgish';
   if (str.includes('hindi')) return 'Hindi';
   if (str.includes('urdu')) return 'Urdu';
+  if (str.includes('cantonese')) return 'Cantonese';
+  if (str.includes('mandarin') || str.includes('chinese')) return 'Mandarin';
   if (str.includes('bengali') || str.includes('bangla')) return 'Bengali';
-  if (str.includes('persian') || str.includes('farsi') || str.includes('dari') || str.includes('tajik')) return 'Persian';
-  if (str.includes('turkish')) return 'Turkish';
-  if (str.includes('italian')) return 'Italian';
-  if (str.includes('dutch')) return 'Dutch';
-  if (str.includes('polish')) return 'Polish';
-  if (str.includes('ukrainian')) return 'Ukrainian';
-  if (str.includes('vietnamese')) return 'Vietnamese';
-  if (str.includes('thai')) return 'Thai';
+  if (str.includes('punjabi')) return 'Punjabi';
+  if (str.includes('tamil')) return 'Tamil';
+  if (str.includes('telugu')) return 'Telugu';
+  if (str.includes('sinhala')) return 'Sinhala';
+  if (str.includes('nepali')) return 'Nepali';
+  if (str.includes('hebrew')) return 'Hebrew';
+  if (str.includes('maltese')) return 'Maltese';
   if (str.includes('swahili') || str.includes('kiswahili')) return 'Swahili';
+  if (str.includes('kinyarwanda')) return 'Kinyarwanda';
+  if (str.includes('setswana')) return 'Setswana';
+  if (str.includes('sesotho')) return 'Sesotho';
+  if (str.includes('siswati')) return 'siSwati';
+  if (str.includes('chichewa')) return 'Chichewa';
+  if (str.includes('shona')) return 'Shona';
+  if (str.includes('bambara')) return 'Bambara';
+  if (str.includes('kirundi')) return 'Kirundi';
+  if (str.includes('sango')) return 'Sango';
+  if (str.includes('amharic')) return 'Amharic';
+  if (str.includes('tigrinya')) return 'Tigrinya';
+  if (str.includes('somali')) return 'Somali';
+  if (str.includes('tagalog') || str.includes('filipino')) return 'Tagalog';
+  if (str.includes('bislama')) return 'Bislama';
+  if (str.includes('samoan')) return 'Samoan';
+  if (str.includes('tongan')) return 'Tongan';
+  if (str.includes('gilbertese')) return 'Gilbertese';
+  if (str.includes('tuvaluan')) return 'Tuvaluan';
+  if (str.includes('marshallese')) return 'Marshallese';
+  if (str.includes('palauan')) return 'Palauan';
+  if (str.includes('nauruan')) return 'Nauruan';
+  if (str.includes('fijian') || str.includes('itaukei')) return 'Fijian';
+  if (str.includes('faroese')) return 'Faroese';
+  if (str.includes('tetum')) return 'Tetum';
   if (str.includes('indonesian') || str.includes('bahasa indonesia')) return 'Indonesian';
   if (str.includes('malay')) return 'Malay';
-  if (str.includes('tagalog') || str.includes('filipino')) return 'Tagalog';
-  if (str.includes('greek')) return 'Greek';
-  if (str.includes('hebrew')) return 'Hebrew';
-  if (str.includes('swedish')) return 'Swedish';
-  if (str.includes('norwegian')) return 'Norwegian';
-  if (str.includes('danish')) return 'Danish';
-  if (str.includes('finnish')) return 'Finnish';
-  if (str.includes('hungarian') || str.includes('magyar')) return 'Hungarian';
-  if (str.includes('romanian')) return 'Romanian';
-  if (str.includes('czech')) return 'Czech';
-  if (str.includes('slovak')) return 'Slovak';
-  if (str.includes('bulgarian')) return 'Bulgarian';
-  if (str.includes('serbian') || str.includes('croatian') || str.includes('bosnian')) return 'Serbo-Croatian';
-  if (str.includes('amharic')) return 'Amharic';
-  if (str.includes('somali')) return 'Somali';
-  if (str.includes('kazakh')) return 'Kazakh';
-  if (str.includes('uzbek')) return 'Uzbek';
-  if (str.includes('turkmen')) return 'Turkmen';
-  if (str.includes('kyrgyz')) return 'Kyrgyz';
-  if (str.includes('azerbaijani') || str.includes('azeri')) return 'Azerbaijani';
+  if (str.includes('vietnamese')) return 'Vietnamese';
+  if (str.includes('thai')) return 'Thai';
   if (str.includes('khmer')) return 'Khmer';
   if (str.includes('lao')) return 'Lao';
   if (str.includes('burmese')) return 'Burmese';
   if (str.includes('dzongkha')) return 'Dzongkha';
   if (str.includes('pashto')) return 'Pashto';
-  if (str.includes('punjabi')) return 'Punjabi';
-  if (str.includes('sinhala')) return 'Sinhala';
-  if (str.includes('nepali')) return 'Nepali';
+  if (str.includes('persian') || str.includes('farsi') || /\bdari\b/.test(str) || str.includes('tajik')) return 'Persian';
   if (str.includes('georgian')) return 'Georgian';
   if (str.includes('armenian')) return 'Armenian';
   if (str.includes('albanian') || str.includes('shqip')) return 'Albanian';
+  if (str.includes('greek')) return 'Greek';
+  if (str.includes('german')) return 'German';
+  if (str.includes('dutch')) return 'Dutch';
+  if (str.includes('turkish')) return 'Turkish';
+  if (str.includes('kazakh')) return 'Kazakh';
+  if (str.includes('uzbek')) return 'Uzbek';
+  if (str.includes('turkmen')) return 'Turkmen';
+  if (str.includes('kyrgyz')) return 'Kyrgyz';
+  if (str.includes('azerbaijani') || str.includes('azeri')) return 'Azerbaijani';
+  if (str.includes('belarusian')) return 'Belarusian';
+  if (str.includes('ukrainian')) return 'Ukrainian';
+  if (str.includes('polish')) return 'Polish';
+  if (str.includes('czech')) return 'Czech';
+  if (str.includes('slovak')) return 'Slovak';
+  if (str.includes('bulgarian')) return 'Bulgarian';
+  if (str.includes('serbian') || str.includes('croatian') || str.includes('bosnian')) return 'Serbo-Croatian';
+  if (str.includes('slovene') || str.includes('slovenian')) return 'Slovene';
+  if (str.includes('russian')) return 'Russian';
+  if (str.includes('swedish')) return 'Swedish';
+  if (str.includes('norwegian')) return 'Norwegian';
+  if (str.includes('danish')) return 'Danish';
+  if (str.includes('icelandic')) return 'Icelandic';
+  if (str.includes('finnish')) return 'Finnish';
+  if (str.includes('estonian')) return 'Estonian';
+  if (str.includes('latvian')) return 'Latvian';
+  if (str.includes('lithuanian')) return 'Lithuanian';
+  if (str.includes('hungarian') || str.includes('magyar')) return 'Hungarian';
+  if (str.includes('romanian')) return 'Romanian';
+  if (str.includes('italian')) return 'Italian';
+  if (str.includes('portuguese')) return 'Portuguese';
+  if (str.includes('spanish')) return 'Spanish';
+  if (str.includes('arabic')) return 'Arabic';
+  if (str.includes('french')) return 'French';
+  if (str.includes('english')) return 'English';
+  if (str.includes('japanese')) return 'Japanese';
+  if (str.includes('korean')) return 'Korean';
+  if (str.includes('mongolian')) return 'Mongolian';
   if (str.includes('irish') || str.includes('gaeilge')) return 'Irish';
   if (str.includes('catalan')) return 'Catalan';
   if (str.includes('guarani')) return 'Guarani';
   if (str.includes('quechua')) return 'Quechua';
   if (str.includes('aymara')) return 'Aymara';
+  if (str.includes('dhivehi')) return 'Dhivehi';
   if (str.includes('haitian creole')) return 'Haitian Creole';
   if (str.includes('tok pisin')) return 'Tok Pisin';
   if (str.includes('yoruba')) return 'Yoruba';
@@ -202,11 +269,26 @@ function getCanonicalLanguage(langString) {
   if (str.includes('hausa')) return 'Hausa';
   if (str.includes('zulu')) return 'Zulu';
   if (str.includes('malagasy')) return 'Malagasy';
-  if (str.includes('shona')) return 'Shona';
   if (str.includes('lingala')) return 'Lingala';
   if (str.includes('wolof')) return 'Wolof';
-  if (str.includes('chichewa')) return 'Chichewa';
   if (str.includes('afrikaans')) return 'Afrikaans';
+
+  return null;
+}
+
+// Clean and normalize a language string into its canonical primary language
+function getCanonicalLanguage(langString, country) {
+  if (!langString && !country) return 'English';
+
+  const primaryLangObj = country && Array.isArray(country.languages) && country.languages[0];
+  const firstLangName = primaryLangObj && primaryLangObj.name ? primaryLangObj.name.split(/[&,/]/)[0].trim() : '';
+  const firstStrSegment = langString ? langString.split(/[&,/]/)[0].trim() : '';
+
+  const candidates = [firstLangName, firstStrSegment, langString].filter(Boolean);
+  for (const cand of candidates) {
+    const res = resolveToken(cand);
+    if (res) return res;
+  }
 
   return 'English';
 }
@@ -216,7 +298,7 @@ const TERRITORY_LANGUAGES = {
   // English Territories
   'MNP': { lang: 'English', native: 'English', flag: '🇲🇵' },
   'VIR': { lang: 'English', native: 'English', flag: '🇻🇮' },
-  'ASM': { lang: 'English', native: 'English', flag: '🇦🇸' },
+  'ASM': { lang: 'Samoan & English', native: 'Gagana Sāmoa / English', flag: '🇦🇸' },
   'SGS': { lang: 'English', native: 'English', flag: '🇬🇸' },
   'IOT': { lang: 'English', native: 'English', flag: '🇮🇴' },
   'SHN': { lang: 'English', native: 'English', flag: '🇸🇭' },
@@ -259,7 +341,7 @@ const TERRITORY_LANGUAGES = {
   // Others
   'KOS': { lang: 'Albanian', native: 'Shqip', flag: '🇽🇰' },
   'ALA': { lang: 'Swedish', native: 'Svenska', flag: '🇦🇽' },
-  'FRO': { lang: 'Danish', native: 'Føroyskt / Dansk', flag: '🇫🇴' },
+  'FRO': { lang: 'Faroese & Danish', native: 'Føroyskt / Dansk', flag: '🇫🇴' },
   'CYN': { lang: 'Turkish', native: 'Türkçe', flag: '🇹🇷' }
 };
 
@@ -283,7 +365,7 @@ for (const key in db) {
   }
 
   // Determine canonical language
-  const canon = getCanonicalLanguage(c.primaryLanguage);
+  const canon = getCanonicalLanguage(c.primaryLanguage, c);
   c.canonicalLanguage = canon;
 
   // Assign distinct language color!

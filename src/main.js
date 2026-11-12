@@ -58,7 +58,21 @@
           window.location.hostname === 'localhost' ||
           window.location.hostname === '127.0.0.1')
       ) {
-        const regSw = () => navigator.serviceWorker.register('./sw.js').catch(() => {});
+        let hadController = Boolean(navigator.serviceWorker.controller);
+        let swReloading = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (hadController && !swReloading) {
+            swReloading = true;
+            window.location.reload();
+          }
+          hadController = true;
+        });
+        const regSw = () => navigator.serviceWorker
+          .register('./sw.js', { updateViaCache: 'none' })
+          .then((reg) => {
+            if (reg && typeof reg.update === 'function') reg.update().catch(() => {});
+          })
+          .catch(() => {});
         if (document.readyState === 'complete') regSw();
         else window.addEventListener('load', regSw);
       }

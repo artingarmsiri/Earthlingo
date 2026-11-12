@@ -210,6 +210,10 @@ body.drawer-is-open .arcs-info-panel {
   flex-shrink: 0;
 }
 
+.arc-corridor-chips[hidden] {
+  display: none;
+}
+
 .arc-corridor-chips::-webkit-scrollbar {
   height: 4px;
 }

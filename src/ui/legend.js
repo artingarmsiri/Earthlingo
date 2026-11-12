@@ -185,6 +185,7 @@
 
     if (kind === 'lang' && E.state.globe && E.state.showArcs) {
       if (!E.state.selectedCountry) {
+        E.state.activeArcTab = 'origins';
         E.state.activeOriginCorridor = 'filter';
         E.state.isArcsPanelCollapsed = false;
       }

@@ -460,6 +460,114 @@ test('Core modules (config, utils, geo-index, label-formatter, legend, quiz, com
   assert(h.includes('country=JPN') && h.includes('color=script'), `Unexpected hash output: ${h}`);
 });
 
+// 7. Arcs Layer Render-Sync & Layering Invariants
+test('Arcs module configures BackSide casings before render without race or shader churn', () => {
+  const sb = createSandboxWindow();
+  const noop = () => {};
+  const rafQueue = [];
+  sb.requestAnimationFrame = (fn) => {
+    rafQueue.push(fn);
+    return rafQueue.length;
+  };
+  sb.cancelAnimationFrame = noop;
+
+  for (const rel of [
+    'data/origins.js',
+    'data/etymology.js',
+    'data/historical_eras.js',
+    'src/core/config.js',
+    'src/core/utils.js',
+    'src/core/state.js',
+    'src/globe/arcs.js'
+  ]) {
+    loadIntoSandbox(sb, rel);
+  }
+
+  const E = sb.Earthlingo;
+  E.overlays = { refreshOverlayHudRects: noop, markOverlaysDirty: noop };
+  E.collectDomElements();
+
+  const mockArcObjects = [];
+  let queuedArcData = [];
+  let observedSideInsideRender = null;
+  let resumeCalls = 0;
+
+  const mockScene = {
+    traverse(cb) {
+      for (let i = 0; i < mockArcObjects.length; i++) cb(mockArcObjects[i]);
+    }
+  };
+  const mockRenderer = {
+    render() {
+      const casings = mockArcObjects.filter(o => o.__data && o.__data._arcRole === 'casing');
+      observedSideInsideRender = casings.map(o => o.children[0].material.side);
+    }
+  };
+  E.state.globe = {
+    scene: () => mockScene,
+    renderer: () => mockRenderer,
+    arcsData: (data) => { queuedArcData = data; },
+    ringsData: noop,
+    resumeAnimation: () => { resumeCalls += 1; }
+  };
+
+  E.state.showArcs = true;
+  E.state.activeArcTab = 'origins';
+  E.state.activeOriginCorridor = 'all';
+  E.arcs.updateArcs();
+
+  assert(queuedArcData.length > 0 && queuedArcData.length % 3 === 0, 'updateArcs must emit casing/rail/pulse triples');
+  assert(resumeCalls >= 1, 'updateArcs must ensure globe animation ticker is resumed');
+
+  // Simulate RAF1 firing BEFORE globe.gl digests queuedArcData (the boot race condition)
+  assert.strictEqual(mockArcObjects.length, 0);
+  while (rafQueue.length) {
+    const fn = rafQueue.shift();
+    fn();
+    break;
+  }
+
+  // Now simulate globe.gl asynchronously materializing meshes with default FrontSide (0) & transparent: true
+  for (const d of queuedArcData) {
+    mockArcObjects.push({
+      __globeObjType: 'arc',
+      __data: d,
+      children: [{
+        renderOrder: 0,
+        frustumCulled: true,
+        material: { side: 0, transparent: true, depthWrite: false, depthTest: true, needsUpdate: false }
+      }]
+    });
+  }
+
+  // Render hook MUST fix all casings BEFORE mockRenderer.render observes them!
+  mockRenderer.render(mockScene, {});
+  assert(
+    Array.isArray(observedSideInsideRender) &&
+    observedSideInsideRender.length === queuedArcData.length / 3 &&
+    observedSideInsideRender.every(s => s === 1),
+    'Render hook must convert all casings to BackSide (1) before the very first draw call'
+  );
+
+  for (const obj of mockArcObjects) {
+    const mesh = obj.children[0];
+    const role = obj.__data._arcRole;
+    assert.strictEqual(mesh.material.needsUpdate, false, 'Changing side/transparent must not set needsUpdate=true');
+    assert.strictEqual(mesh.material.transparent, false, `${role} must have transparent=false`);
+    assert.strictEqual(mesh.material.depthWrite, true, `${role} must have depthWrite=true`);
+    if (role === 'casing') assert.strictEqual(mesh.renderOrder, 5);
+    if (role === 'rail') {
+      assert.strictEqual(mesh.material.side, 0);
+      assert.strictEqual(mesh.renderOrder, 6);
+    }
+    if (role === 'pulse') {
+      assert.strictEqual(mesh.material.side, 0);
+      assert.strictEqual(mesh.renderOrder, 7);
+      assert(obj.__data.animateTime > 0, 'Pulse arc must have animateTime > 0');
+    }
+  }
+});
+
 console.log(`\n${checksRun} check groups completed.`);
 if (process.exitCode && process.exitCode !== 0) {
   process.exit(process.exitCode);

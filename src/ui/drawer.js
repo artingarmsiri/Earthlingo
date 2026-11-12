@@ -155,6 +155,7 @@
     E.overlays.markOverlaysDirty(true);
 
     if (E.state.globe && E.state.showArcs) {
+      E.state.activeArcTab = 'origins';
       E.state.activeOriginCorridor = 'country';
       E.arcs.updateArcs();
     }
@@ -978,14 +979,20 @@
         const animBtn = e.target && e.target.closest('#animateCountryOriginBtn');
         if (!animBtn) return;
         const c = currentRenderedCountry || E.state.selectedCountry;
-        const currentlyActive = Boolean(E.state.showArcs && E.state.activeOriginCorridor === 'country');
+        const currentlyActive = Boolean(
+          E.state.showArcs &&
+          E.state.activeArcTab !== 'words' &&
+          E.state.activeOriginCorridor === 'country'
+        );
         if (currentlyActive) {
           E.state.showArcs = false;
           if (el.toggleArcsBtn) el.toggleArcsBtn.classList.remove('active');
           E.arcs.updateArcs();
         } else {
           E.state.showArcs = true;
+          E.state.activeArcTab = 'origins';
           E.state.activeOriginCorridor = 'country';
+          E.state.isArcsPanelCollapsed = false;
           if (el.toggleArcsBtn) el.toggleArcsBtn.classList.add('active');
           E.arcs.updateArcs();
           if (c && currentRenderedOrigin) {

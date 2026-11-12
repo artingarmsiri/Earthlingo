@@ -4,30 +4,119 @@
 
   const E = (global.Earthlingo = global.Earthlingo || {});
 
+  let arcBatchId = 0;
+  let pendingArcBatchId = 0;
+  let pendingArcExpectedCount = 0;
+  let pendingArcPropsSync = false;
+  let syncRafId = 0;
+  let syncTimerId = 0;
+
+  function ensureArcRenderHook(globe) {
+    if (!globe || typeof globe.renderer !== 'function') return;
+    let renderer = null;
+    try {
+      renderer = globe.renderer();
+    } catch (_) {
+      return;
+    }
+    if (!renderer || renderer.__earthlingoArcRenderHooked || typeof renderer.render !== 'function') return;
+    renderer.__earthlingoArcRenderHooked = true;
+    const origRender = renderer.render.bind(renderer);
+    renderer.render = function (scene, camera) {
+      if (pendingArcPropsSync) {
+        applyArcMeshProps();
+      }
+      return origRender(scene, camera);
+    };
+  }
+
   function applyArcMeshProps() {
     const globe = E.state.globe;
-    if (!globe || !E.state.showArcs) return;
-    const scene = globe.scene();
-    if (!scene) return;
+    if (!globe || !E.state.showArcs) {
+      pendingArcPropsSync = false;
+      return false;
+    }
+    const scene = typeof globe.scene === 'function' ? globe.scene() : null;
+    if (!scene) return false;
+    let batchConfigured = 0;
+    let totalArcMeshes = 0;
     scene.traverse((obj) => {
       if (obj.__globeObjType === 'arc' && obj.__data && obj.__data._arcRole && obj.children && obj.children[0]) {
         const mesh = obj.children[0];
         const mat = mesh.material;
         const role = obj.__data._arcRole;
         if (!mat) return;
+        totalArcMeshes++;
         const desiredSide = role === 'casing' ? 1 : 0; // BackSide ink outline vs FrontSide core
         const desiredOrder = role === 'casing' ? 5 : (role === 'rail' ? 6 : 7);
-        if (mat.side !== desiredSide || mat.transparent !== false || mat.depthWrite !== true || mesh.renderOrder !== desiredOrder) {
+        if (
+          mat.side !== desiredSide ||
+          mat.transparent !== false ||
+          mat.depthWrite !== true ||
+          mat.depthTest !== true ||
+          mesh.renderOrder !== desiredOrder ||
+          mesh.frustumCulled !== false
+        ) {
           mat.side = desiredSide;
           mat.transparent = false;
           mat.depthWrite = true;
           mat.depthTest = true;
-          mat.needsUpdate = true;
           mesh.renderOrder = desiredOrder;
           mesh.frustumCulled = false;
         }
+        if (pendingArcBatchId > 0 && obj.__data._arcBatchId === pendingArcBatchId) {
+          batchConfigured++;
+        }
       }
     });
+    if (pendingArcExpectedCount > 0 && batchConfigured >= pendingArcExpectedCount) {
+      pendingArcPropsSync = false;
+      return true;
+    }
+    if (pendingArcBatchId === 0 && totalArcMeshes > 0) {
+      pendingArcPropsSync = false;
+      return true;
+    }
+    return false;
+  }
+
+  function cancelScheduledSync() {
+    if (syncRafId && typeof cancelAnimationFrame === 'function') {
+      cancelAnimationFrame(syncRafId);
+      syncRafId = 0;
+    }
+    if (syncTimerId) {
+      clearTimeout(syncTimerId);
+      syncTimerId = 0;
+    }
+  }
+
+  function scheduleArcPropsSync(batchId, expectedCount) {
+    pendingArcBatchId = batchId;
+    pendingArcExpectedCount = expectedCount;
+    pendingArcPropsSync = expectedCount > 0;
+    cancelScheduledSync();
+    if (!pendingArcPropsSync) return;
+
+    syncTimerId = setTimeout(() => {
+      syncTimerId = 0;
+      if (pendingArcPropsSync && pendingArcBatchId === batchId) {
+        applyArcMeshProps();
+      }
+    }, 8);
+
+    if (typeof requestAnimationFrame !== 'function') return;
+    let attempts = 0;
+    const step = () => {
+      syncRafId = 0;
+      if (!pendingArcPropsSync || pendingArcBatchId !== batchId) return;
+      if (applyArcMeshProps()) return;
+      attempts++;
+      if (attempts < 18) {
+        syncRafId = requestAnimationFrame(step);
+      }
+    };
+    syncRafId = requestAnimationFrame(step);
   }
 
   function addAnimatedRoutePair(arcs, opts) {
@@ -64,6 +153,7 @@
     // 1. Dark BackSide ink casing separates arc silhouettes cleanly from land fills and overlaps
     arcs.push({
       _arcRole: 'casing',
+      _arcBatchId: arcBatchId,
       startLat,
       startLng,
       endLat,
@@ -84,6 +174,7 @@
     const railDest = mixColorHex(destColor, '#0b1222', 0.16);
     arcs.push({
       _arcRole: 'rail',
+      _arcBatchId: arcBatchId,
       startLat,
       startLng,
       endLat,
@@ -104,6 +195,7 @@
     const pulseDest = mixColorHex(destColor, '#ffffff', 0.28);
     arcs.push({
       _arcRole: 'pulse',
+      _arcBatchId: arcBatchId,
       startLat,
       startLng,
       endLat,
@@ -115,7 +207,7 @@
       arcAlt: baseApex,
       dashLength: isPrimary ? 0.38 : 0.30,
       dashGap: isPrimary ? 0.28 : 0.34,
-      initialGap: ((w - 1) * 0.28 + (index % 5) * 0.16) % 0.95,
+      initialGap: ((w - 1) * 0.16 + (index % 5) * 0.10) % 0.52,
       animateTime: 1850 + (w - 1) * 280 + (index % 4) * 140
     });
   }
@@ -295,7 +387,12 @@
   function syncDrawerOriginButton() {
     const animBtn = document.getElementById('animateCountryOriginBtn');
     if (!animBtn) return;
-    const isActive = Boolean(E.state.showArcs && E.state.selectedCountry && E.state.activeOriginCorridor === 'country');
+    const isActive = Boolean(
+      E.state.showArcs &&
+      E.state.selectedCountry &&
+      E.state.activeArcTab !== 'words' &&
+      E.state.activeOriginCorridor === 'country'
+    );
     animBtn.classList.toggle('active', isActive);
     const labelSpan = animBtn.querySelector('span');
     if (labelSpan) {
@@ -332,7 +429,10 @@
       el.arcsTabWordsBtn.setAttribute('aria-selected', isWordsTab ? 'true' : 'false');
     }
     if (el.arcCorridorChips) el.arcCorridorChips.hidden = isWordsTab;
-    if (el.wordRouteChips) el.wordRouteChips.hidden = !isWordsTab;
+    if (el.wordRouteChips) {
+      el.wordRouteChips.hidden = !isWordsTab;
+      if (el.wordRouteChips.style.display) el.wordRouteChips.style.display = '';
+    }
 
     const ORIGINS = global.WORLD_ORIGINS;
     const corridors = (ORIGINS && ORIGINS.corridors) || {};
@@ -491,11 +591,24 @@
     E.overlays.refreshOverlayHudRects();
   }
 
+  function commitArcsSceneData(globe, arcs, rings, batchId) {
+    ensureArcRenderHook(globe);
+    globe.arcsData(arcs);
+    globe.ringsData(rings);
+    if (typeof globe.resumeAnimation === 'function') {
+      globe.resumeAnimation();
+    }
+    scheduleArcPropsSync(batchId, arcs.length);
+  }
+
   function updateArcs() {
     const globe = E.state.globe;
     if (!globe) return;
     const ORIGINS = global.WORLD_ORIGINS;
     if (!E.state.showArcs) {
+      pendingArcPropsSync = false;
+      pendingArcExpectedCount = 0;
+      cancelScheduledSync();
       globe.arcsData([]);
       globe.ringsData([]);
       renderArcsInfoPanel('hidden', null);
@@ -503,6 +616,7 @@
       return;
     }
 
+    const batchId = ++arcBatchId;
     const arcs = [];
     const rings = [];
     let panelMode = 'corridor';
@@ -537,12 +651,7 @@
         routeCount: arcs.filter(a => a._arcRole === 'pulse').length
       };
 
-      globe.arcsData(arcs);
-      globe.ringsData(rings);
-      requestAnimationFrame(() => {
-        applyArcMeshProps();
-        requestAnimationFrame(applyArcMeshProps);
-      });
+      commitArcsSceneData(globe, arcs, rings, batchId);
       renderArcsInfoPanel(panelMode, panelPayload);
       if (E.pins) E.pins.refreshPins();
       return;
@@ -726,12 +835,7 @@
       };
     }
 
-    globe.arcsData(arcs);
-    globe.ringsData(rings);
-    requestAnimationFrame(() => {
-      applyArcMeshProps();
-      requestAnimationFrame(applyArcMeshProps);
-    });
+    commitArcsSceneData(globe, arcs, rings, batchId);
     renderArcsInfoPanel(panelMode, panelPayload);
     if (E.pins) E.pins.refreshPins();
   }

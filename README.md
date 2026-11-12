@@ -1,14 +1,15 @@
 # 🌍 Earthlingo
 
-An interactive, high-FPS **3D linguistic atlas** mapping shared languages, multilingual breakdowns, writing scripts, regional dialects, family migration waves, and spoken phrasebooks across **242 countries and territories**.
+An interactive, high-FPS **3D Globe & 2D Flat World Map linguistic atlas** mapping shared languages, multilingual breakdowns, writing scripts, regional dialects, family migration waves, and spoken phrasebooks across **242 countries and territories**.
 
-Built as a static zero-build web app with **Three.js** and **Globe.gl**, bundled to work both **directly from disk (`file:///`)** and on **GitHub Pages (`github.io`)**.
+Built as a static zero-build web app with **Three.js**, **Globe.gl**, and a custom **GPU WebGL 2D Vector Map engine**, bundled to work both **directly from disk (`file:///`)** and on **GitHub Pages (`github.io`)**.
 
 ---
 
 ## ✨ Features
 
-### Interactive 3D Globe, Overlays & Historical Views
+### Interactive 3D Globe & 2D Flat Map, Overlays & Historical Views
+- **3D Globe ↔ 2D Flat World Map Switcher (`M`)**: Seamlessly switch between the 3D globe and an interactive GPU WebGL **Miller Cylindrical 2D flat map** (`#view=2d`) featuring synchronized camera framing, full horizontal world-wrap panning, cursor-anchored wheel & pinch zooming, crisp `1px` WebGL hairline borders matching 3D, full bathymetric ocean shading, microstate locator dots, animated arcs, beacon pins, and country overlays.
 - **Color by Language, Family, Script, or Linguistic Diversity**: Dynamically recolor all **242 nations** between **Primary Language**, **Language Family**, **Writing Script**, and **Diversity (Greenberg LDI)** — spotlighting hyper-diverse regions like Papua New Guinea (`0.99`, `840` living tongues), Vanuatu (`0.97`), India (`0.93`), Nigeria (`0.89`), and Indonesia.
 - **Endangered Language Pins (35 GPU Hotspots)**: Toggle glowing WebGL beacon pins for endangered indigenous tongues and isolates (*Ainu*, *N|uu*, *Western Neo-Aramaic*, *Manx*, *Yagán*, *Inuktitut*, *Sámi*, *Soqotri*, *Cherokee*, etc.) with a click/tap inspector linking straight to the country profile.
 - **Historical Time-Scrubber ("Languages Before 1492" Mode)**: Scrub or auto-play eras across **c. 2000 BCE**, **100 CE**, **1000 CE**, **1492 CE (Pre-Columbian)**, and **Today** — shifting continental language spheres back in time (Indigenous Americas, Aboriginal Australia, Old Norse Greenland, Roman Latin & Koine Greek) while chronologically filtering origin & word-route arcs.
@@ -30,13 +31,14 @@ Built as a static zero-build web app with **Three.js** and **Globe.gl**, bundled
   - **Dialect Trivia**: Multiple-choice trivia generated live from country regional accent & dialect profiles.
 - **Linguistic Passport (`localStorage` + JSON Backup)**: Tracks visited nations (`X / 242`), unlocked writing scripts (`X / 9`), quiz accuracy, streaks, and saved Daily 5 stamps inside the **Passport** modal, with full **Export / Import JSON** and confirmed reset.
 - **Travel Trip Cheat-Sheet & Offline PWA**: Star countries directly from drawers, search cards, or curated presets (*Spain → Morocco → Italy*, *Japan → Korea → Taiwan*, *Turkey → Iran → Uzbekistan*), reorder itinerary stops, copy plain-text pocket guides, print compact travel cards, back up or share routes via **Export / Import JSON**, and install Earthlingo as an offline **Progressive Web App (PWA)** when hosted over HTTP/HTTPS.
-- **Side-by-Side Country Compare, Search (`/`) & Shareable Hash Deep-Links**: Pin two nations for shared Urheimat/Venn/Phrase Duel comparison, filter all 242 entries in the searchable **2D List Modal**, navigate search results with keyboard arrows, and share reproducible views via `location.hash` (`#country=PER&overlay=scripts&color=diversity&pins=1&era=1492ce&trip=...`).
+- **Side-by-Side Country Compare, Search (`/`) & Shareable Hash Deep-Links**: Pin two nations for shared Urheimat/Venn/Phrase Duel comparison, filter all 242 entries in the searchable **2D List Modal**, navigate search results with keyboard arrows, and share reproducible views via `location.hash` (`#view=2d&country=PER&overlay=scripts&color=diversity&pins=1&era=1492ce&trip=...`).
 
 | Shortcut | Action |
 | :--- | :--- |
 | `/` | Focus search bar |
 | `↑` / `↓` / `Enter` | Navigate and select search autocomplete matches |
 | `Tab` / `Shift+Tab` | Trap and cycle keyboard focus within open modals |
+| `M` | Toggle between **3D Globe** and **2D Flat Map** |
 | `Space` | Toggle globe auto-rotation |
 | `R` | Reset camera view |
 | `Esc` | Exit Quiz mode or close active drawer, modal, popover, or search |
@@ -45,11 +47,12 @@ Built as a static zero-build web app with **Three.js** and **Globe.gl**, bundled
 
 ## ⚡ Performance Architecture
 
-Designed to stay smooth on integrated and mobile GPUs:
-- **Merged GPU Geometry**: Combines 1,620 landmass polygons, country border segments, 25 microstate badges, and instanced hotspot pins into unified batched WebGL buffers.
-- **Persistent-Pool Stabilized Overlays**: Reuses a fixed DOM label pool with hysteresis collision boxes, smooth opacity fades, and DPR-snapped transforms to eliminate pan/zoom jitter.
-- **O(1) Spatial Picking**: Replaces heavy mesh raycasting with analytic ray-sphere intersection and a 10° spatial hash grid for high-frequency hover and click detection.
-- **Pre-Bundled Offline Data & Service Worker PWA**: Ships bundled JS datasets (`world_countries.js`, `languages.js`, `origins.js`, `etymology.js`, `scripts_info.js`, `historical_eras.js`), standalone `globe.gl.min.js`, and a cache-first `sw.js` + `manifest.json`.
+Designed to stay locked at smooth high FPS across desktop and mobile GPUs:
+- **Merged 3D GPU Geometry**: Combines 1,620 landmass polygons, country border segments, 25 microstate badges, and instanced hotspot pins into unified batched WebGL buffers.
+- **Native WebGL 2D Vector Map**: Triangulates all 242 planar countries with holes into chunked `Uint16Array` WebGL fill batches (`#map2dCanvas`) with `gl.LINES` hairline borders matching 3D, layered under `#map2dHudCanvas` for arcs, microstates, and beacon pins—while pausing the 3D ticker when 2D is active.
+- **Persistent-Pool Stabilized Overlays**: Reuses a fixed DOM label pool across both 3D and 2D views with hysteresis collision boxes, smooth opacity fades, and DPR-snapped transforms to eliminate pan/zoom jitter.
+- **O(1) Spatial Picking**: Replaces heavy mesh raycasting with analytic ray-sphere intersection (3D) / inverse Miller lookup (2D) and a 10° spatial hash grid for high-frequency hover and click detection.
+- **Pre-Bundled Offline Data & Service Worker PWA**: Ships bundled JS datasets (`world_countries.js`, `languages.js`, `origins.js`, `etymology.js`, `scripts_info.js`, `historical_eras.js`), standalone `globe.gl.min.js`, and a network-first offline `sw.js` + `manifest.json`.
 
 ---
 
@@ -123,6 +126,8 @@ Earthlingo/
 │   │   ├── bathymetry.js           # Procedural ocean texture & lighting
 │   │   ├── pins.js                 # Instanced GPU endangered hotspot & etymology word-stop pins
 │   │   └── arcs.js                 # Family origin waves, Wanderwörter routes & chronological filter
+│   ├── map/
+│   │   └── map2d.js                # WebGL Miller 2D vector map, Earcut triangulator & HUD overlay
 │   ├── overlays/
 │   │   ├── label-formatter.js      # Script metadata resolver, overlay titles & sizing
 │   │   └── map-overlays.js         # Persistent-pool, hysteresis map overlay engine

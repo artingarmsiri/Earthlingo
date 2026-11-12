@@ -51,6 +51,7 @@
     listSearchQuery: '',
     listContinentFilter: 'all',
     globe: null,
+    viewMode: '3d',
     hoveredCountry: null,
     hoveredPolygon: null
   };
@@ -93,6 +94,10 @@
       loadingOverlay: document.getElementById('loadingOverlay'),
       loadingText: document.getElementById('loadingText'),
       globeViz: document.getElementById('globeViz'),
+      map2dContainer: document.getElementById('map2dContainer'),
+      map2dCanvas: document.getElementById('map2dCanvas'),
+      map2dHudCanvas: document.getElementById('map2dHudCanvas'),
+      viewModeSwitch: document.getElementById('viewModeSwitch'),
       globeMapOverlays: document.getElementById('globeMapOverlays'),
       globeControlsBar: document.querySelector('.globe-controls-bar'),
       globeHoverTooltip: document.getElementById('globeHoverTooltip'),

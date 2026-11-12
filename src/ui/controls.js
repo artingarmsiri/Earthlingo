@@ -51,6 +51,10 @@
 
     if (el.zoomInBtn) {
       el.zoomInBtn.addEventListener('click', () => {
+        if (E.state.viewMode === '2d' && E.map2d) {
+          E.map2d.zoomBy(1.75, undefined, undefined, 150);
+          return;
+        }
         const now = performance.now();
         const baseAlt = (E.state.pendingZoomAlt !== null && now - E.state.pendingZoomTs < 420)
           ? E.state.pendingZoomAlt
@@ -64,6 +68,10 @@
 
     if (el.zoomOutBtn) {
       el.zoomOutBtn.addEventListener('click', () => {
+        if (E.state.viewMode === '2d' && E.map2d) {
+          E.map2d.zoomBy(1 / 1.75, undefined, undefined, 150);
+          return;
+        }
         const now = performance.now();
         const maxAlt = Math.max(4.8, E.utils.getDefaultAltitude() + 1.0);
         const baseAlt = (E.state.pendingZoomAlt !== null && now - E.state.pendingZoomTs < 420)
@@ -78,6 +86,10 @@
 
     if (el.resetViewBtn) {
       el.resetViewBtn.addEventListener('click', () => {
+        if (E.state.viewMode === '2d' && E.map2d) {
+          E.map2d.resetView(420);
+          return;
+        }
         E.state.pendingZoomAlt = null;
         E.state.globe.pointOfView({ lat: 20, lng: 0, altitude: E.utils.getDefaultAltitude() }, 500);
       });
@@ -211,6 +223,10 @@
         if (el.toggleRotateBtn) el.toggleRotateBtn.click();
       } else if (e.key === 'r' || e.key === 'R') {
         if (el.resetViewBtn) el.resetViewBtn.click();
+      } else if (e.key === 'm' || e.key === 'M') {
+        if (E.map2d && typeof E.map2d.setViewMode === 'function') {
+          E.map2d.setViewMode(E.state.viewMode === '2d' ? '3d' : '2d');
+        }
       } else if (e.key === 'Escape') {
         if (E.utils && typeof E.utils.closeAllModals === 'function') {
           E.utils.closeAllModals();

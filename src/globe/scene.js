@@ -22,7 +22,9 @@
       const renderer = E.state.globe.renderer();
       if (renderer) renderer.setPixelRatio(E.utils.getTargetPixelRatio());
       const nowPortrait = (w / Math.max(1, h)) < 0.9;
-      if (reframeIfUnselected && !E.state.selectedCountry && (nowPortrait !== prevPortrait)) {
+      if (E.state.viewMode === '2d' && E.map2d && typeof E.map2d.requestRedraw === 'function') {
+        E.map2d.requestRedraw();
+      } else if (reframeIfUnselected && !E.state.selectedCountry && (nowPortrait !== prevPortrait)) {
         E.state.globe.pointOfView({ altitude: E.utils.getDefaultAltitude() }, 0);
       }
     }
@@ -190,7 +192,13 @@
     };
 
     const origPointOfView = globe.pointOfView.bind(globe);
+    globe._rawPointOfView = origPointOfView;
     globe.pointOfView = (pov, ms) => {
+      if (E.state.viewMode === '2d' && E.map2d) {
+        if (!pov) return E.map2d.getPov();
+        E.map2d.setPov(pov, ms);
+        return globe;
+      }
       if (!pov) return origPointOfView();
       const clampedPov = Object.assign({}, pov);
       if (clampedPov.altitude != null && Number.isFinite(+clampedPov.altitude)) {

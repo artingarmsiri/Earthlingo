@@ -53,6 +53,10 @@
     overlayState.settleTimer = 0;
     setMovingState(false);
     overlayState.dirty = true;
+    if (E.state.viewMode === '2d' && E.map2d && E.map2d.isReady()) {
+      updateCountryOverlays(null, false);
+      return;
+    }
     const globe = E.state.globe;
     if (globe && globe.camera() && E.renderBatch.merged) {
       updateCountryOverlays(globe.camera(), false);
@@ -63,6 +67,11 @@
     if (overlayState.fadeRaf) return;
     overlayState.fadeRaf = requestAnimationFrame(() => {
       overlayState.fadeRaf = 0;
+      if (E.state.viewMode === '2d' && E.map2d && E.map2d.isReady()) {
+        overlayState.dirty = true;
+        updateCountryOverlays(null, false);
+        return;
+      }
       const globe = E.state.globe;
       if (!globe || !globe.camera() || !E.renderBatch.merged) return;
       overlayState.dirty = true;
@@ -161,6 +170,8 @@
       anchors.push({
         key,
         iso,
+        lat,
+        lng,
         country: c,
         canonLang: c.canonicalLanguage || c.primaryLanguage || '',
         familyGroup: famGrp.name,
@@ -302,6 +313,25 @@
 
   function markOverlaysDirty(immediate = false) {
     overlayState.dirty = true;
+    if (E.state.viewMode === '2d' && E.map2d && E.map2d.isReady()) {
+      if (immediate) {
+        if (overlayState.dirtyRaf) {
+          cancelAnimationFrame(overlayState.dirtyRaf);
+          overlayState.dirtyRaf = 0;
+        }
+        updateCountryOverlays(null, true);
+        return;
+      }
+      if (!overlayState.dirtyRaf) {
+        overlayState.dirtyRaf = requestAnimationFrame(() => {
+          overlayState.dirtyRaf = 0;
+          if (E.state.viewMode === '2d' && E.map2d && E.map2d.isReady()) {
+            updateCountryOverlays(null, true);
+          }
+        });
+      }
+      return;
+    }
     const globe = E.state.globe;
     if (!globe || !globe.camera() || !E.renderBatch.merged) return;
     if (immediate) {
@@ -333,19 +363,21 @@
       return;
     }
 
-    if (!camera) return;
+    const is2d = Boolean(E.state.viewMode === '2d' && E.map2d);
+    if (!is2d && !camera) return;
     const rb = E.renderBatch;
     const vw = rb.viewportW || window.innerWidth;
     const vh = rb.viewportH || window.innerHeight;
     if (vw <= 0 || vh <= 0) return;
 
-    const camX = camera.position.x;
-    const camY = camera.position.y;
-    const camZ = camera.position.z;
-    const qx = camera.quaternion.x;
-    const qy = camera.quaternion.y;
-    const qz = camera.quaternion.z;
-    const qw = camera.quaternion.w;
+    const cam2d = is2d ? E.map2d.getOverlayCameraState(vw, vh) : null;
+    const camX = is2d ? cam2d.centerU : camera.position.x;
+    const camY = is2d ? cam2d.centerV : camera.position.y;
+    const camZ = is2d ? cam2d.zoom : camera.position.z;
+    const qx = is2d ? -999 : camera.quaternion.x;
+    const qy = is2d ? -999 : camera.quaternion.y;
+    const qz = is2d ? -999 : camera.quaternion.z;
+    const qw = is2d ? -999 : camera.quaternion.w;
 
     const camMoved =
       Math.abs(camX - overlayState.lastCamX) > 1e-4 ||
@@ -384,30 +416,40 @@
     overlayState.lastH = vh;
     overlayState.stats.updates++;
 
-    if (forceMatrixUpdate) {
-      camera.updateMatrixWorld();
-      camera.matrixWorldInverse.copy(camera.matrixWorld).invert();
-    }
-
-    if (!overlayState.projVec) overlayState.projVec = camera.position.clone();
-    const projVec = overlayState.projVec;
-
-    const camDist = Math.hypot(camX, camY, camZ) || 350;
-    const ux = camX / camDist;
-    const uy = camY / camDist;
-    const uz = camZ / camDist;
-
-    const horizonDot = 100.5 / Math.max(101, camDist);
-    const minVisibleDot = Math.min(0.92, horizonDot + 0.16);
-    const fullVisibleDot = Math.min(0.97, minVisibleDot + 0.15);
-    const fadeDenom = Math.max(0.05, fullVisibleDot - minVisibleDot);
-
-    const tanHalfV = (E.config && E.config.GLOBE_CONFIG && E.config.GLOBE_CONFIG.TAN_HALF_FOV) || 0.46630766;
-    const projScale = (vh * 0.5) / (tanHalfV * Math.max(101, camDist));
-    const globeScreenR = 100 * projScale;
     const isMob = E.utils.isMobileViewport();
-    const zoomTier = computeHysteresisZoomTier(globeScreenR, isMob);
-    syncOverlayZoomBadge(zoomTier);
+    let ux = 0, uy = 0, uz = 0;
+    let minVisibleDot = -1, fullVisibleDot = 0, fadeDenom = 1;
+    let projVec = null;
+    let zoomTier = 0;
+
+    if (is2d) {
+      zoomTier = cam2d.zoomTier;
+      syncOverlayZoomBadge(zoomTier);
+    } else {
+      if (forceMatrixUpdate) {
+        camera.updateMatrixWorld();
+        camera.matrixWorldInverse.copy(camera.matrixWorld).invert();
+      }
+
+      if (!overlayState.projVec) overlayState.projVec = camera.position.clone();
+      projVec = overlayState.projVec;
+
+      const camDist = Math.hypot(camX, camY, camZ) || 350;
+      ux = camX / camDist;
+      uy = camY / camDist;
+      uz = camZ / camDist;
+
+      const horizonDot = 100.5 / Math.max(101, camDist);
+      minVisibleDot = Math.min(0.92, horizonDot + 0.16);
+      fullVisibleDot = Math.min(0.97, minVisibleDot + 0.15);
+      fadeDenom = Math.max(0.05, fullVisibleDot - minVisibleDot);
+
+      const tanHalfV = (E.config && E.config.GLOBE_CONFIG && E.config.GLOBE_CONFIG.TAN_HALF_FOV) || 0.46630766;
+      const projScale = (vh * 0.5) / (tanHalfV * Math.max(101, camDist));
+      const globeScreenR = 100 * projScale;
+      zoomTier = computeHysteresisZoomTier(globeScreenR, isMob);
+      syncOverlayZoomBadge(zoomTier);
+    }
 
     const isDetailTier = zoomTier === 2;
     const padX = isDetailTier ? 6 : (zoomTier === 1 ? 8 : 11);
@@ -454,14 +496,21 @@
       else if (activeFilterDiv) isFiltered = (a.diversityTier === activeFilterDiv);
       if (!isSelected && !isFiltered && a.minTier > zoomTier) continue;
 
-      const dot = a.nx * ux + a.ny * uy + a.nz * uz;
-      if (dot <= minVisibleDot) continue;
+      let sx = 0, sy = 0, dot = 1;
+      if (is2d) {
+        const pt = E.map2d.projectLatLngToScreen(a.lat, a.lng, vw, vh);
+        sx = pt[0];
+        sy = pt[1];
+      } else {
+        dot = a.nx * ux + a.ny * uy + a.nz * uz;
+        if (dot <= minVisibleDot) continue;
 
-      projVec.set(a.wx, a.wy, a.wz).project(camera);
-      if (projVec.z < -1 || projVec.z > 1) continue;
+        projVec.set(a.wx, a.wy, a.wz).project(camera);
+        if (projVec.z < -1 || projVec.z > 1) continue;
 
-      const sx = (projVec.x * 0.5 + 0.5) * vw;
-      const sy = (-projVec.y * 0.5 + 0.5) * vh;
+        sx = (projVec.x * 0.5 + 0.5) * vw;
+        sy = (-projVec.y * 0.5 + 0.5) * vh;
+      }
 
       const labelInfo = a.labels[mode] || a.labels.countries;
       const dims = isDetailTier ? labelInfo.c2 : labelInfo.c0;
@@ -488,7 +537,7 @@
       }
       if (blockedByHud) continue;
 
-      const opacity = dot >= fullVisibleDot ? 1 : Math.max(0.34, 0.34 + 0.66 * ((dot - minVisibleDot) / fadeDenom));
+      const opacity = (is2d || dot >= fullVisibleDot) ? 1 : Math.max(0.34, 0.34 + 0.66 * ((dot - minVisibleDot) / fadeDenom));
       const stabilityBoost = wasVisible ? Math.max(25, Math.min(180, a.priority * 0.15)) : 0;
       const rank = a.priority + (isSelected ? 1000000 : 0) + (isFiltered ? 50000 : 0) + stabilityBoost;
       candidates.push({

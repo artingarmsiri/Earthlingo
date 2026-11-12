@@ -570,6 +570,134 @@ test('Arcs module emits non-black rail/pulse pairs and configures render state b
   }
 });
 
+// 8. 2D Flat Map Projection, Camera & Router State Sync
+test('2D Flat Map module (projection, PoV sync, hit-test helpers & #view=2d routing) works cleanly', () => {
+  const sb = createSandboxWindow();
+  const noop = () => {};
+  sb.requestAnimationFrame = () => 1;
+  sb.cancelAnimationFrame = noop;
+  sb.performance = { now: () => 1000 };
+
+  for (const rel of [
+    'data/world_countries.js',
+    'data/languages.js',
+    'data/origins.js',
+    'data/etymology.js',
+    'data/scripts_info.js',
+    'data/historical_eras.js',
+    'src/core/config.js',
+    'src/core/utils.js',
+    'src/core/state.js',
+    'src/overlays/label-formatter.js',
+    'src/data/geo-index.js',
+    'src/map/map2d.js',
+    'src/core/router.js',
+    'src/ui/legend.js',
+    'src/ui/timeline.js',
+    'src/ui/search.js',
+    'src/ui/list-modal.js',
+    'src/ui/controls.js'
+  ]) {
+    loadIntoSandbox(sb, rel);
+  }
+
+  const E = sb.Earthlingo;
+  E.polygons = { refreshPolygonVisuals: noop };
+  E.overlays = {
+    markOverlaysDirty: noop,
+    refreshOverlayHudRects: noop,
+    setMapOverlayMode: (m) => { E.state.mapOverlayMode = m; },
+    getSyncedColorModeForOverlay: (m) => (m === 'families' ? 'family' : (m === 'scripts' ? 'script' : 'language'))
+  };
+  E.arcs = { updateArcs: noop, syncDrawerOriginButton: noop, flyToCorridorCamera: noop };
+  E.tooltip = { hideTooltip: noop, setGlobeCursor: noop };
+  E.drawer = { syncDrawerSpotlightCards: noop, closeCountryDrawer: noop, selectCountry: (c) => { E.state.selectedCountry = c; } };
+
+  E.collectDomElements();
+  E.state.geoData = sb.WORLD_GEOJSON;
+  E.state.languagesDb = sb.WORLD_LANGUAGES;
+  E.geo.buildSpatialIndex();
+
+  const rawPovCalls = [];
+  let pauseCount = 0;
+  let resumeCount = 0;
+  E.state.globe = {
+    pointOfView: (p) => { if (!p) return { lat: 20, lng: 15, altitude: 2.1 }; rawPovCalls.push(p); },
+    pauseAnimation: () => { pauseCount += 1; },
+    resumeAnimation: () => { resumeCount += 1; },
+    controls: () => ({ autoRotate: false, update: noop })
+  };
+
+  E.map2d.initMap2d();
+
+  // Verify Miller Cylindrical lat/lng <-> (u, v) roundtrip accuracy including antimeridian & polar extremes
+  const sampleCoords = [
+    [0, 0],
+    [48.8566, 2.3522],
+    [-33.8688, 151.2093],
+    [35.6762, 179.4],
+    [-82.0, -179.4]
+  ];
+  for (const [lat, lng] of sampleCoords) {
+    const [u, v] = E.map2d.latLngToUV(lat, lng);
+    assert(u >= -0.5 && u <= 0.5, `UV u out of range: ${u}`);
+    assert(Math.abs(v) <= 0.37, `UV v out of range: ${v}`);
+    const back = E.map2d.uvToLatLng(u, v);
+    assert(Math.abs(back.lat - lat) < 1e-4, `Latitude roundtrip mismatch for ${lat}: got ${back.lat}`);
+    assert(Math.abs(back.lng - lng) < 1e-4, `Longitude roundtrip mismatch for ${lng}: got ${back.lng}`);
+  }
+
+  // Verify altitude <-> zoom roundtrip within active 2D zoom bounds & MIN_ZOOM clamp
+  for (const alt of [0.7, 1.2, 1.8, 2.5]) {
+    const z = E.map2d.zoomToAltitude(E.map2d.altitudeToZoom(alt));
+    assert(Math.abs(z - alt) < 0.05, `Altitude/zoom roundtrip drifted for ${alt}: got ${z}`);
+  }
+  assert.strictEqual(E.map2d.altitudeToZoom(5.0), 0.92, 'High altitude should clamp cleanly at MIN_ZOOM');
+
+  // Verify 2D WebGL vector geometry & planar Earcut triangulation across all 242 countries
+  E.renderBatch.merged = true;
+  E.map2d.setViewMode('2d');
+  assert.strictEqual(E.state.viewMode, '2d');
+  assert(pauseCount >= 1, 'Switching to 2D must pause 3D WebGL ticker');
+  assert(E.router.buildHashString().includes('view=2d'), 'Hash builder must include view=2d in 2D mode');
+
+  const ms2d = E.map2d.mapState;
+  assert.strictEqual(ms2d.slices.length, 242, `Expected 242 2D country slices, got ${ms2d.slices.length}`);
+  assert(ms2d.fillBatches.length >= 2, 'Expected chunked Uint16 fill batches');
+  let totalTris = 0;
+  for (const batch of ms2d.fillBatches) {
+    assert(batch.vertCount > 0 && batch.vertCount <= 65535, `Batch vertex count out of Uint16 bounds: ${batch.vertCount}`);
+    assert(batch.idxCount > 0 && batch.idxCount % 3 === 0, 'Triangle index count must be positive multiple of 3');
+    totalTris += batch.idxCount / 3;
+    for (let i = 0; i < batch.positions.length; i++) {
+      assert(Number.isFinite(batch.positions[i]), 'Non-finite 2D UV coordinate found');
+    }
+    for (let i = 0; i < batch.indices.length; i++) {
+      assert(batch.indices[i] < batch.vertCount, 'Triangle index out of batch vertex range');
+    }
+  }
+  assert(totalTris > 80000, `Expected >80k triangles across all 242 countries, got ${totalTris}`);
+  for (const iso of ['ZAF', 'ITA', 'RUS', 'ATA', 'USA', 'JPN', 'FRA']) {
+    const sl = ms2d.sliceByKey.get(iso);
+    assert(sl && sl.iCount >= 3 && sl.edgeCount >= 6, `Missing or empty triangulated/bordered slice for ${iso}`);
+  }
+
+  E.map2d.setPov({ lat: 36, lng: 138, altitude: 1.5 }, 0);
+  const [sx, sy] = E.map2d.projectLatLngToScreen(35.6762, 139.6503, 1440, 900);
+  const pickedGeo = E.map2d.screenToLatLng(sx, sy);
+  assert(pickedGeo && Math.abs(pickedGeo.lat - 35.6762) < 0.05 && Math.abs(pickedGeo.lng - 139.6503) < 0.05, 'Screen projection roundtrip mismatch for Tokyo');
+
+  // Verify hash deep-linking into #view=2d and back to 3D
+  E.router.applyHashState('#view=2d&country=JPN&overlay=scripts', { resetMissing: true, animate: false });
+  assert.strictEqual(E.state.viewMode, '2d');
+  assert.strictEqual(E.state.selectedCountry && E.state.selectedCountry.iso3, 'JPN');
+  assert.strictEqual(E.state.colorByMode, 'script');
+
+  E.router.applyHashState('#country=ESP', { resetMissing: true, animate: false });
+  assert.strictEqual(E.state.viewMode, '3d', 'Navigating to hash without view=2d must restore 3D mode');
+  assert(resumeCount >= 1, 'Returning to 3D must resume WebGL ticker');
+});
+
 console.log(`\n${checksRun} check groups completed.`);
 if (process.exitCode && process.exitCode !== 0) {
   process.exit(process.exitCode);

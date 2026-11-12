@@ -14,10 +14,12 @@
   let lastTipSig = '';
 
   function setGlobeCursor(nextCursor) {
-    const gv = E.elements.globeViz;
-    if (gv && lastGlobeCursor !== nextCursor) {
-      lastGlobeCursor = nextCursor;
-      gv.style.cursor = nextCursor;
+    const is2d = E.state && E.state.viewMode === '2d';
+    const targetCursor = is2d && nextCursor === 'default' ? 'grab' : nextCursor;
+    const targetEl = is2d ? E.elements.map2dCanvas : E.elements.globeViz;
+    if (targetEl && lastGlobeCursor !== targetCursor) {
+      lastGlobeCursor = targetCursor;
+      targetEl.style.cursor = targetCursor;
     }
   }
 

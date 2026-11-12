@@ -111,6 +111,10 @@
     const pins = buildActivePinList();
     pinState.activePins = pins;
 
+    if (E.map2d && typeof E.map2d.requestRedraw === 'function') {
+      E.map2d.requestRedraw();
+    }
+
     if (!pinState.initialized || !pinState.mesh || !E.state.globe) return;
     const count = Math.min(MAX_PINS, pins.length);
     if (count === 0) {
@@ -333,6 +337,7 @@
 
   E.pins = {
     pinState,
+    buildActivePinList,
     initPins,
     refreshPins,
     pickPinAtLatLng,

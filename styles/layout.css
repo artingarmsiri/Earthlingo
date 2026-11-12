@@ -15,6 +15,57 @@
   -webkit-user-drag: none;
 }
 
+/* 2D Flat World Map Container */
+.map-2d-container {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+  display: none;
+  background: #050d1c;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+}
+
+.map-2d-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+  touch-action: none;
+}
+
+.map-2d-hud-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+.map-2d-canvas:active {
+  cursor: grabbing;
+}
+
+body.view-2d #globeViz {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+body.view-2d .map-2d-container {
+  display: block;
+}
+
+body.view-2d .globe-tool-btn.is-3d-only {
+  display: none;
+}
+
 #globeViz .scene-container,
 #globeViz canvas {
   width: 100% !important;
@@ -74,6 +125,12 @@
   color: #fff;
 }
 
+.brand-text-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .brand-title {
   font-size: 1.05rem;
   font-weight: 700;
@@ -81,13 +138,40 @@
   color: #f8fafc;
 }
 
-.brand-subtitle {
-  font-size: 0.72rem;
-  color: var(--accent-cyan);
-  font-weight: 600;
+.view-mode-switch {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  gap: 2px;
+}
+
+.view-mode-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-left: 4px;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  line-height: 1.15;
+  transition: background-color 0.14s ease, color 0.14s ease, box-shadow 0.14s ease;
+}
+
+.view-mode-btn:hover {
+  color: #f8fafc;
+}
+
+.view-mode-btn.active {
+  background: rgba(56, 189, 248, 0.24);
+  color: #7dd3fc;
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.45);
 }
 
 /* Center Search & Filter Bar */

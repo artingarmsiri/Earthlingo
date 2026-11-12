@@ -345,7 +345,11 @@
       if (controls) controls.autoRotate = false;
       const alt = Math.max(E.utils.getSelectAltitude(), 1.85);
       globe.pointOfView({ lat: stop.lat, lng: stop.lng, altitude: alt }, 520);
-      globe.ringsData(buildWordRouteRings(route, stop.id));
+      const nextRings = buildWordRouteRings(route, stop.id);
+      globe.ringsData(nextRings);
+      if (E.map2d && typeof E.map2d.setArcsData === 'function') {
+        E.map2d.setArcsData(E.map2d.mapState.arcs, nextRings);
+      }
     }
     if (E.elements.arcsInfoBody) {
       E.elements.arcsInfoBody.querySelectorAll('.word-stop-btn').forEach(btn => {
@@ -576,7 +580,10 @@
     ensureArcRenderHook(globe);
     globe.arcsData(arcs);
     globe.ringsData(rings);
-    if (typeof globe.resumeAnimation === 'function') {
+    if (E.map2d && typeof E.map2d.setArcsData === 'function') {
+      E.map2d.setArcsData(arcs, rings);
+    }
+    if (E.state.viewMode !== '2d' && typeof globe.resumeAnimation === 'function') {
       globe.resumeAnimation();
     }
     scheduleArcPropsSync(batchId, arcs.length);
@@ -592,6 +599,9 @@
       cancelScheduledSync();
       globe.arcsData([]);
       globe.ringsData([]);
+      if (E.map2d && typeof E.map2d.setArcsData === 'function') {
+        E.map2d.setArcsData([], []);
+      }
       renderArcsInfoPanel('hidden', null);
       if (E.pins) E.pins.refreshPins();
       return;

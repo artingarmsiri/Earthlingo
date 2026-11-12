@@ -98,6 +98,15 @@
     if (globe && globe.camera()) {
       E.overlays.updateCountryOverlays(globe.camera(), true);
     }
+    if (E.state.viewMode === '2d') {
+      if (globe && typeof globe.pauseAnimation === 'function') {
+        globe.pauseAnimation();
+      }
+      if (E.map2d && typeof E.map2d.requestRedraw === 'function') {
+        E.map2d.requestRedraw();
+      }
+      E.overlays.markOverlaysDirty(true);
+    }
     E.utils.dismissLoadingOverlay();
   }
 
@@ -963,6 +972,10 @@
       rb.highlightMicroMesh.visible = true;
     } else if (rb.highlightMicroMesh) {
       rb.highlightMicroMesh.visible = false;
+    }
+
+    if (E.map2d && typeof E.map2d.requestRedraw === 'function') {
+      E.map2d.requestRedraw();
     }
   }
 

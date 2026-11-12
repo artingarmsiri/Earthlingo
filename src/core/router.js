@@ -42,6 +42,9 @@
     const s = E.state;
     const params = new URLSearchParams();
 
+    if (s.viewMode === '2d') {
+      params.set('view', '2d');
+    }
     if (s.selectedCountry) {
       params.set('country', E.geo.getCountryKey(s.selectedCountry));
     }
@@ -130,6 +133,7 @@
     }
 
     const params = parseHash(raw);
+    const viewParam = params.get('view');
     const hasExplicitSync = params.has('sync');
     const syncParam = params.get('sync');
     const overlayParam = params.get('overlay');
@@ -150,6 +154,13 @@
     isApplyingHash = true;
     try {
       const animateCam = opts.animate !== false;
+
+      if (E.map2d && typeof E.map2d.setViewMode === 'function') {
+        const nextView = viewParam === '2d' ? '2d' : '3d';
+        if (nextView === '2d' || (opts.resetMissing && E.state.viewMode !== nextView)) {
+          E.map2d.setViewMode(nextView, { skipRouter: true, preserve2dCamera: nextView === '2d' && !opts.resetMissing });
+        }
+      }
 
       // Reset arcs/drawer/compare cleanly if handling hashchange navigation
       if (opts.resetMissing) {

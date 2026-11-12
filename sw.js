@@ -1,5 +1,5 @@
 /* sw.js - Zero-Build Offline Service Worker for Earthlingo */
-const CACHE_NAME = 'earthlingo-v18-pwa';
+const CACHE_NAME = 'earthlingo-v22-pwa';
 
 const CORE_ASSETS = [
   './',
@@ -29,6 +29,7 @@ const CORE_ASSETS = [
   './src/globe/pins.js',
   './src/globe/polygon-batcher.js',
   './src/globe/arcs.js',
+  './src/map/map2d.js',
   './src/globe/scene.js',
   './src/overlays/label-formatter.js',
   './src/overlays/map-overlays.js',
